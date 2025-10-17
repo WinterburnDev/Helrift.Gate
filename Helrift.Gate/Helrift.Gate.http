@@ -1,0 +1,6 @@
+@Helrift.Gate_HostAddress = http://localhost:5074
+
+GET {{Helrift.Gate_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
