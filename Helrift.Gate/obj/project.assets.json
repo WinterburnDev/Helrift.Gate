@@ -434,9 +434,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate\\Helrift.Gate.csproj",
-      "projectName": "Helrift.Gate",
-      "projectPath": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate\\Helrift.Gate.csproj",
+      "projectUniqueName": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate\\Helrift.Gate.Api.csproj",
+      "projectName": "Helrift.Gate.Api",
+      "projectPath": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate\\Helrift.Gate.Api.csproj",
       "packagesPath": "C:\\Users\\James\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate\\obj\\",
       "projectStyle": "PackageReference",

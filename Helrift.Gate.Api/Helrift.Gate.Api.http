@@ -1,0 +1,7 @@
+@host = http://localhost:5157
+
+### Live
+GET {{host}}/health/live HTTP/1.1
+
+### Ready
+GET {{host}}/health/ready HTTP/1.1

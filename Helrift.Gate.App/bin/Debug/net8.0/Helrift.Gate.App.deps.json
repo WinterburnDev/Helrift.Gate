@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Helrift.Gate.App/1.0.0": {
+        "dependencies": {
+          "Helrift.Gate.Contracts": "1.0.0"
+        },
+        "runtime": {
+          "Helrift.Gate.App.dll": {}
+        }
+      },
+      "Helrift.Gate.Contracts/1.0.0": {
+        "runtime": {
+          "Helrift.Gate.Contracts.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Helrift.Gate.App/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Helrift.Gate.Contracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
