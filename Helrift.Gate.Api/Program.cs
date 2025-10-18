@@ -50,13 +50,17 @@ builder.Services.AddHttpClient("firebase-admin", c =>
     .WaitAndRetryAsync(3, i => TimeSpan.FromMilliseconds(150 * Math.Pow(2, i))));
 
 // 5) MVC + Swagger
-builder.Services.AddControllers()
-    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+builder.Services.AddControllers(options =>
+{
+    // Do NOT infer [Required] from non-nullable reference types
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+}).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // 6) Providers (use your REAL provider here)
 builder.Services.AddScoped<IGameDataProvider, FirebaseGameDataProvider>();
+builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 // When you’re ready, also register Guild/Catalog/Merchant providers here.
 
 // ----------------------
