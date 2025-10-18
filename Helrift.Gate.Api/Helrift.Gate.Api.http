@@ -1,7 +1,41 @@
-@host = http://localhost:5157
+@host=http://localhost:5157
+@account=demo-account
+@charId=demo-char-1
 
-### Live
-GET {{host}}/health/live HTTP/1.1
+### Create
+POST {{host}}/api/v1/accounts/{{account}}/characters HTTP/1.1
+Content-Type: application/json
 
-### Ready
-GET {{host}}/health/ready HTTP/1.1
+{
+  "id": "",
+  "accountId": "{{account}}",
+  "name": "Elyra",
+  "level": 1,
+  "gender": "Female",
+  "mapId": "world-1",
+  "position": { "x": 0, "y": 0, "z": 0 },
+  "rotation": { "x": 0, "y": 0, "z": 0 },
+  "hp": 100, "mp": 50, "sp": 50
+}
+
+### List
+GET {{host}}/api/v1/accounts/{{account}}/characters HTTP/1.1
+
+### Save
+PUT {{host}}/api/v1/accounts/{{account}}/characters/{{charId}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": "{{charId}}",
+  "accountId": "{{account}}",
+  "name": "Elyra",
+  "level": 2,
+  "gender": "Female",
+  "mapId": "world-1",
+  "position": { "x": 1, "y": 0, "z": 0 },
+  "rotation": { "x": 0, "y": 90, "z": 0 },
+  "hp": 110, "mp": 55, "sp": 60
+}
+
+### Delete
+DELETE {{host}}/api/v1/accounts/{{account}}/characters/{{charId}}?name=Elyra HTTP/1.1

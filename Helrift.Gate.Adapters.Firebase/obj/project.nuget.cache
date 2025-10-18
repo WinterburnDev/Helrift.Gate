@@ -1,11 +1,23 @@
 {
   "version": 2,
-  "dgSpecHash": "+rl76U0wJng=",
+  "dgSpecHash": "TZNZUCSdffw=",
   "success": true,
   "projectFilePath": "C:\\Users\\James\\source\\repos\\Helrift.Gate\\Helrift.Gate.Adapters.Firebase\\Helrift.Gate.Adapters.Firebase.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.10\\microsoft.extensions.configuration.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.10\\microsoft.extensions.configuration.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.configuration.binder\\9.0.10\\microsoft.extensions.configuration.binder.9.0.10.nupkg.sha512",
     "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\9.0.10\\microsoft.extensions.dependencyinjection.9.0.10.nupkg.sha512",
-    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.10\\microsoft.extensions.dependencyinjection.abstractions.9.0.10.nupkg.sha512"
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.10\\microsoft.extensions.dependencyinjection.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.diagnostics\\9.0.10\\microsoft.extensions.diagnostics.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.diagnostics.abstractions\\9.0.10\\microsoft.extensions.diagnostics.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.http\\9.0.10\\microsoft.extensions.http.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.logging\\9.0.10\\microsoft.extensions.logging.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.10\\microsoft.extensions.logging.abstractions.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.options\\9.0.10\\microsoft.extensions.options.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.options.configurationextensions\\9.0.10\\microsoft.extensions.options.configurationextensions.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.10\\microsoft.extensions.primitives.9.0.10.nupkg.sha512",
+    "C:\\Users\\James\\.nuget\\packages\\system.diagnostics.diagnosticsource\\9.0.10\\system.diagnostics.diagnosticsource.9.0.10.nupkg.sha512"
   ],
   "logs": []
 }

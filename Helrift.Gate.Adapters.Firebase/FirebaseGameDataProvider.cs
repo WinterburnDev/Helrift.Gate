@@ -1,16 +1,234 @@
-﻿using Helrift.Gate.App;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Helrift.Gate.App;
 using Helrift.Gate.Contracts;
 
 namespace Helrift.Gate.Adapters.Firebase;
 
+/// <summary>
+/// Firebase RTDB implementation for character data using Admin OAuth (no ?auth=).
+/// Reads/writes snake_case documents via FirebaseCharacterMapper.
+/// </summary>
 public sealed class FirebaseGameDataProvider : IGameDataProvider
 {
-    public Task<AccountSummary?> GetAccountAsync(string accountId, CancellationToken ct)
-        => Task.FromResult<AccountSummary?>(new AccountSummary(accountId, "stub", 0));
+    private readonly HttpClient _http;
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false
+    };
 
-    public Task<IReadOnlyList<Character>> GetCharactersAsync(string accountId, CancellationToken ct)
-        => Task.FromResult<IReadOnlyList<Character>>(Array.Empty<Character>());
+    public FirebaseGameDataProvider(IHttpClientFactory httpFactory)
+    {
+        _http = httpFactory.CreateClient("firebase-admin");
+    }
 
-    public Task<Character?> GetCharacterAsync(string accountId, string charId, CancellationToken ct)
-        => Task.FromResult<Character?>(null);
+    // --------------------------------------------------------------------
+    // Reads
+    // --------------------------------------------------------------------
+
+    public async Task<IReadOnlyList<CharacterData>> GetCharactersAsync(string accountId, CancellationToken ct)
+    {
+        using var res = await _http.GetAsync($"accounts/{accountId}/characters.json", ct);
+        if (!res.IsSuccessStatusCode)
+            return Array.Empty<CharacterData>();
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return Array.Empty<CharacterData>();
+
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Object)
+            return Array.Empty<CharacterData>();
+
+        var list = new List<CharacterData>();
+        foreach (var prop in doc.RootElement.EnumerateObject())
+        {
+            if (prop.Value.ValueKind == JsonValueKind.Object)
+                list.Add(FirebaseCharacterMapper.FromFirebase(accountId, prop.Name, prop.Value));
+        }
+        return list;
+    }
+
+    public async Task<CharacterData?> GetCharacterAsync(string accountId, string charId, CancellationToken ct)
+    {
+        using var res = await _http.GetAsync($"accounts/{accountId}/characters/{charId}.json", ct);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
+        return FirebaseCharacterMapper.FromFirebase(accountId, charId, root);
+    }
+
+    /// <summary>
+    /// Optional convenience if your interface includes it:
+    /// Returns username + character count from /accounts/{accountId}.
+    /// </summary>
+    public async Task<AccountData?> GetAccountAsync(string accountId, CancellationToken ct)
+    {
+        using var res = await _http.GetAsync($"accounts/{accountId}.json", ct);
+        if (!res.IsSuccessStatusCode) return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object) return null;
+
+        return FirebaseAccountMapper.FromFirebase(accountId, root);
+    }
+
+    // --------------------------------------------------------------------
+    // Writes
+    // --------------------------------------------------------------------
+
+    public async Task CreateCharacterAsync(CharacterData c, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(c.Username))
+            throw new ArgumentException("CharacterData.Username (account id) is required.");
+        if (string.IsNullOrWhiteSpace(c.CharacterName))
+            throw new ArgumentException("CharacterData.CharacterName is required.");
+
+        // 1) Generate id if missing (firebase push keys aren’t required here)
+        var charId = string.IsNullOrWhiteSpace(c.Id) ? Guid.NewGuid().ToString("n") : c.Id;
+
+        // 2) Reserve the character name to prevent duplicates
+        var norm = NormalizeNameKey(c.CharacterName);
+        var namePath = $"character_names/{norm}.json";
+
+        // If reservation exists -> conflict
+        using (var check = await _http.GetAsync(namePath, ct))
+        {
+            if (check.IsSuccessStatusCode)
+            {
+                var b = await check.Content.ReadAsStringAsync(ct);
+                if (!string.IsNullOrWhiteSpace(b) && b != "null")
+                    throw new InvalidOperationException("Character name already taken.");
+            }
+        }
+
+        var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var nameDoc = new
+        {
+            character_name = c.CharacterName,
+            character_id = charId,
+            account_id = c.Username,
+            created_at = nowMs
+        };
+        var namePut = await _http.PutAsJsonAsync(namePath, nameDoc, Json, ct);
+        namePut.EnsureSuccessStatusCode();
+
+        // 3) Write character document (snake_case)
+        var charDocPath = $"accounts/{c.Username}/characters/{charId}.json";
+        var toWrite = CloneWithId(c, charId);
+        var body = FirebaseCharacterMapper.ToFirebaseDict(toWrite);
+
+        var put = await _http.PutAsJsonAsync(charDocPath, body, Json, ct);
+        put.EnsureSuccessStatusCode();
+
+        // 4) Patch timestamps (best-effort)
+        var patch = new { created_at = nowMs, updated_at = nowMs, schema_version = 1 };
+        var req = new HttpRequestMessage(HttpMethod.Patch, $"{charDocPath}?print=silent")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(patch, Json), System.Text.Encoding.UTF8, "application/json")
+        };
+        await _http.SendAsync(req, ct);
+    }
+
+    public async Task SaveCharacterAsync(CharacterData c, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(c.Username) || string.IsNullOrWhiteSpace(c.Id))
+            throw new ArgumentException("Username and Id are required to save a character.");
+
+        var path = $"accounts/{c.Username}/characters/{c.Id}.json";
+        var body = FirebaseCharacterMapper.ToFirebaseDict(c);
+
+        var put = await _http.PutAsJsonAsync(path, body, Json, ct);
+        put.EnsureSuccessStatusCode();
+
+        var patch = new { updated_at = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), schema_version = 1 };
+        var req = new HttpRequestMessage(HttpMethod.Patch, $"{path}?print=silent")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(patch, Json), System.Text.Encoding.UTF8, "application/json")
+        };
+        await _http.SendAsync(req, ct);
+    }
+
+    public async Task DeleteCharacterAsync(string accountId, string charId, string characterName, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(accountId) || string.IsNullOrWhiteSpace(charId))
+            throw new ArgumentException("accountId and charId are required.");
+
+        var charPath = $"accounts/{accountId}/characters/{charId}.json";
+        var delChar = await _http.DeleteAsync(charPath, ct);
+        delChar.EnsureSuccessStatusCode();
+
+        // Remove name reservation (best-effort)
+        if (!string.IsNullOrWhiteSpace(characterName))
+        {
+            var norm = NormalizeNameKey(characterName);
+            var namePath = $"character_names/{norm}.json";
+            await _http.DeleteAsync(namePath, ct); // ignore 404/409
+        }
+    }
+
+    // --------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------
+
+    private static string NormalizeNameKey(string name)
+        => Regex.Replace((name ?? "").ToLowerInvariant(), "[^a-z0-9]", "");
+
+    private static CharacterData CloneWithId(CharacterData c, string newId)
+    {
+        // Shallow clone assigning Id; we keep references for nested graphs (they’re DTOs).
+        return new CharacterData
+        {
+            Id = newId,
+            Username = c.Username,
+            CharacterName = c.CharacterName,
+            MapId = c.MapId,
+            Position = c.Position,
+            Rotation = c.Rotation,
+            Side = c.Side,
+            SideStatus = c.SideStatus,
+            Gender = c.Gender,
+            Appearance = c.Appearance,
+            Hp = c.Hp,
+            Mp = c.Mp,
+            Sp = c.Sp,
+            Level = c.Level,
+            Strength = c.Strength,
+            Dexterity = c.Dexterity,
+            Vitality = c.Vitality,
+            Magic = c.Magic,
+            Intelligence = c.Intelligence,
+            Finesse = c.Finesse,
+            Experience = c.Experience,
+            Criticals = c.Criticals,
+            EnemyKillPoints = c.EnemyKillPoints,
+            MajesticPoints = c.MajesticPoints,
+            Inventory = c.Inventory,
+            Warehouse = c.Warehouse,
+            Skills = c.Skills,
+            Quests = c.Quests,
+            Titles = c.Titles,
+            Guild = c.Guild,
+            Beastiary = c.Beastiary,
+            Research = c.Research,
+            Spells = c.Spells,
+            Cosmetics = c.Cosmetics,
+            LastLoggedIn = c.LastLoggedIn
+        };
+    }
 }
