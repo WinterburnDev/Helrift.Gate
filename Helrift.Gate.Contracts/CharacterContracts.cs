@@ -11,6 +11,7 @@ namespace Helrift.Gate.Contracts
     public enum Gender : int { Unknown = 0 }
     public enum EquipmentSlot : int { Unknown = 0 }
     public enum ItemQuality : int { Unknown = 0 }
+    public enum ItemRarity : int { Unknown = 0 }
     public enum ItemStatType : int { Unknown = 0 }
     public enum MaterialType : int { Unknown = 0 }
 

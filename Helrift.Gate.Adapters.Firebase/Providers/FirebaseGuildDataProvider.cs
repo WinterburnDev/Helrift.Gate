@@ -2,16 +2,9 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Helrift.Gate.Contracts;
+using Helrift.Gate.App;
 
 namespace Helrift.Gate.Adapters.Firebase;
-
-public interface IGuildDataProvider
-{
-    Task<GuildData?> GetAsync(string guildId, CancellationToken ct);
-    Task<bool> SaveAsync(GuildData guild, CancellationToken ct);
-    Task<bool> DeleteAsync(string guildId, CancellationToken ct);
-    Task<IReadOnlyList<GuildData>> QueryAsync(string? side, string? partialName, CancellationToken ct);
-}
 
 public sealed class FirebaseGuildDataProvider(IHttpClientFactory httpFactory) : IGuildDataProvider
 {

@@ -61,11 +61,9 @@ builder.Services.AddSwaggerGen();
 // 6) Providers (use your REAL provider here)
 builder.Services.AddScoped<IGameDataProvider, FirebaseGameDataProvider>();
 builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
-// When you’re ready, also register Guild/Catalog/Merchant providers here.
+builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
+builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
 
-// ----------------------
-// Pipeline
-// ----------------------
 var app = builder.Build();
 
 app.UseSwagger();
