@@ -142,9 +142,21 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Facepunch.Steamworks": {
+              "target": "Package",
+              "version": "[2.3.3, )"
+            },
+            "Facepunch.Steamworks.Dll": {
+              "target": "Package",
+              "version": "[1.48.0, )"
+            },
             "Google.Apis.Auth": {
               "target": "Package",
               "version": "[1.72.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.21, )"
             },
             "Microsoft.Extensions.Http.Polly": {
               "target": "Package",
@@ -161,6 +173,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.14.0, )"
             }
           },
           "imports": [

@@ -1,16 +1,26 @@
 using Google.Apis.Auth.OAuth2;
 using Helrift.Gate.Adapters.Firebase;
+using Helrift.Gate.Api.Services.Accounts;
+using Helrift.Gate.Api.Services.Steam;
+using Helrift.Gate.Api.Services.Tokens;
 using Helrift.Gate.App;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
 using Polly;
 using Polly.Extensions.Http;
+using Helrift.Gate.Api.Services.GameServers;
+using Helrift.Gate.Api.Services.Routing;
+using Helrift.Gate.Api.Services.Auth;
 
 // ----------------------
 // Host + Services
 // ----------------------
 var builder = WebApplication.CreateBuilder(args);
 
-// 1) Bind Firebase options for Adapters (separation of concerns preserved)
+// FIREBASE
 var fbOptions = new FirebaseOptions
 {
     DatabaseUrl = builder.Configuration["Firebase:DatabaseUrl"]
@@ -19,14 +29,12 @@ var fbOptions = new FirebaseOptions
 };
 builder.Services.AddSingleton(fbOptions);
 
-// 2) Build Google service-account credential (Admin). You can supply a path in config
-//    via Firebase:ServiceAccountJsonPath, or rely on GOOGLE_APPLICATION_CREDENTIALS env var.
+// GOOGLE AUTH
 var saPath = builder.Configuration["Firebase:ServiceAccountJsonPath"];
 GoogleCredential credential = !string.IsNullOrWhiteSpace(saPath)
     ? GoogleCredential.FromFile(saPath)
     : GoogleCredential.GetApplicationDefault();
 
-// Scope for Realtime Database admin access
 credential = credential.CreateScoped(new[]
 {
     "https://www.googleapis.com/auth/firebase.database",
@@ -34,11 +42,9 @@ credential = credential.CreateScoped(new[]
 });
 
 builder.Services.AddSingleton(credential);
-
-// 3) Auth handler that attaches/refreshes Bearer tokens (kept in a separate file)
 builder.Services.AddTransient<GoogleAuthDelegatingHandler>();
 
-// 4) Named HttpClient for Firebase RTDB (Admin OAuth)
+// FIREBASE AUTH
 builder.Services.AddHttpClient("firebase-admin", c =>
 {
     c.BaseAddress = new Uri(fbOptions.DatabaseUrl);   // e.g. https://<project>-default-rtdb.firebaseio.com/
@@ -58,11 +64,64 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 6) Providers (use your REAL provider here)
+// JWT
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<JwtJoinOptions>(builder.Configuration.GetSection("JoinJwt"));
+
+// STEAM
+builder.Services.Configure<SteamServerOptions>(builder.Configuration.GetSection("SteamServer"));
+builder.Services.AddHostedService<SteamServerBootstrap>();
+builder.Services.AddSingleton<ISteamAuthVerifier, FacepunchAuthVerifier>();
+
+// GAME SERVERS
+builder.Services.Configure<GameServersOptions>(builder.Configuration.GetSection("GameServers"));
+builder.Services.AddSingleton<IGameServerDirectory, ConfigGameServerDirectory>();
+builder.Services.AddSingleton<IJoinTokenService, Hs256JoinTokenService>();
+builder.Services.AddSingleton<IReservationClient, HttpReservationClient>();
+
+// DATA PROVIDERS
 builder.Services.AddScoped<IGameDataProvider, FirebaseGameDataProvider>();
 builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
+
+builder.Services.AddSingleton<IAccountService, InMemoryAccountService>();
+builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
+builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+
+// AUTH
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(o =>
+    {
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Hs256Secret)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(10)
+        };
+    })
+    .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+        ApiKeyAuthenticationOptions.DefaultScheme, configureOptions: null);
+
+builder.Services.AddAuthorization(opts =>
+{
+    // Calls that MUST come from game servers.
+    opts.AddPolicy("ServerOnly", p => p
+        .AddAuthenticationSchemes(ApiKeyAuthenticationOptions.DefaultScheme)
+        .RequireAuthenticatedUser()
+        .RequireRole("server"));
+});
 
 var app = builder.Build();
 
