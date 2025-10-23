@@ -23,10 +23,6 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     [Authorize(Policy = "ServerOnly")]
     public async Task<ActionResult<CharacterData>> Get([FromRoute] string accountId, [FromRoute] string charId, CancellationToken ct)
     {
-        //var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        //if (!string.Equals(sub, accountId, StringComparison.Ordinal))
-        //    return Forbid();
-
         return (await data.GetCharacterAsync(accountId, charId, ct)) is { } c ? Ok(c) : NotFound();
     }
 
@@ -34,10 +30,6 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     [Authorize(Policy = "ServerOnly")]
     public async Task<IActionResult> Create([FromRoute] string accountId, [FromBody] CharacterData c, CancellationToken ct)
     {
-        var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        if (!string.Equals(sub, accountId, StringComparison.Ordinal))
-            return Forbid();
-
         if (c is null) return BadRequest("Body required.");
         if (!string.Equals(c.Username, accountId, StringComparison.Ordinal))
             return BadRequest("Username/accountId mismatch.");
@@ -50,10 +42,6 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     [Authorize(Policy = "ServerOnly")]
     public async Task<IActionResult> Save([FromRoute] string accountId, [FromRoute] string charId, [FromBody] CharacterData c, CancellationToken ct)
     {
-        var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        if (!string.Equals(sub, accountId, StringComparison.Ordinal))
-            return Forbid();
-
         if (c is null) return BadRequest("Body required.");
         if (!string.Equals(c.Username, accountId, StringComparison.Ordinal)) return BadRequest("Username/accountId mismatch.");
         if (!string.Equals(c.Id, charId, StringComparison.Ordinal)) return BadRequest("Id/charId mismatch.");
@@ -65,10 +53,6 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     [Authorize(Policy = "ServerOnly")]
     public async Task<IActionResult> Delete([FromRoute] string accountId, [FromRoute] string charId, [FromQuery] string name, CancellationToken ct)
     {
-        var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        if (!string.Equals(sub, accountId, StringComparison.Ordinal))
-            return Forbid();
-
         if (string.IsNullOrWhiteSpace(name)) return BadRequest("Missing 'name' query parameter.");
         await data.DeleteCharacterAsync(accountId, charId, name, ct);
         return NoContent();
