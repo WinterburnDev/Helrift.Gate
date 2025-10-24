@@ -1,21 +1,43 @@
-﻿namespace Helrift.Gate.Api.Services.Accounts
+﻿using System.Collections.Concurrent;
+using Helrift.Gate.App;
+using Helrift.Gate.Contracts;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Helrift.Gate.Api.Services.Accounts
 {
     public sealed class InMemoryAccountService : IAccountService
     {
-        private readonly Dictionary<string, AccountRecord> _bySteam = new();
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ConcurrentDictionary<string, AccountData> _bySteam = new();
 
-        public Task<AccountRecord> GetOrCreateBySteamAsync(string steamId64)
+        public InMemoryAccountService(IServiceScopeFactory scopeFactory)
         {
-            if (!_bySteam.TryGetValue(steamId64, out var rec))
+            _scopeFactory = scopeFactory;
+        }
+
+        public async Task<AccountData> GetOrCreateBySteamAsync(string steamId64)
+        {
+            if (string.IsNullOrWhiteSpace(steamId64))
+                throw new ArgumentException("steamId64 is required.", nameof(steamId64));
+
+            if (_bySteam.TryGetValue(steamId64, out var cached))
+                return cached;
+
+            using var scope = _scopeFactory.CreateScope();
+            var data = scope.ServiceProvider.GetRequiredService<IGameDataProvider>();
+
+            var existing = await data.GetAccountBySteamIdAsync(steamId64, CancellationToken.None);
+            if (existing != null)
+                return _bySteam.GetOrAdd(steamId64, existing);
+
+            var created = await data.CreateAccountAsync(new NewAccountRequest
             {
-                rec = new AccountRecord
-                {
-                    AccountId = $"2F917914C4B3B41C",
-                    SteamId = steamId64
-                };
-                _bySteam[steamId64] = rec;
-            }
-            return Task.FromResult(rec);
+                SteamId64 = steamId64,
+                Username = null,
+                EmailAddress = null
+            }, CancellationToken.None);
+
+            return _bySteam.GetOrAdd(steamId64, created);
         }
     }
 }

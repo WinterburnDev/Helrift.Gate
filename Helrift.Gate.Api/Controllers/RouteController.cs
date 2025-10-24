@@ -28,7 +28,7 @@ public sealed class RouteController(
 
         var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         var build = User.FindFirst("build")?.Value; // if you include build in your access jwt; optional
-        accountId = "2F917914C4B3B41C";
+
         // 1) Validate character ownership and get current map
         var character = await data.GetCharacterAsync(accountId, req.characterId, ct);
         if (character is null)

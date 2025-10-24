@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\Helrift.Gate.Api.props" />
-</Project>

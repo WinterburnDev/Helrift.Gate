@@ -1,0 +1,2419 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Helrift.Gate.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/v1/accounts/{accountId}": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountData"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountData"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/steam": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthSteamRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthSteamRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthSteamRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSteamResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSteamResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSteamResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{accountId}/characters": {
+      "get": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterData"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterData"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{accountId}/characters/{charId}": {
+      "get": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterData"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterData"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterData"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterDeletionResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterDeletionResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterDeletionResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entitlements/aliases/current": {
+      "get": {
+        "tags": [
+          "Entitlements"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entitlements/unlockables": {
+      "get": {
+        "tags": [
+          "Entitlements"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entitlements/{entitlementsId}/unlockables": {
+      "get": {
+        "tags": [
+          "Entitlements"
+        ],
+        "parameters": [
+          {
+            "name": "entitlementsId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/EntitlementUnlockableRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/guilds/{guildId}": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildData"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildData"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildData"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Guilds"
+        ],
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuildData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuildData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuildData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Guilds"
+        ],
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/guilds": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "parameters": [
+          {
+            "name": "side",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildData"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildData"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/query": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantPageResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/listings/{listingId}": {
+      "get": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "listingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantItemRow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "listingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expectedOwner",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/listings": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantItemRow"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateListingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/listings/{listingId}/decrement": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "listingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/listings/{listingId}/increment": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "listingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "delta",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/merge": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/purge-expired": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "now",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "maxBatch",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/trim-overflow": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxItems",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "now",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/merchants/{npcId}/merge-index": {
+      "get": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "now",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MerchantItemRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/route/character": {
+      "post": {
+        "tags": [
+          "Route"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterRouteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterRouteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterRouteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterRouteResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterRouteResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterRouteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastLogIn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "characters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterData"
+            },
+            "nullable": true
+          },
+          "entitlements": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EntitlementData"
+            },
+            "nullable": true
+          },
+          "ownedUnlockableIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AliasResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuthSteamRequest": {
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "nullable": true
+          },
+          "buildVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "steamId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuthSteamResponse": {
+        "type": "object",
+        "properties": {
+          "gateSession": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "profile": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterBeastiaryData": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterBeastiaryEntryData"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterBeastiaryEntryData": {
+        "type": "object",
+        "properties": {
+          "npcId": {
+            "type": "string",
+            "nullable": true
+          },
+          "encountered": {
+            "type": "boolean"
+          },
+          "progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterBeastiaryEntryProgressData"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterBeastiaryEntryProgressData": {
+        "type": "object",
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fulfilled": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterCosmeticData": {
+        "type": "object",
+        "properties": {
+          "activeCastEffect": {
+            "type": "string",
+            "nullable": true
+          },
+          "unlockedCastEffects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "unlockedSkins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterName": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapId": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "$ref": "#/components/schemas/Vec3"
+          },
+          "rotation": {
+            "$ref": "#/components/schemas/Vec3"
+          },
+          "side": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sideStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "appearance": {
+            "$ref": "#/components/schemas/HumanAppearance"
+          },
+          "hp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "strength": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dexterity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vitality": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "magic": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "intelligence": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "finesse": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "experience": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "criticals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enemyKillPoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "majesticPoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inventory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemData"
+            },
+            "nullable": true
+          },
+          "warehouse": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemData"
+            },
+            "nullable": true
+          },
+          "skills": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CharacterSkillData"
+            },
+            "nullable": true
+          },
+          "quests": {
+            "$ref": "#/components/schemas/CharacterQuestData"
+          },
+          "titles": {
+            "$ref": "#/components/schemas/CharacterTitleData"
+          },
+          "guild": {
+            "$ref": "#/components/schemas/CharacterGuildData"
+          },
+          "beastiary": {
+            "$ref": "#/components/schemas/CharacterBeastiaryData"
+          },
+          "research": {
+            "$ref": "#/components/schemas/CharacterResearchData"
+          },
+          "spells": {
+            "$ref": "#/components/schemas/CharacterSpellsData"
+          },
+          "cosmetics": {
+            "$ref": "#/components/schemas/CharacterCosmeticData"
+          },
+          "lastLoggedIn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterDeletionResult": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/CharacterDeletionState"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterDeletionState": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "CharacterGuildData": {
+        "type": "object",
+        "properties": {
+          "guildId": {
+            "type": "string",
+            "nullable": true
+          },
+          "guildName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterItemCoatingData": {
+        "type": "object",
+        "properties": {
+          "coatingItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAtUnixUtc": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "consumed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterItemContentsData": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skinId": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "type": "string",
+            "nullable": true
+          },
+          "endurance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weight": {
+            "type": "number",
+            "format": "float"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/ItemQuality"
+          },
+          "upgradeLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCrafted": {
+            "type": "boolean"
+          },
+          "craftedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemStatData"
+            },
+            "nullable": true
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemPropData"
+            },
+            "nullable": true
+          },
+          "coating": {
+            "$ref": "#/components/schemas/CharacterItemCoatingData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterItemData": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skinId": {
+            "type": "string",
+            "nullable": true
+          },
+          "guildId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isEquipped": {
+            "type": "boolean"
+          },
+          "equipmentSlot": {
+            "$ref": "#/components/schemas/EquipmentSlot"
+          },
+          "isDualWield": {
+            "type": "boolean"
+          },
+          "colour": {
+            "type": "string",
+            "nullable": true
+          },
+          "endurance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weight": {
+            "type": "number",
+            "format": "float"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/ItemQuality"
+          },
+          "upgradeLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCrafted": {
+            "type": "boolean"
+          },
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemStatData"
+            },
+            "nullable": true
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemPropData"
+            },
+            "nullable": true
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterItemContentsData"
+            },
+            "nullable": true
+          },
+          "coating": {
+            "$ref": "#/components/schemas/CharacterItemCoatingData"
+          },
+          "bagPosition": {
+            "$ref": "#/components/schemas/Vec2"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterItemPropData": {
+        "type": "object",
+        "properties": {
+          "k": {
+            "type": "string",
+            "nullable": true
+          },
+          "v": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterItemStatData": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ItemStatType"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterQuestData": {
+        "type": "object",
+        "properties": {
+          "activeQuests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterQuestItemData"
+            },
+            "nullable": true
+          },
+          "completedQuests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterQuestItemData": {
+        "type": "object",
+        "properties": {
+          "questId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isTracked": {
+            "type": "boolean"
+          },
+          "stepProgress": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterResearchData": {
+        "type": "object",
+        "properties": {
+          "materialInsights": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CharacterResearchMaterialData"
+            },
+            "nullable": true
+          },
+          "recipes": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ItemQuality"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterResearchMaterialData": {
+        "type": "object",
+        "properties": {
+          "mi": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterRouteRequest": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterRouteResponse": {
+        "type": "object",
+        "properties": {
+          "gsId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ip": {
+            "type": "string",
+            "nullable": true
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "joinToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "transport": {
+            "$ref": "#/components/schemas/TransportHints"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterSkillData": {
+        "type": "object",
+        "properties": {
+          "totalXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterSpellsData": {
+        "type": "object",
+        "properties": {
+          "spells": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterTitleData": {
+        "type": "object",
+        "properties": {
+          "activeTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "titles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterTitleItemData"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterTitleItemData": {
+        "type": "object",
+        "properties": {
+          "titleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateListingResponse": {
+        "type": "object",
+        "properties": {
+          "listingId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntitlementData": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "EntitlementGrants": {
+        "type": "object",
+        "properties": {
+          "itemSkinIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "castEffectIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "hairStyleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "hairColorIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "featureFlags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntitlementUnlockableRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "grants": {
+            "$ref": "#/components/schemas/EntitlementGrants"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentSlot": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "Gender": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "GuildData": {
+        "type": "object",
+        "properties": {
+          "guildId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaderCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "side": {
+            "type": "string",
+            "nullable": true
+          },
+          "memberCharacterIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "motd": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "emblem": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HumanAppearance": {
+        "type": "object",
+        "properties": {
+          "bodyData": {
+            "$ref": "#/components/schemas/HumanBodyData"
+          },
+          "hairStyle": {
+            "type": "string",
+            "nullable": true
+          },
+          "facialHairStyle": {
+            "type": "string",
+            "nullable": true
+          },
+          "hairColour": {
+            "type": "string",
+            "nullable": true
+          },
+          "skinColour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eyeColour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eyebrowStyle": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HumanBodyData": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "number",
+            "format": "float"
+          },
+          "face_shape": {
+            "type": "number",
+            "format": "float"
+          },
+          "brows_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "brows_angle": {
+            "type": "number",
+            "format": "float"
+          },
+          "cheek_volume": {
+            "type": "number",
+            "format": "float"
+          },
+          "cheek_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "jaw_extrusion": {
+            "type": "number",
+            "format": "float"
+          },
+          "chin_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "chin_width": {
+            "type": "number",
+            "format": "float"
+          },
+          "chin_angle": {
+            "type": "number",
+            "format": "float"
+          },
+          "eye_distance": {
+            "type": "number",
+            "format": "float"
+          },
+          "eye_shape": {
+            "type": "number",
+            "format": "float"
+          },
+          "eyefold_position": {
+            "type": "number",
+            "format": "float"
+          },
+          "eyefold_volume": {
+            "type": "number",
+            "format": "float"
+          },
+          "outereye_angle": {
+            "type": "number",
+            "format": "float"
+          },
+          "innereye_angle": {
+            "type": "number",
+            "format": "float"
+          },
+          "epicanthus": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_length": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_depth": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_curve": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_angle": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_width": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_bridge": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_position": {
+            "type": "number",
+            "format": "float"
+          },
+          "nose_compression": {
+            "type": "number",
+            "format": "float"
+          },
+          "nostrils": {
+            "type": "number",
+            "format": "float"
+          },
+          "mouth_depth": {
+            "type": "number",
+            "format": "float"
+          },
+          "mouth_width": {
+            "type": "number",
+            "format": "float"
+          },
+          "dimples": {
+            "type": "number",
+            "format": "float"
+          },
+          "laugh_lines": {
+            "type": "number",
+            "format": "float"
+          },
+          "lip_size": {
+            "type": "number",
+            "format": "float"
+          },
+          "lowerlip_volume": {
+            "type": "number",
+            "format": "float"
+          },
+          "lowerlip_shape": {
+            "type": "number",
+            "format": "float"
+          },
+          "lowerlip_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "upperlip_volume": {
+            "type": "number",
+            "format": "float"
+          },
+          "upperlip_shape": {
+            "type": "number",
+            "format": "float"
+          },
+          "upperlip_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "philtrum": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ItemProp": {
+        "type": "object",
+        "properties": {
+          "k": {
+            "type": "string",
+            "nullable": true
+          },
+          "v": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ItemQuality": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ItemRarity": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ItemStat": {
+        "type": "object",
+        "properties": {
+          "statType": {
+            "$ref": "#/components/schemas/ItemStatType"
+          },
+          "statValue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bonusPerQuality": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ItemStatType": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ItemType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "MerchantItemRow": {
+        "type": "object",
+        "properties": {
+          "npcId": {
+            "type": "string",
+            "nullable": true
+          },
+          "listingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemUniqueId": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemName": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemType": {
+            "$ref": "#/components/schemas/ItemType"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/ItemQuality"
+          },
+          "rarity": {
+            "$ref": "#/components/schemas/ItemRarity"
+          },
+          "isCrafted": {
+            "type": "boolean"
+          },
+          "currentEndurance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weight": {
+            "type": "number",
+            "format": "float"
+          },
+          "listedAtUnix": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expireAtUnix": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemStat"
+            },
+            "nullable": true
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemProp"
+            },
+            "nullable": true
+          },
+          "baseValue": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resaleValueNow": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "buyPriceWithoutTax": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellPriceToVendor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "finalBuyPrice": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MerchantPageResult": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MerchantItemRow"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MerchantQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "includeExpired": {
+            "type": "boolean"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/MerchantQuerySort"
+          },
+          "itemType": {
+            "$ref": "#/components/schemas/ItemType"
+          },
+          "minStatValue": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxStatValue": {
+            "type": "number",
+            "format": "float"
+          },
+          "statRanges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatRangeFilter"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MerchantQuerySort": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "MergeRequest": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "$ref": "#/components/schemas/MerchantItemRow"
+          },
+          "maxStack": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StatRangeFilter": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "min": {
+            "type": "number",
+            "format": "float"
+          },
+          "max": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransportHints": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vec2": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "float"
+          },
+          "y": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vec3": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "float"
+          },
+          "y": {
+            "type": "number",
+            "format": "float"
+          },
+          "z": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

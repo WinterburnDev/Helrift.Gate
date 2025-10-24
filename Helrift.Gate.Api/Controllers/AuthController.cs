@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
 
         var (jwt, refresh) = await _tokens.IssueAsync(new TokenIssueRequest
         {
-            AccountId = account.AccountId,
+            AccountId = account.Id,
             SteamId = verify.SteamId64,
             BuildVersion = req.buildVersion
         });
@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
         {
             gateSession = jwt,
             refreshToken = refresh,
-            profile = new AuthSteamProfile() { steamId = verify.SteamId64, accountId = account.AccountId }
+            profile = new AuthSteamProfile() { steamId = verify.SteamId64, accountId = account.Id }
         });
     }
 }

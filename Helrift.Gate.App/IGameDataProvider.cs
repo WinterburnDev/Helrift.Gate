@@ -6,6 +6,8 @@ namespace Helrift.Gate.App
     public interface IGameDataProvider
     {
         Task<AccountData?> GetAccountAsync(string accountId, CancellationToken ct);
+        Task<AccountData?> GetAccountBySteamIdAsync(string steamId, CancellationToken ct);
+        Task<AccountData> CreateAccountAsync(NewAccountRequest req, CancellationToken ct);
 
         Task<IReadOnlyList<CharacterData>> GetCharactersAsync(string accountId, CancellationToken ct);
         Task<CharacterData?> GetCharacterAsync(string accountId, string charId, CancellationToken ct);

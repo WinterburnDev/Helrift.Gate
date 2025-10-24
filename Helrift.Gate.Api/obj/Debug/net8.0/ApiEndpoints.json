@@ -1,0 +1,667 @@
+[
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.AccountsController",
+    "Method": "Get",
+    "RelativePath": "api/v1/accounts/{accountId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.AccountData",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CharactersController",
+    "Method": "List",
+    "RelativePath": "api/v1/accounts/{accountId}/characters",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.CharacterData, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CharactersController",
+    "Method": "Create",
+    "RelativePath": "api/v1/accounts/{accountId}/characters",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "c",
+        "Type": "Helrift.Gate.Contracts.CharacterData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CharactersController",
+    "Method": "Get",
+    "RelativePath": "api/v1/accounts/{accountId}/characters/{charId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.CharacterData",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CharactersController",
+    "Method": "Save",
+    "RelativePath": "api/v1/accounts/{accountId}/characters/{charId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "c",
+        "Type": "Helrift.Gate.Contracts.CharacterData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CharactersController",
+    "Method": "Delete",
+    "RelativePath": "api/v1/accounts/{accountId}/characters/{charId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.CharacterDeletionResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.EntitlementsController",
+    "Method": "GetUnlockablesById",
+    "RelativePath": "api/v1/entitlements/{entitlementsId}/unlockables",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "entitlementsId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyDictionary\u00602[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Helrift.Gate.Contracts.EntitlementUnlockableRow, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.EntitlementsController",
+    "Method": "GetCurrentAlias",
+    "RelativePath": "api/v1/entitlements/aliases/current",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Api.Controllers.EntitlementsController\u002BAliasResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.EntitlementsController",
+    "Method": "GetCurrentUnlockables",
+    "RelativePath": "api/v1/entitlements/unlockables",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyDictionary\u00602[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Helrift.Gate.Contracts.EntitlementUnlockableRow, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GuildsController",
+    "Method": "Query",
+    "RelativePath": "api/v1/guilds",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "side",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "q",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.GuildData, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GuildsController",
+    "Method": "Get",
+    "RelativePath": "api/v1/guilds/{guildId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "guildId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.GuildData",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GuildsController",
+    "Method": "Save",
+    "RelativePath": "api/v1/guilds/{guildId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "guildId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "g",
+        "Type": "Helrift.Gate.Contracts.GuildData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GuildsController",
+    "Method": "Delete",
+    "RelativePath": "api/v1/guilds/{guildId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "guildId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Insert",
+    "RelativePath": "api/v1/merchants/{npcId}/listings",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "row",
+        "Type": "MerchantItemRow",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Api.Controllers.MerchantsController\u002BCreateListingResponse",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "GetListing",
+    "RelativePath": "api/v1/merchants/{npcId}/listings/{listingId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "listingId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MerchantItemRow",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Delete",
+    "RelativePath": "api/v1/merchants/{npcId}/listings/{listingId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "listingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "expectedOwner",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Decrement",
+    "RelativePath": "api/v1/merchants/{npcId}/listings/{listingId}/decrement",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "listingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "count",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Increment",
+    "RelativePath": "api/v1/merchants/{npcId}/listings/{listingId}/increment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "listingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "delta",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Merge",
+    "RelativePath": "api/v1/merchants/{npcId}/merge",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "Helrift.Gate.Api.Controllers.MerchantsController\u002BMergeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "MergeIndex",
+    "RelativePath": "api/v1/merchants/{npcId}/merge-index",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "now",
+        "Type": "System.Int64",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[MerchantItemRow, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "PurgeExpired",
+    "RelativePath": "api/v1/merchants/{npcId}/purge-expired",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "now",
+        "Type": "System.Int64",
+        "IsRequired": false
+      },
+      {
+        "Name": "maxBatch",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "Query",
+    "RelativePath": "api/v1/merchants/{npcId}/query",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "q",
+        "Type": "MerchantQuery",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MerchantPageResult",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "TrimOverflow",
+    "RelativePath": "api/v1/merchants/{npcId}/trim-overflow",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "maxItems",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "now",
+        "Type": "System.Int64",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "RouteController",
+    "Method": "RouteCharacter",
+    "RelativePath": "api/v1/route/character",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "Helrift.Gate.Contracts.CharacterRouteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.CharacterRouteResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "AuthController",
+    "Method": "Steam",
+    "RelativePath": "auth/steam",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "Helrift.Gate.Contracts.AuthSteamRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.AuthSteamResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.HealthController",
+    "Method": "Live",
+    "RelativePath": "health/live",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.HealthController",
+    "Method": "Ready",
+    "RelativePath": "health/ready",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

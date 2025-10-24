@@ -88,6 +88,71 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         return FirebaseAccountMapper.FromFirebase(accountId, root);
     }
 
+    public async Task<AccountData?> GetAccountBySteamIdAsync(string steamId64, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(steamId64)) return null;
+
+        // -------- Canonical RTDB child-path query across ALL accounts --------
+        // orderBy must be a JSON-quoted string and URL-encoded.
+        var orderBy = Uri.EscapeDataString("\"links/steam_id\"");
+        var equalTo = Uri.EscapeDataString($"\"{steamId64}\"");
+
+        var url = $"accounts.json?orderBy={orderBy}&equalTo={equalTo}&limitToFirst=1";
+
+        using var res = await _http.GetAsync(url, ct).ConfigureAwait(false);
+        if (!res.IsSuccessStatusCode) return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object) return null;
+
+        // The result shape is: { "<accountId>": { ...account... } }
+        foreach (var prop in root.EnumerateObject())
+        {
+            if (prop.Value.ValueKind == JsonValueKind.Object)
+                return FirebaseAccountMapper.FromFirebase(prop.Name, prop.Value);
+        }
+
+        return null;
+    }
+
+    public async Task<AccountData> CreateAccountAsync(NewAccountRequest req, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(req.SteamId64))
+            throw new ArgumentException("SteamId64 is required.", nameof(req));
+
+        // Idempotency: if already exists, return it
+        var existing = await GetAccountBySteamIdAsync(req.SteamId64, ct).ConfigureAwait(false);
+        if (existing != null) return existing;
+
+        var accountId = Guid.NewGuid().ToString("N");
+        var now = DateTime.UtcNow;
+
+        var payload = FirebaseAccountMapper.ToFirebaseCreatePayload(accountId, req, now);
+
+        var json = JsonSerializer.Serialize(payload);
+        using var reqMsg = new HttpRequestMessage(new HttpMethod("PATCH"), $".json")
+        {
+            Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+        };
+
+        using var res = await _http.SendAsync(reqMsg, ct).ConfigureAwait(false);
+        if (!res.IsSuccessStatusCode)
+        {
+            var body = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            throw new HttpRequestException($"Firebase create failed: {(int)res.StatusCode} {res.ReasonPhrase}\n{body}");
+        }
+
+        var created = await GetAccountAsync(accountId, ct).ConfigureAwait(false);
+        if (created == null)
+            throw new InvalidOperationException("Created account could not be reloaded.");
+
+        return created;
+    }
+
     // --------------------------------------------------------------------
     // Writes
     // --------------------------------------------------------------------
@@ -191,7 +256,6 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
 
     private static CharacterData CloneWithId(CharacterData c, string newId)
     {
-        // Shallow clone assigning Id; we keep references for nested graphs (they’re DTOs).
         return new CharacterData
         {
             Id = newId,

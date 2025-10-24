@@ -9,10 +9,8 @@ namespace Helrift.Gate.Contracts
     {
         public string Id { get; set; }
         public string Username { get; set; }
-        public PasswordData Password { get; set; }
         public string EmailAddress { get; set; }
         public DateTime LastLogIn { get; set; }
-
         public CharacterData[] Characters { get; set; }
         public Dictionary<string, EntitlementData> Entitlements { get; set; }
         public List<string> OwnedUnlockableIds { get; set; }
@@ -31,5 +29,12 @@ namespace Helrift.Gate.Contracts
     {
         public string Salt { get; set; }
         public string Hash { get; set; }
+    }
+
+    public sealed class NewAccountRequest
+    {
+        public required string SteamId64 { get; init; }
+        public string? Username { get; init; }
+        public string? EmailAddress { get; init; }
     }
 }

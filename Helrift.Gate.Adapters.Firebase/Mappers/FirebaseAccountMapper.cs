@@ -1,120 +1,124 @@
-﻿// Helrift.Gate.Adapters.Firebase/FirebaseAccountMapper.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using Helrift.Gate.Contracts;
-
-namespace Helrift.Gate.Adapters.Firebase;
+using Helrift.Gate.Adapters.Firebase; // <-- for FirebaseCharacterMapper
 
 internal static class FirebaseAccountMapper
 {
-    public static AccountData FromFirebase(string accountId, JsonElement root)
+    // READ (accounts/{accountId} JSON -> AccountData)
+    public static AccountData FromFirebase(string accountId, JsonElement e)
     {
-        var acc = new AccountData
+        string username = Str(e, "username");
+        string email = Str(e, "email_address", "emailAddress");
+        DateTime lastLogin = Date(e, "last_log_in", "lastLogIn") ?? DateTime.MinValue;
+
+        // characters: object map of { <charId>: { ... } }
+        var characters = new List<CharacterData>();
+        if (e.TryGetProperty("characters", out var charsEl) && charsEl.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var prop in charsEl.EnumerateObject())
+            {
+                if (prop.Value.ValueKind != JsonValueKind.Object) continue;
+                var ch = FirebaseCharacterMapper.FromFirebase(accountId, prop.Name, prop.Value);
+                if (ch != null) characters.Add(ch);
+            }
+        }
+
+        // entitlements: leave empty for now (commented)
+        var entitlements = new Dictionary<string, EntitlementData>(StringComparer.OrdinalIgnoreCase);
+        // if (e.TryGetProperty("entitlements", out var entEl) && entEl.ValueKind == JsonValueKind.Object)
+        // {
+        //     foreach (var kv in entEl.EnumerateObject())
+        //     {
+        //         if (kv.Value.ValueKind != JsonValueKind.Object) continue;
+        //         var ent = EntitlementFirebaseMapper.FromFirebase(kv.Value);
+        //         if (ent != null) entitlements[kv.Name] = ent;
+        //     }
+        // }
+
+        // owned unlockables can be array or map-of-true
+        var owned = new List<string>();
+        if (e.TryGetProperty("owned_unlockable_ids", out var ou) && ou.ValueKind != JsonValueKind.Undefined && ou.ValueKind != JsonValueKind.Null)
+        {
+            if (ou.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var it in ou.EnumerateArray())
+                    if (it.ValueKind == JsonValueKind.String) owned.Add(it.GetString()!);
+            }
+            else if (ou.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var kv in ou.EnumerateObject())
+                    if (kv.Value.ValueKind == JsonValueKind.True) owned.Add(kv.Name);
+            }
+        }
+
+        return new AccountData
         {
             Id = accountId,
-            Username = J.Str(root, "username") ?? accountId,
-            EmailAddress = J.Str(root, "email_address", "emailAddress") ?? "",
-            LastLogIn = J.Date(root, "last_log_in", "lastLogIn") ?? DateTime.MinValue,
-            Entitlements = ReadEntitlements(root, "owned_entitlements", "entitlements"),
-            OwnedUnlockableIds = new List<string>(),
-            Characters = ReadCharacters(accountId, root, "characters")
+            Username = username,
+            EmailAddress = email,
+            LastLogIn = lastLogin,
+            Characters = characters.ToArray(),
+            Entitlements = entitlements,
+            OwnedUnlockableIds = owned
+        };
+    }
+
+    // WRITE (create multi-location payload for RTDB root PATCH)
+    public static Dictionary<string, object?> ToFirebaseCreatePayload(
+        string accountId, NewAccountRequest req, DateTime utcNow)
+    {
+        var iso = utcNow.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+        var accountObject = new Dictionary<string, object?>
+        {
+            ["username"] = req.Username,
+            ["email_address"] = req.EmailAddress,
+            ["created_at"] = iso,
+            ["last_log_in"] = iso,
+
+            // initialize empty collections
+            ["characters"] = new Dictionary<string, object?>(),   // {}
+            ["entitlements"] = new Dictionary<string, object?>(), // {}
+            ["owned_unlockable_ids"] = Array.Empty<string>(),     // []
+
+            ["links"] = new Dictionary<string, object?>
+            {
+                ["steam_id"] = req.SteamId64
+            }
         };
 
-        // best-effort password (if present)
-        if (root.TryGetProperty("password", out var p) && p.ValueKind == JsonValueKind.Object)
+        return new Dictionary<string, object?>
         {
-            acc.Password = new PasswordData
-            {
-                Salt = J.Str(p, "salt") ?? "",
-                Hash = J.Str(p, "hash") ?? ""
-            };
-        }
-
-        // build OwnedUnlockableIds from entitlements
-        if (acc.Entitlements is { Count: > 0 })
-            acc.OwnedUnlockableIds = acc.Entitlements.Values
-                .Select(e => e?.Id)
-                .Where(id => !string.IsNullOrWhiteSpace(id))
-                .Distinct(StringComparer.Ordinal)
-                .ToList();
-        else
-            acc.OwnedUnlockableIds = new List<string>();
-
-        return acc;
+            [$"accounts/{accountId}"] = accountObject,
+            [$"links/steam/{req.SteamId64}"] = accountId
+        };
     }
 
-    private static Dictionary<string, EntitlementData> ReadEntitlements(JsonElement root, params string[] keys)
+    // ------- small local helpers (string / date) -------
+    private static string Str(JsonElement obj, params string[] keys)
     {
-        var d = new Dictionary<string, EntitlementData>(StringComparer.Ordinal);
         foreach (var k in keys)
-        {
-            if (!root.TryGetProperty(k, out var node) || node.ValueKind != JsonValueKind.Object) continue;
-            foreach (var child in node.EnumerateObject())
+            if (obj.TryGetProperty(k, out var el))
             {
-                var el = child.Value;
-                var ent = new EntitlementData
-                {
-                    Id = J.Str(el, "id") ?? "",
-                    Since = J.Str(el, "since") ?? "",
-                    PurchaseCount = J.Int(el, "purchase_count", "purchaseCount")
-                };
-                d[child.Name] = ent;
+                if (el.ValueKind == JsonValueKind.String) return el.GetString()!;
+                if (el.ValueKind == JsonValueKind.Number) return el.GetRawText();
+                if (el.ValueKind is JsonValueKind.True or JsonValueKind.False) return el.GetRawText();
             }
-            break;
-        }
-        return d;
+        return null;
     }
 
-    private static CharacterData[] ReadCharacters(string accountId, JsonElement root, params string[] keys)
+    private static DateTime? Date(JsonElement obj, params string[] keys)
     {
         foreach (var k in keys)
-        {
-            if (!root.TryGetProperty(k, out var node) || node.ValueKind != JsonValueKind.Object) continue;
-            var list = new List<CharacterData>();
-            foreach (var prop in node.EnumerateObject())
-                if (prop.Value.ValueKind == JsonValueKind.Object)
-                    list.Add(FirebaseCharacterMapper.FromFirebase(accountId, prop.Name, prop.Value));
-            return list.ToArray();
-        }
-        return Array.Empty<CharacterData>();
-    }
-
-    // minimal JSON helpers (same style as Character mapper)
-    private static class J
-    {
-        public static string? Str(JsonElement obj, params string[] names)
-        {
-            foreach (var n in names)
-                if (obj.TryGetProperty(n, out var el))
-                {
-                    if (el.ValueKind == JsonValueKind.String) return el.GetString();
-                    if (el.ValueKind == JsonValueKind.Number) return el.GetRawText();
-                    if (el.ValueKind is JsonValueKind.True or JsonValueKind.False) return el.GetRawText();
-                }
-            return null;
-        }
-        public static int Int(JsonElement obj, params string[] names)
-        {
-            foreach (var n in names)
-                if (obj.TryGetProperty(n, out var el))
-                {
-                    if (el.ValueKind == JsonValueKind.Number && el.TryGetInt32(out var i)) return i;
-                    if (el.ValueKind == JsonValueKind.String && int.TryParse(el.GetString(), out var s)) return s;
-                }
-            return 0;
-        }
-        public static DateTime? Date(JsonElement obj, params string[] names)
-        {
-            foreach (var n in names)
-                if (obj.TryGetProperty(n, out var el))
-                {
-                    if (el.ValueKind == JsonValueKind.String && DateTime.TryParse(el.GetString(), out var dt)) return dt.ToUniversalTime();
-                    if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out var ms))
-                        return DateTimeOffset.FromUnixTimeMilliseconds(ms).UtcDateTime;
-                }
-            return null;
-        }
+            if (obj.TryGetProperty(k, out var el))
+            {
+                if (el.ValueKind == JsonValueKind.String && DateTime.TryParse(el.GetString(), out var dt))
+                    return dt.ToUniversalTime();
+                if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out var ms))
+                    return DateTimeOffset.FromUnixTimeMilliseconds(ms).UtcDateTime;
+            }
+        return null;
     }
 }

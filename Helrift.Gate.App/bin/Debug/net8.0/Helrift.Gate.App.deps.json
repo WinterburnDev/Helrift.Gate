@@ -16,7 +16,10 @@
       },
       "Helrift.Gate.Contracts/1.0.0": {
         "runtime": {
-          "Helrift.Gate.Contracts.dll": {}
+          "Helrift.Gate.Contracts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Helrift.Gate.Contracts
 {
@@ -9,8 +10,20 @@ namespace Helrift.Gate.Contracts
 
     // ---- enums (int-wired). Unknown=0 lets us accept any int values coming from Unity/DB. ----
     public enum Gender : int { Unknown = 0 }
-    public enum EquipmentSlot : int { Unknown = 0 }
-    public enum ItemQuality : int { Unknown = 0 }
+    public enum EquipmentSlot : int {
+        None,
+        Head,
+        Body,
+        Arms,
+        Legs,
+        Back,
+        Neck,
+        Ring1,
+        Ring2,
+        Weapon,
+        Offhand
+    }
+    public enum ItemQuality : int { Unknown = 0, Flimsy = 1 }
     public enum ItemRarity : int { Unknown = 0 }
     public enum ItemStatType : int { Unknown = 0 }
     public enum MaterialType : int { Unknown = 0 }
@@ -283,5 +296,19 @@ namespace Helrift.Gate.Contracts
         public string activeCastEffect { get; set; }
         public string[] unlockedCastEffects { get; set; }
         public string[] unlockedSkins { get; set; }
+    }
+
+    public enum CharacterDeletionState
+    {
+        Success,
+        GeneralFailure,
+        NoCharacterExists,
+        FailedHasItems
+    }
+
+    [Serializable]
+    public class CharacterDeletionResult
+    {
+        public CharacterDeletionState State { get; set; }
     }
 }

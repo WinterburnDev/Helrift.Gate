@@ -27,11 +27,6 @@ C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\Helri
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\Helrift.Gate.Api.sourcelink.json
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.development.json
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets\msbuild.Helrift.Gate.Api.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets\msbuild.build.Helrift.Gate.Api.props
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Helrift.Gate.Api.props
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Helrift.Gate.Api.props
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\scopedcss\bundle\Helrift.Gate.Api.styles.css
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\Helrift..D2A98200.Up2Date
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\Helrift.Gate.Api.dll
@@ -80,3 +75,11 @@ C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\libma
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\Helrift.Gate.Api.staticwebassets.endpoints.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
