@@ -243,7 +243,13 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         {
             var norm = NormalizeNameKey(characterName);
             var namePath = $"character_names/{norm}.json";
-            await _http.DeleteAsync(namePath, ct); // ignore 404/409
+            using (var res = await _http.DeleteAsync(namePath, ct))
+            {
+                if (!res.IsSuccessStatusCode)
+                {
+                    
+                }
+            }
         }
     }
 

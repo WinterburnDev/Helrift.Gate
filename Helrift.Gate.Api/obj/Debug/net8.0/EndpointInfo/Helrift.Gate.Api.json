@@ -292,13 +292,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {

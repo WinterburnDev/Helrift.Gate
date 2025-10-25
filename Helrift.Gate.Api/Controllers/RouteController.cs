@@ -20,7 +20,7 @@ public sealed class RouteController(
 
     // POST /api/v1/route/character
     [HttpPost("character")]
-    //[Authorize] // requires Gate access JWT
+    [Authorize]
     public async Task<ActionResult<CharacterRouteResponse>> RouteCharacter([FromBody] CharacterRouteRequest req, CancellationToken ct)
     {
         if (req is null || string.IsNullOrWhiteSpace(req.characterId))

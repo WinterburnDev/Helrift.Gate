@@ -146,11 +146,6 @@
         "Name": "charId",
         "Type": "System.String",
         "IsRequired": true
-      },
-      {
-        "Name": "name",
-        "Type": "System.String",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": [

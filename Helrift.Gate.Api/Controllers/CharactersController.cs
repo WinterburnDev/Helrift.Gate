@@ -84,7 +84,6 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     public async Task<ActionResult<CharacterDeletionResult>> Delete(
     [FromRoute] string accountId,
     [FromRoute] string charId,
-    [FromQuery] string name,
     CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(charId))
@@ -109,7 +108,7 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
             });
         }
 
-        await data.DeleteCharacterAsync(accountId, charId, name, ct);
+        await data.DeleteCharacterAsync(accountId, charId, character.CharacterName, ct);
 
         return Ok(new CharacterDeletionResult
         {
