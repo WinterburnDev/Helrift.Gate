@@ -45,8 +45,9 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
             Sp = 100,
             Inventory = new CharacterItemData[]
             { 
-                new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "tunic", IsEquipped = true, EquipmentSlot = EquipmentSlot.Body, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy }, 
-                new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "pants", IsEquipped = true, EquipmentSlot = EquipmentSlot.Legs, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy }, 
+                new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "vest", IsEquipped = true, EquipmentSlot = EquipmentSlot.Body, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy },
+                new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "trousers", IsEquipped = true, EquipmentSlot = EquipmentSlot.Legs, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy },
+                new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "wraps", IsEquipped = true, EquipmentSlot = EquipmentSlot.Arms, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy },
                 new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "woodenstaff", IsEquipped = true, EquipmentSlot = EquipmentSlot.Weapon, Quantity = 1, Endurance = 9999, Quality = ItemQuality.Flimsy }, 
                 new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "dagger", Quantity = 1, IsEquipped = false, EquipmentSlot = EquipmentSlot.None, Endurance = 9999, Quality = ItemQuality.Flimsy }, 
                 new CharacterItemData() { UniqueId = Guid.NewGuid().ToString(), ItemId = "healthpot", Quantity = 3, IsEquipped = false, Endurance = 1 } },

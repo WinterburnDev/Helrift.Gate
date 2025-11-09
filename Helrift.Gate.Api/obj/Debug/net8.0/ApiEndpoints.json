@@ -161,6 +161,38 @@
     ]
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.ChatController",
+    "Method": "Broadcast",
+    "RelativePath": "api/v1/chat/broadcast",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Contracts.ChatBroadcastData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.ChatController",
+    "Method": "Whisper",
+    "RelativePath": "api/v1/chat/whisper",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Contracts.WhisperSendDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.EntitlementsController",
     "Method": "GetUnlockablesById",
     "RelativePath": "api/v1/entitlements/{entitlementsId}/unlockables",
@@ -583,6 +615,80 @@
         "Name": "now",
         "Type": "System.Int64",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PresenceController",
+    "Method": "FullSync",
+    "RelativePath": "api/v1/presence/fullsync",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "PresenceFullSyncDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PresenceController",
+    "Method": "GetOnline",
+    "RelativePath": "api/v1/presence/online",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PresenceController",
+    "Method": "GetOnlineByName",
+    "RelativePath": "api/v1/presence/online/{name}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PresenceController",
+    "Method": "Register",
+    "RelativePath": "api/v1/presence/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "PresenceRegisterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PresenceController",
+    "Method": "Unregister",
+    "RelativePath": "api/v1/presence/unregister",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "PresenceUnregisterDto",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

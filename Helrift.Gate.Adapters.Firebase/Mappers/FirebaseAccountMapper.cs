@@ -25,31 +25,43 @@ internal static class FirebaseAccountMapper
             }
         }
 
-        // entitlements: leave empty for now (commented)
-        var entitlements = new Dictionary<string, EntitlementData>(StringComparer.OrdinalIgnoreCase);
-        // if (e.TryGetProperty("entitlements", out var entEl) && entEl.ValueKind == JsonValueKind.Object)
-        // {
-        //     foreach (var kv in entEl.EnumerateObject())
-        //     {
-        //         if (kv.Value.ValueKind != JsonValueKind.Object) continue;
-        //         var ent = EntitlementFirebaseMapper.FromFirebase(kv.Value);
-        //         if (ent != null) entitlements[kv.Name] = ent;
-        //     }
-        // }
-
         // owned unlockables can be array or map-of-true
         var owned = new List<string>();
-        if (e.TryGetProperty("owned_unlockable_ids", out var ou) && ou.ValueKind != JsonValueKind.Undefined && ou.ValueKind != JsonValueKind.Null)
+        if (e.TryGetProperty("owned_entitlements", out var oe) &&
+                oe.ValueKind != JsonValueKind.Undefined &&
+                oe.ValueKind != JsonValueKind.Null &&
+                oe.ValueKind == JsonValueKind.Object)
         {
-            if (ou.ValueKind == JsonValueKind.Array)
+            foreach (var kv in oe.EnumerateObject())
             {
-                foreach (var it in ou.EnumerateArray())
-                    if (it.ValueKind == JsonValueKind.String) owned.Add(it.GetString()!);
-            }
-            else if (ou.ValueKind == JsonValueKind.Object)
-            {
-                foreach (var kv in ou.EnumerateObject())
-                    if (kv.Value.ValueKind == JsonValueKind.True) owned.Add(kv.Name);
+                // skip known non-entitlement nodes like "source"
+                if (kv.NameEquals("source"))
+                    continue;
+
+                // each entitlement should be an object
+                if (kv.Value.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                var entObj = kv.Value;
+
+                string? id = null;
+
+                // prefer the canonical id field if present
+                if (entObj.TryGetProperty("id", out var idEl) && idEl.ValueKind == JsonValueKind.String)
+                {
+                    id = idEl.GetString();
+                }
+
+                // fallback to the firebase key if "id" is missing
+                if (string.IsNullOrEmpty(id))
+                {
+                    id = kv.Name;
+                }
+
+                if (!string.IsNullOrEmpty(id))
+                {
+                    owned.Add(id);
+                }
             }
         }
 
@@ -60,7 +72,6 @@ internal static class FirebaseAccountMapper
             EmailAddress = email,
             LastLogIn = lastLogin,
             Characters = characters.ToArray(),
-            Entitlements = entitlements,
             OwnedUnlockableIds = owned
         };
     }

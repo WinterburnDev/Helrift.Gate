@@ -1,19 +1,20 @@
 using Google.Apis.Auth.OAuth2;
 using Helrift.Gate.Adapters.Firebase;
 using Helrift.Gate.Api.Services.Accounts;
+using Helrift.Gate.Api.Services.Auth;
+using Helrift.Gate.Api.Services.GameServers;
+using Helrift.Gate.Api.Services.Routing;
 using Helrift.Gate.Api.Services.Steam;
 using Helrift.Gate.Api.Services.Tokens;
 using Helrift.Gate.App;
+using Helrift.Gate.Infrastructure;
+using Helrift.Gate.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
-
 using Polly;
 using Polly.Extensions.Http;
-using Helrift.Gate.Api.Services.GameServers;
-using Helrift.Gate.Api.Services.Routing;
-using Helrift.Gate.Api.Services.Auth;
+using System.Text;
 
 // ----------------------
 // Host + Services
@@ -85,9 +86,13 @@ builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
 
+// SERVICES
+builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectionRegistry>();
 builder.Services.AddSingleton<IAccountService, InMemoryAccountService>();
+builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
 builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+builder.Services.AddSingleton<IPresenceService, PresenceService>();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
@@ -127,6 +132,10 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// GAME SERVER SOCKETS
+app.UseWebSockets();
+app.MapGameServerWebSockets();
 
 app.MapControllers();
 

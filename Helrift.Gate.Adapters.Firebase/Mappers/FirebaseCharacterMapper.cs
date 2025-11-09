@@ -193,7 +193,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 IsEquipped = J.Bool(it, "is_equipped", "isEquipped"),
                 EquipmentSlot = (EquipmentSlot)J.Int(it, "equipment_slot", "equipmentSlot"),
                 IsDualWield = J.Bool(it, "is_dual_wield", "isDualWield"),
-                Colour = J.Str(it, "colour", "color"),
+                Colours = ReadColours(it),
                 Endurance = J.Int(it, "endurance"),
                 Weight = J.Float(it, "weight"),
                 Quality = (ItemQuality)J.Int(it, "quality"),
@@ -220,7 +220,7 @@ namespace Helrift.Gate.Adapters.Firebase
                     ItemId = J.Str(it, "item_id", "itemId"),
                     Quantity = J.Int(it, "quantity"),
                     SkinId = J.Str(it, "skin_id", "skinId"),
-                    Colour = J.Str(it, "colour", "color"),
+                    Colours = ReadColours(it),
                     Endurance = J.Int(it, "endurance"),
                     Weight = J.Float(it, "weight"),
                     Quality = (ItemQuality)J.Int(it, "quality"),
@@ -428,39 +428,96 @@ namespace Helrift.Gate.Adapters.Firebase
             return new CharacterBeastiaryData { entries = list.ToArray() };
         }
 
+        private static string[] ReadColours(JsonElement it)
+        {
+            // new format: "colours": ["red","gold"]
+            if (it.TryGetProperty("colours", out var arr) && arr.ValueKind == JsonValueKind.Array)
+                return J.StringArrayFromAny(arr);
+
+            // legacy: "colour": "red" or "color": "red"
+            var single = J.Str(it, "colour", "color");
+            if (!string.IsNullOrEmpty(single))
+                return new[] { single };
+
+            return Array.Empty<string>();
+        }
+
         private static CharacterResearchData ReadResearch(JsonElement root, string key)
         {
-            if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return null;
+            if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object)
+                return null;
 
-            var r = new CharacterResearchData();
+            var r = new CharacterResearchData
+            {
+                materialInsights = new Dictionary<int, CharacterResearchMaterialData>(),
+                recipes = new Dictionary<string, ItemQuality>()
+            };
 
+            // material_insights / materialInsights
             if (el.TryGetProperty("material_insights", out var mi) || el.TryGetProperty("materialInsights", out mi))
             {
                 if (mi.ValueKind == JsonValueKind.Object)
                 {
-                    foreach (var kv in mi.EnumerateObject())
+                    foreach (var prop in mi.EnumerateObject())
                     {
-                        if (kv.Value.ValueKind != JsonValueKind.Object) continue;
-                        var mm = new CharacterResearchMaterialData { mi = J.Int(kv.Value, "mi") };
-                        // MaterialType is int-wired; key may be name or number; we accept number string best-effort.
-                        if (int.TryParse(kv.Name, out var intKey))
-                            r.materialInsights[(MaterialType)intKey] = mm;
+                        int materialType;
+
+                        if (int.TryParse(prop.Name, out var intKey))
+                            materialType = intKey;
+                        else continue;
+
+                        CharacterResearchMaterialData matData;
+
+                        if (prop.Value.ValueKind == JsonValueKind.Object)
+                        {
+                            // expected shape: { "mi": 5 }
+                            matData = new CharacterResearchMaterialData
+                            {
+                                mi = J.Int(prop.Value, "mi")
+                            };
+                        }
+                        else if (prop.Value.ValueKind == JsonValueKind.Number)
+                        {
+                            // allow: "3": 5
+                            matData = new CharacterResearchMaterialData
+                            {
+                                mi = prop.Value.GetInt32()
+                            };
+                        }
+                        else
+                        {
+                            // unhandled shape, skip
+                            continue;
+                        }
+
+                        r.materialInsights[materialType] = matData;
                     }
                 }
             }
 
+            // recipes
             if (el.TryGetProperty("recipes", out var rc) && rc.ValueKind == JsonValueKind.Object)
             {
-                foreach (var kv in rc.EnumerateObject())
+                foreach (var prop in rc.EnumerateObject())
                 {
-                    var q = kv.Value.ValueKind == JsonValueKind.Number ? (int)kv.Value.GetDouble() :
-                            int.TryParse(kv.Value.GetString(), out var t) ? t : 0;
-                    r.recipes[kv.Name] = (ItemQuality)q;
+                    int q;
+                    if (prop.Value.ValueKind == JsonValueKind.Number)
+                    {
+                        q = (int)prop.Value.GetDouble();
+                    }
+                    else
+                    {
+                        var s = prop.Value.GetString();
+                        q = int.TryParse(s, out var parsed) ? parsed : 0;
+                    }
+
+                    r.recipes[prop.Name] = (ItemQuality)q;
                 }
             }
 
             return r;
         }
+
 
         private static CharacterSpellsData ReadSpells(JsonElement root, string key)
         {
@@ -594,7 +651,7 @@ namespace Helrift.Gate.Adapters.Firebase
         {
             if (r == null) return null;
             var mi = new Dictionary<string, object>();
-            foreach (var kv in r.materialInsights ?? new Dictionary<MaterialType, CharacterResearchMaterialData>())
+            foreach (var kv in r.materialInsights ?? new Dictionary<int, CharacterResearchMaterialData>())
                 mi[((int)kv.Key).ToString()] = new Dictionary<string, object> { ["mi"] = kv.Value?.mi ?? 0 };
 
             var rc = new Dictionary<string, int>();
@@ -630,7 +687,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["is_equipped"] = it.IsEquipped,
                 ["equipment_slot"] = (int)it.EquipmentSlot,
                 ["is_dual_wield"] = it.IsDualWield,
-                ["colour"] = it.Colour,
+                ["colours"] = it.Colours,
                 ["endurance"] = it.Endurance,
                 ["weight"] = it.Weight,
                 ["quality"] = (int)it.Quality,
@@ -650,7 +707,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["item_id"] = it.ItemId,
                 ["quantity"] = it.Quantity,
                 ["skin_id"] = it.SkinId,
-                ["colour"] = it.Colour,
+                ["colours"] = it.Colours ?? Array.Empty<string>(),
                 ["endurance"] = it.Endurance,
                 ["weight"] = it.Weight,
                 ["quality"] = (int)it.Quality,

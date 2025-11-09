@@ -26,7 +26,6 @@ namespace Helrift.Gate.Contracts
     public enum ItemQuality : int { Unknown = 0, Flimsy = 1 }
     public enum ItemRarity : int { Unknown = 0 }
     public enum ItemStatType : int { Unknown = 0 }
-    public enum MaterialType : int { Unknown = 0 }
 
     // ---- Character root ----
     [Serializable]
@@ -97,7 +96,7 @@ namespace Helrift.Gate.Contracts
         public bool IsEquipped { get; set; }
         public EquipmentSlot EquipmentSlot { get; set; }
         public bool IsDualWield { get; set; }
-        public string Colour { get; set; }
+        public string[] Colours { get; set; }
         public int Endurance { get; set; }
         public float Weight { get; set; }
         public ItemQuality Quality { get; set; }
@@ -117,7 +116,7 @@ namespace Helrift.Gate.Contracts
         public string ItemId { get; set; }
         public int Quantity { get; set; }
         public string SkinId { get; set; }
-        public string Colour { get; set; }
+        public string[] Colours { get; set; }
         public int Endurance { get; set; }
         public float Weight { get; set; }
         public ItemQuality Quality { get; set; }
@@ -274,7 +273,7 @@ namespace Helrift.Gate.Contracts
     [Serializable]
     public class CharacterResearchData
     {
-        public Dictionary<MaterialType, CharacterResearchMaterialData> materialInsights { get; set; }
+        public Dictionary<int, CharacterResearchMaterialData> materialInsights { get; set; }
         public Dictionary<string, ItemQuality> recipes { get; set; }
     }
 

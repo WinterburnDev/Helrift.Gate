@@ -12,23 +12,7 @@ namespace Helrift.Gate.Contracts
         public string EmailAddress { get; set; }
         public DateTime LastLogIn { get; set; }
         public CharacterData[] Characters { get; set; }
-        public Dictionary<string, EntitlementData> Entitlements { get; set; }
         public List<string> OwnedUnlockableIds { get; set; }
-    }
-
-    [Serializable]
-    public class EntitlementData
-    {
-        public string Id;
-        public string Since;
-        public int PurchaseCount;
-    }
-
-    [Serializable]
-    public class PasswordData
-    {
-        public string Salt { get; set; }
-        public string Hash { get; set; }
     }
 
     public sealed class NewAccountRequest
