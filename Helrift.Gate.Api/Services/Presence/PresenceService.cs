@@ -137,6 +137,14 @@ public sealed class PresenceService : IPresenceService
         }
     }
 
+    public IReadOnlyCollection<OnlinePlayer> GetOnlineByIds(string[] ids)
+    {
+        lock (_lock)
+        {
+            return _onlineByName.Values.Where(p => ids.Contains(p.CharacterId)).ToList();
+        }
+    }
+
     public IReadOnlyCollection<OnlinePlayer> GetByServer(string gameServerId)
     {
         lock (_lock)

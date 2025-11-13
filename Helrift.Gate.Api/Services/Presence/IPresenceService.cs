@@ -14,5 +14,6 @@
     // queries
     OnlinePlayer GetByName(string characterName);
     IReadOnlyCollection<OnlinePlayer> GetAll();
+    IReadOnlyCollection<OnlinePlayer> GetOnlineByIds(string[] ids);
     IReadOnlyCollection<OnlinePlayer> GetByServer(string gameServerId);
 }

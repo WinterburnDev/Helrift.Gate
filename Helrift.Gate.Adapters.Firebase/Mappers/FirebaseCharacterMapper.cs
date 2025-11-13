@@ -47,7 +47,8 @@ namespace Helrift.Gate.Adapters.Firebase
                 Research = ReadResearch(el, "research"),
                 Spells = ReadSpells(el, "spells"),
                 Cosmetics = ReadCosmetics(el, "cosmetics"),
-                LastLoggedIn = J.Date(el, "last_logged_in", "lastLoggedIn")
+                LastLoggedIn = J.Date(el, "last_logged_in", "lastLoggedIn"),
+                Friends = ReadFriends(el, "friends")
             };
             return c;
         }
@@ -91,6 +92,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["research"] = Obj(c.Research),
                 ["spells"] = Obj(c.Spells),
                 ["cosmetics"] = Obj(c.Cosmetics),
+                ["friends"] = Obj(c.Friends, FriendObj)
             };
 
             if (c.LastLoggedIn.HasValue)
@@ -293,6 +295,34 @@ namespace Helrift.Gate.Adapters.Firebase
             }
 
             return list.ToArray();
+        }
+
+        private static Dictionary<string, FriendEntry> ReadFriends(JsonElement root, string key)
+        {
+            if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return new();
+            var d = new Dictionary<string, FriendEntry>(StringComparer.Ordinal);
+            foreach (var prop in el.EnumerateObject())
+            {
+                var friendId = prop.Name;
+                var fVal = prop.Value;
+                if (fVal.ValueKind != JsonValueKind.Object) continue;
+
+                var entry = new FriendEntry
+                {
+                    note = fVal.TryGetProperty("note", out var noteEl) && noteEl.ValueKind == JsonValueKind.String
+                        ? noteEl.GetString()
+                        : null,
+                    since = fVal.TryGetProperty("since", out var sinceEl) && sinceEl.ValueKind == JsonValueKind.String
+                        ? sinceEl.GetString()
+                        : null,
+                    name = fVal.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String
+                        ? nameEl.GetString()
+                        : null
+                };
+
+                d.Add(friendId, entry);
+            }
+            return d;
         }
 
         private static Dictionary<string, CharacterSkillData> ReadSkills(JsonElement root, string key)
@@ -585,6 +615,15 @@ namespace Helrift.Gate.Adapters.Firebase
             return d;
         }
 
+        private static object Obj(Dictionary<string, FriendEntry> friends, Func<KeyValuePair<string, FriendEntry>, KeyValuePair<string, object>> projector)
+        {
+            if (friends == null) return new Dictionary<string, object>();
+            var d = new Dictionary<string, object>(friends.Count, StringComparer.Ordinal);
+            foreach (var kv in friends.Select(projector))
+                d[kv.Key] = kv.Value;
+            return d;
+        }
+
         private static KeyValuePair<string, object> SkillObj(KeyValuePair<string, CharacterSkillData> kv)
         {
             var v = kv.Value ?? new CharacterSkillData();
@@ -592,6 +631,15 @@ namespace Helrift.Gate.Adapters.Firebase
             {
                 ["total_xp"] = v.totalXp,
                 ["attributes"] = v.attributes ?? new Dictionary<string, double>()
+            });
+        }
+
+        private static KeyValuePair<string, object> FriendObj(KeyValuePair<string, FriendEntry> kv)
+        {
+            var v = kv.Value ?? new FriendEntry();
+            return new KeyValuePair<string, object>(kv.Key, new Dictionary<string, object>
+            {
+                ["name"] = v.name
             });
         }
 

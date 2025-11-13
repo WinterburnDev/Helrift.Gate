@@ -25,7 +25,7 @@ public sealed class ChatController(IChatBroadcaster broadcaster, IPresenceServic
         if (string.IsNullOrWhiteSpace(dto.Message))
             return BadRequest("Message required.");
 
-        logger.LogInformation($"[Chat] Broadcast requested {dto.Message}");
+        logger.LogInformation($"[Chat] Broadcast requested {dto.Message} [{dto.ChatType.ToString()}]");
 
         await broadcaster.BroadcastAsync(dto, ct);
         return Accepted();

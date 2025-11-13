@@ -1,5 +1,98 @@
 [
   {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "AddFriend",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.AddFriendRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.FriendStatusDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "DeleteFriend",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/{friendCharacterId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "friendCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "GetSnapshot",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/snapshot",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.Envelope\u00601[[Helrift.Gate.Contracts.FriendsSnapshotPayload, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.AccountsController",
     "Method": "Get",
     "RelativePath": "api/v1/accounts/{accountId}",

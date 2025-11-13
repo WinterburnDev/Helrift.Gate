@@ -216,6 +216,26 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
             throw new ArgumentException("Username and Id are required to save a character.");
 
         var path = $"accounts/{c.Username}/characters/{c.Id}.json";
+
+        // map out of band (non game server) data
+        if (c.Friends == null)
+        {
+            try
+            {
+                var existing = await GetCharacterAsync(c.Username, c.Id, ct);
+                if (existing?.Friends != null)
+                {
+                    c.Friends = existing.Friends;
+                }
+            }
+            catch (Exception ex)
+            {
+                // log but don't fail the whole save because of friends merge
+                // (optional depending on how strict you want this)
+                Console.WriteLine($"[FirebaseGameDataProvider] Failed to merge Friends: {ex}");
+            }
+        }
+
         var body = FirebaseCharacterMapper.ToFirebaseDict(c);
 
         var put = await _http.PutAsJsonAsync(path, body, Json, ct);
@@ -298,7 +318,8 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
             Research = c.Research,
             Spells = c.Spells,
             Cosmetics = c.Cosmetics,
-            LastLoggedIn = c.LastLoggedIn
+            LastLoggedIn = c.LastLoggedIn,
+            Friends = c.Friends
         };
     }
 }

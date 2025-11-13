@@ -71,6 +71,8 @@ namespace Helrift.Gate.Contracts
         public CharacterCosmeticData Cosmetics { get; set; }
 
         public DateTime? LastLoggedIn { get; set; }
+
+        public Dictionary<string, FriendEntry>? Friends { get; set; }
     }
 
     [Serializable]
