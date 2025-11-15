@@ -646,6 +646,169 @@
         }
       }
     },
+    "/api/accounts/{accountId}/characters/{characterId}/friends/requests": {
+      "post": {
+        "tags": [
+          "Friends"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendFriendRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendFriendRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendFriendRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/accounts/{accountId}/characters/{characterId}/friends/requests/{fromCharacterId}/accept": {
+      "post": {
+        "tags": [
+          "Friends"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromCharacterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/accounts/{accountId}/characters/{characterId}/friends/requests/{fromCharacterId}/reject": {
+      "post": {
+        "tags": [
+          "Friends"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromCharacterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/accounts/{accountId}/characters/{characterId}/friends/requests/{targetCharacterId}/cancel": {
+      "post": {
+        "tags": [
+          "Friends"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "targetCharacterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/v1/guilds/{guildId}": {
       "get": {
         "tags": [
@@ -1689,6 +1852,13 @@
               "$ref": "#/components/schemas/FriendEntry"
             },
             "nullable": true
+          },
+          "friendRequests": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FriendRequestEntry"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2250,6 +2420,42 @@
         },
         "additionalProperties": false
       },
+      "FriendRequestEntry": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "direction": {
+            "type": "string",
+            "nullable": true
+          },
+          "since": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendRequestStatusDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "direction": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "FriendStatusDto": {
         "type": "object",
         "properties": {
@@ -2278,6 +2484,20 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FriendStatusDto"
+            },
+            "nullable": true
+          },
+          "incomingRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FriendRequestStatusDto"
+            },
+            "nullable": true
+          },
+          "outgoingRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FriendRequestStatusDto"
             },
             "nullable": true
           }
@@ -2867,6 +3087,16 @@
             "nullable": true
           },
           "characterName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendFriendRequestDto": {
+        "type": "object",
+        "properties": {
+          "targetName": {
             "type": "string",
             "nullable": true
           }

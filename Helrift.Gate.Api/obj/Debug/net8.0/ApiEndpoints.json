@@ -63,6 +63,110 @@
   },
   {
     "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "SendFriendRequest",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/requests",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "body",
+        "Type": "Helrift.Gate.Contracts.SendFriendRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "AcceptFriendRequest",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/requests/{fromCharacterId}/accept",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fromCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "RejectFriendRequest",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/requests/{fromCharacterId}/reject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fromCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
+    "Method": "CancelFriendRequest",
+    "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/requests/{targetCharacterId}/cancel",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "targetCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Gate.Controllers.FriendsController",
     "Method": "GetSnapshot",
     "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends/snapshot",
     "HttpMethod": "GET",

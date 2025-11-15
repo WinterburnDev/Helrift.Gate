@@ -69,6 +69,57 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         return FirebaseCharacterMapper.FromFirebase(accountId, charId, root);
     }
 
+    public async Task<CharacterNameRecord?> GetCharacterByNameAsync(string characterName, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(characterName))
+            return null;
+
+        var norm = NormalizeNameKey(characterName);
+        var path = $"character_names/{norm}.json";
+
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
+        // expected shape:
+        // {
+        //   "character_name": "...",
+        //   "character_id": "...",
+        //   "account_id": "...",
+        //   "created_at": 1731328800000
+        // }
+        var accountId = root.TryGetProperty("account_id", out var accEl) && accEl.ValueKind == JsonValueKind.String
+            ? accEl.GetString()
+            : null;
+
+        var charId = root.TryGetProperty("character_id", out var charEl) && charEl.ValueKind == JsonValueKind.String
+            ? charEl.GetString()
+            : null;
+
+        var canonicalName = root.TryGetProperty("character_name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String
+            ? nameEl.GetString()
+            : characterName;
+
+        if (string.IsNullOrWhiteSpace(accountId) || string.IsNullOrWhiteSpace(charId))
+            return null;
+
+        return new CharacterNameRecord
+        {
+            AccountId = accountId,
+            CharacterId = charId,
+            CharacterName = canonicalName ?? string.Empty
+        };
+    }
+
     /// <summary>
     /// Optional convenience if your interface includes it:
     /// Returns username + character count from /accounts/{accountId}.
@@ -225,7 +276,11 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
                 var existing = await GetCharacterAsync(c.Username, c.Id, ct);
                 if (existing?.Friends != null)
                 {
-                    c.Friends = existing.Friends;
+                    if(c.Friends == null && existing.Friends != null)
+                        c.Friends = existing.Friends;
+
+                    if (c.FriendRequests == null && existing.FriendRequests != null)
+                        c.FriendRequests = existing.FriendRequests;
                 }
             }
             catch (Exception ex)

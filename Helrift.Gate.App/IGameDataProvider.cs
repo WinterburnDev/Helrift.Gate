@@ -11,6 +11,8 @@ namespace Helrift.Gate.App
 
         Task<IReadOnlyList<CharacterData>> GetCharactersAsync(string accountId, CancellationToken ct);
         Task<CharacterData?> GetCharacterAsync(string accountId, string charId, CancellationToken ct);
+        Task<CharacterNameRecord?> GetCharacterByNameAsync(string characterName, CancellationToken ct);
+
 
         Task CreateCharacterAsync(CharacterData character, CancellationToken ct);
         Task SaveCharacterAsync(CharacterData character, CancellationToken ct);

@@ -9,6 +9,8 @@ namespace Helrift.Gate.Contracts
     public class FriendsSnapshotPayload
     {
         public List<FriendStatusDto> friends { get; set; }
+        public List<FriendRequestStatusDto> incomingRequests { get; set; } = new();
+        public List<FriendRequestStatusDto> outgoingRequests { get; set; } = new();
     }
 
     public class AddFriendRequest
@@ -25,6 +27,13 @@ namespace Helrift.Gate.Contracts
         public string server { get; set; }    // optional
     }
 
+    public sealed class FriendRequestStatusDto
+    {
+        public string characterId { get; set; } = string.Empty; // other character id
+        public string name { get; set; } = string.Empty;        // other character name
+        public string direction { get; set; } = string.Empty;   // "incoming" or "outgoing" (mostly redundant but handy)
+    }
+
     // what we load from Firebase in character doc:
     public class FriendEntry
     {
@@ -32,4 +41,17 @@ namespace Helrift.Gate.Contracts
         public string since { get; set; }
         public string name { get; set; } // optional denorm
     }
+
+    public sealed class FriendRequestEntry
+    {
+        public string? name { get; set; }
+        public string? direction { get; set; }
+        public string? since { get; set; }
+    }
+
+    public sealed class SendFriendRequestDto
+    {
+        public string TargetName { get; set; } = string.Empty;
+    }
+
 }

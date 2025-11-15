@@ -73,6 +73,7 @@ namespace Helrift.Gate.Contracts
         public DateTime? LastLoggedIn { get; set; }
 
         public Dictionary<string, FriendEntry>? Friends { get; set; }
+        public Dictionary<string, FriendRequestEntry>? FriendRequests { get; set; }
     }
 
     [Serializable]
@@ -311,5 +312,12 @@ namespace Helrift.Gate.Contracts
     public class CharacterDeletionResult
     {
         public CharacterDeletionState State { get; set; }
+    }
+
+    public sealed class CharacterNameRecord
+    {
+        public string AccountId { get; set; } = string.Empty;
+        public string CharacterId { get; set; } = string.Empty;
+        public string CharacterName { get; set; } = string.Empty;
     }
 }

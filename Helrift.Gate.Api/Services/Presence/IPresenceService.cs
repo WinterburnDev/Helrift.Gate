@@ -16,4 +16,7 @@
     IReadOnlyCollection<OnlinePlayer> GetAll();
     IReadOnlyCollection<OnlinePlayer> GetOnlineByIds(string[] ids);
     IReadOnlyCollection<OnlinePlayer> GetByServer(string gameServerId);
+
+    event Action<OnlinePlayer> PlayerCameOnline;
+    event Action<OnlinePlayer> PlayerWentOffline;
 }

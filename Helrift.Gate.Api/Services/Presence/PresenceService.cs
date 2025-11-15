@@ -8,6 +8,9 @@ public sealed class PresenceService : IPresenceService
     private readonly Dictionary<string, HashSet<string>> _playersByServer =
         new(StringComparer.OrdinalIgnoreCase);
 
+    public event Action<OnlinePlayer> PlayerCameOnline;
+    public event Action<OnlinePlayer> PlayerWentOffline;
+
     public void RegisterGameServer(string gameServerId)
     {
         if (string.IsNullOrWhiteSpace(gameServerId))
@@ -53,7 +56,10 @@ public sealed class PresenceService : IPresenceService
 
             set.Add(characterName);
 
-            _onlineByName[characterName] = new OnlinePlayer
+            _onlineByName.TryGetValue(characterName, out var existing);
+            bool wasOnline = existing != null;
+
+            var online = new OnlinePlayer
             {
                 CharacterId = characterId,
                 CharacterName = characterName,
@@ -61,6 +67,12 @@ public sealed class PresenceService : IPresenceService
                 Side = side,
                 LastSeenUtc = DateTime.UtcNow
             };
+
+            _onlineByName[characterName] = online;
+
+            // 🔔 fire only on transition offline -> online
+            if (!wasOnline)
+                PlayerCameOnline?.Invoke(online);
         }
     }
 
@@ -76,11 +88,13 @@ public sealed class PresenceService : IPresenceService
                 set.Remove(characterName);
             }
 
-            // only remove if this player was on this GS (defensive)
-            if (_onlineByName.TryGetValue(characterName, out var p) &&
-                string.Equals(p.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
+            if (_onlineByName.TryGetValue(characterName, out var existing) &&
+                string.Equals(existing.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
             {
                 _onlineByName.Remove(characterName);
+
+                // 🔔 fire only when we actually removed them
+                PlayerWentOffline?.Invoke(existing);
             }
         }
     }
@@ -89,24 +103,20 @@ public sealed class PresenceService : IPresenceService
     {
         lock (_lock)
         {
-            // clear old
-            if (_playersByServer.TryGetValue(gameServerId, out var old))
-            {
-                foreach (var name in old)
-                {
-                    if (_onlineByName.TryGetValue(name, out var p) &&
-                        string.Equals(p.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _onlineByName.Remove(name);
-                    }
-                }
-            }
+            // old set of names on this server
+            var oldNames = _playersByServer.TryGetValue(gameServerId, out var oldSet)
+                ? new HashSet<string>(oldSet, StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var newSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // build new presence + detect new online for this server
             foreach (var pl in players)
             {
                 newSet.Add(pl.CharacterName);
-                _onlineByName[pl.CharacterName] = new OnlinePlayer
+
+                bool wasOnline = _onlineByName.TryGetValue(pl.CharacterName, out var existing);
+                var online = new OnlinePlayer
                 {
                     CharacterId = pl.CharacterId,
                     CharacterName = pl.CharacterName,
@@ -114,6 +124,23 @@ public sealed class PresenceService : IPresenceService
                     Side = pl.Side,
                     LastSeenUtc = DateTime.UtcNow
                 };
+
+                _onlineByName[pl.CharacterName] = online;
+
+                if (!wasOnline)
+                    PlayerCameOnline?.Invoke(online);
+            }
+
+            // detect which names disappeared from this server
+            foreach (var oldName in oldNames)
+            {
+                if (!newSet.Contains(oldName) &&
+                    _onlineByName.TryGetValue(oldName, out var existing) &&
+                    string.Equals(existing.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    _onlineByName.Remove(oldName);
+                    PlayerWentOffline?.Invoke(existing);
+                }
             }
 
             _playersByServer[gameServerId] = newSet;

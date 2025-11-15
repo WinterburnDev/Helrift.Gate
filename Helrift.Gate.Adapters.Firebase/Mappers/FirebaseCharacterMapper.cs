@@ -48,7 +48,8 @@ namespace Helrift.Gate.Adapters.Firebase
                 Spells = ReadSpells(el, "spells"),
                 Cosmetics = ReadCosmetics(el, "cosmetics"),
                 LastLoggedIn = J.Date(el, "last_logged_in", "lastLoggedIn"),
-                Friends = ReadFriends(el, "friends")
+                Friends = ReadFriends(el, "friends"),
+                FriendRequests = ReadFriendRequests(el, "friend_requests")
             };
             return c;
         }
@@ -92,7 +93,8 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["research"] = Obj(c.Research),
                 ["spells"] = Obj(c.Spells),
                 ["cosmetics"] = Obj(c.Cosmetics),
-                ["friends"] = Obj(c.Friends, FriendObj)
+                ["friends"] = Obj(c.Friends, FriendObj),
+                ["friend_requests"] = Obj(c.FriendRequests, FriendRequestObj),
             };
 
             if (c.LastLoggedIn.HasValue)
@@ -310,6 +312,34 @@ namespace Helrift.Gate.Adapters.Firebase
                 var entry = new FriendEntry
                 {
                     note = fVal.TryGetProperty("note", out var noteEl) && noteEl.ValueKind == JsonValueKind.String
+                        ? noteEl.GetString()
+                        : null,
+                    since = fVal.TryGetProperty("since", out var sinceEl) && sinceEl.ValueKind == JsonValueKind.String
+                        ? sinceEl.GetString()
+                        : null,
+                    name = fVal.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String
+                        ? nameEl.GetString()
+                        : null
+                };
+
+                d.Add(friendId, entry);
+            }
+            return d;
+        }
+
+        private static Dictionary<string, FriendRequestEntry> ReadFriendRequests(JsonElement root, string key)
+        {
+            if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return new();
+            var d = new Dictionary<string, FriendRequestEntry>(StringComparer.Ordinal);
+            foreach (var prop in el.EnumerateObject())
+            {
+                var friendId = prop.Name;
+                var fVal = prop.Value;
+                if (fVal.ValueKind != JsonValueKind.Object) continue;
+
+                var entry = new FriendRequestEntry
+                {
+                    direction = fVal.TryGetProperty("direction", out var noteEl) && noteEl.ValueKind == JsonValueKind.String
                         ? noteEl.GetString()
                         : null,
                     since = fVal.TryGetProperty("since", out var sinceEl) && sinceEl.ValueKind == JsonValueKind.String
@@ -623,6 +653,14 @@ namespace Helrift.Gate.Adapters.Firebase
                 d[kv.Key] = kv.Value;
             return d;
         }
+        private static object Obj(Dictionary<string, FriendRequestEntry> friends, Func<KeyValuePair<string, FriendRequestEntry>, KeyValuePair<string, object>> projector)
+        {
+            if (friends == null) return new Dictionary<string, object>();
+            var d = new Dictionary<string, object>(friends.Count, StringComparer.Ordinal);
+            foreach (var kv in friends.Select(projector))
+                d[kv.Key] = kv.Value;
+            return d;
+        }
 
         private static KeyValuePair<string, object> SkillObj(KeyValuePair<string, CharacterSkillData> kv)
         {
@@ -639,7 +677,20 @@ namespace Helrift.Gate.Adapters.Firebase
             var v = kv.Value ?? new FriendEntry();
             return new KeyValuePair<string, object>(kv.Key, new Dictionary<string, object>
             {
-                ["name"] = v.name
+                ["name"] = v.name,
+                ["note"] = v.note,
+                ["since"] = v.since
+            });
+        }
+
+        private static KeyValuePair<string, object> FriendRequestObj(KeyValuePair<string, FriendRequestEntry> kv)
+        {
+            var v = kv.Value ?? new FriendRequestEntry();
+            return new KeyValuePair<string, object>(kv.Key, new Dictionary<string, object>
+            {
+                ["name"] = v.name,
+                ["direction"] = v.direction,
+                ["since"] = v.since
             });
         }
 

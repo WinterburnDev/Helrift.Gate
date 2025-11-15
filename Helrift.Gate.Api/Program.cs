@@ -92,6 +92,7 @@ builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectio
 builder.Services.AddSingleton<IAccountService, InMemoryAccountService>();
 builder.Services.AddSingleton<IFriendsService, FriendsService>();
 builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
+builder.Services.AddSingleton<WebSocketFriendPresenceNotifier>();
 builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
@@ -138,6 +139,8 @@ app.UseSwaggerUI();
 // GAME SERVER SOCKETS
 app.UseWebSockets();
 app.MapGameServerWebSockets();
+
+_ = app.Services.GetRequiredService<WebSocketFriendPresenceNotifier>();
 
 app.MapControllers();
 
