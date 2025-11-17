@@ -1,8 +1,8 @@
 ﻿// Helrift.Gate.Api/Controllers/GuildsController.cs
 using Helrift.Gate.Adapters.Firebase;
 using Helrift.Gate.Contracts;
-using Helrift.Gate.App;
 using Microsoft.AspNetCore.Mvc;
+using Helrift.Gate.App.Repositories;
 
 namespace Helrift.Gate.Api.Controllers;
 

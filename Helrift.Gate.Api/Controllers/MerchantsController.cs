@@ -1,5 +1,5 @@
 ﻿// Helrift.Gate.Api/Controllers/MerchantsController.cs
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Microsoft.AspNetCore.Mvc;
 

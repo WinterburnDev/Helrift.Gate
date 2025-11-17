@@ -1,4 +1,5 @@
 ﻿using Helrift.Gate.Api.Services.Friends;
+using Helrift.Gate.App.Domain;
 using Helrift.Gate.Contracts;
 using Helrift.Gate.Infrastructure;
 using Microsoft.Extensions.Logging;

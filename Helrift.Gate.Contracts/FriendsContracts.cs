@@ -34,12 +34,11 @@ namespace Helrift.Gate.Contracts
         public string direction { get; set; } = string.Empty;   // "incoming" or "outgoing" (mostly redundant but handy)
     }
 
-    // what we load from Firebase in character doc:
     public class FriendEntry
     {
         public string note { get; set; }
         public string since { get; set; }
-        public string name { get; set; } // optional denorm
+        public string name { get; set; } 
     }
 
     public sealed class FriendRequestEntry

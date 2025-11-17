@@ -1,4 +1,6 @@
-﻿public interface IPresenceService
+﻿using Helrift.Gate.App.Domain;
+
+public interface IPresenceService
 {
     // game-server level
     void RegisterGameServer(string gameServerId);

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Helrift.Gate.App
+namespace Helrift.Gate.App.Repositories
 {
     public interface IGuildDataProvider
     {

@@ -1,5 +1,6 @@
 using Google.Apis.Auth.OAuth2;
 using Helrift.Gate.Adapters.Firebase;
+using Helrift.Gate.Api.Services;
 using Helrift.Gate.Api.Services.Accounts;
 using Helrift.Gate.Api.Services.Auth;
 using Helrift.Gate.Api.Services.Friends;
@@ -7,8 +8,9 @@ using Helrift.Gate.Api.Services.GameServers;
 using Helrift.Gate.Api.Services.Routing;
 using Helrift.Gate.Api.Services.Steam;
 using Helrift.Gate.Api.Services.Tokens;
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Infrastructure;
+using Helrift.Gate.Infrastructure.Parties;
 using Helrift.Gate.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +88,7 @@ builder.Services.AddScoped<IGameDataProvider, FirebaseGameDataProvider>();
 builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
+builder.Services.AddSingleton<IPartyDataProvider, InMemoryPartyRepository>();
 
 // SERVICES
 builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectionRegistry>();
@@ -93,9 +96,12 @@ builder.Services.AddSingleton<IAccountService, InMemoryAccountService>();
 builder.Services.AddSingleton<IFriendsService, FriendsService>();
 builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
 builder.Services.AddSingleton<WebSocketFriendPresenceNotifier>();
+builder.Services.AddSingleton<WebSocketPartyNotifier>();
 builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
+builder.Services.AddSingleton<PartyPresenceCleanupListener>();
+builder.Services.AddSingleton<IPartyService, PartyService>();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
@@ -141,6 +147,8 @@ app.UseWebSockets();
 app.MapGameServerWebSockets();
 
 _ = app.Services.GetRequiredService<WebSocketFriendPresenceNotifier>();
+_ = app.Services.GetRequiredService<WebSocketPartyNotifier>();
+_ = app.Services.GetRequiredService<PartyPresenceCleanupListener>();
 
 app.MapControllers();
 

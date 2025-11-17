@@ -1357,6 +1357,293 @@
         }
       }
     },
+    "/api/party/create": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/party/join": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinPartyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinPartyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinPartyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/party/leave": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeavePartyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeavePartyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeavePartyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/party/set-leader": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLeaderRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLeaderRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLeaderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/party/kick": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KickMemberRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KickMemberRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/KickMemberRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/party/list": {
+      "get": {
+        "tags": [
+          "Party"
+        ],
+        "parameters": [
+          {
+            "name": "side",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/OwnerSide"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartyDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartyDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartyDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/presence/register": {
       "post": {
         "tags": [
@@ -2316,6 +2603,32 @@
         },
         "additionalProperties": false
       },
+      "CreatePartyRequest": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterName": {
+            "type": "string",
+            "nullable": true
+          },
+          "partyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EntitlementGrants": {
         "type": "object",
         "properties": {
@@ -2830,6 +3143,56 @@
         "type": "integer",
         "format": "int32"
       },
+      "JoinPartyRequest": {
+        "type": "object",
+        "properties": {
+          "partyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KickMemberRequest": {
+        "type": "object",
+        "properties": {
+          "partyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "kickerCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetCharacterId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LeavePartyRequest": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MerchantItemRow": {
         "type": "object",
         "properties": {
@@ -3018,6 +3381,79 @@
         },
         "additionalProperties": false
       },
+      "OwnerSide": {
+        "enum": [
+          0,
+          1,
+          2,
+          10,
+          99
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "PartyDto": {
+        "type": "object",
+        "properties": {
+          "partyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "leaderCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "type": "string",
+            "nullable": true
+          },
+          "partyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "expMode": {
+            "$ref": "#/components/schemas/PartyExpMode"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartyMemberDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartyExpMode": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "PartyMemberDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "characterName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isOnline": {
+            "type": "boolean"
+          },
+          "currentServerId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "PlayerOnlineDto": {
         "type": "object",
         "properties": {
@@ -3097,6 +3533,20 @@
         "type": "object",
         "properties": {
           "targetName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetLeaderRequest": {
+        "type": "object",
+        "properties": {
+          "partyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "newLeaderCharacterId": {
             "type": "string",
             "nullable": true
           }

@@ -1,4 +1,4 @@
-﻿using Helrift.Gate.App;
+﻿using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 
 namespace Helrift.Gate.Api.Services.Friends

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Helrift.Gate.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5006c50feccf075637941e88eb542e34ed13f93e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+513d0b5e8b6a4a5e786e3f3fa1fb9223df34999b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Helrift.Gate.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Helrift.Gate.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

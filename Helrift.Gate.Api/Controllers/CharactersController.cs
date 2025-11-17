@@ -1,4 +1,4 @@
-﻿using Helrift.Gate.App;
+﻿using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

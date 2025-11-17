@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 
 namespace Helrift.Gate.Adapters.Firebase;

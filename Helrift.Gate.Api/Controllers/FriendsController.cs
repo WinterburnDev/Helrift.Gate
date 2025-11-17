@@ -1,6 +1,6 @@
 ﻿// Gate/Controllers/FriendsController.cs
 using Helrift.Gate.Api.Services.Friends;
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Helrift.Gate.Services;
 using Microsoft.AspNetCore.Authorization;

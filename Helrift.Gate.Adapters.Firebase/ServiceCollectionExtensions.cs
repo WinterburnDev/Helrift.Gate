@@ -1,4 +1,4 @@
-﻿using Helrift.Gate.App;
+﻿using Helrift.Gate.App.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Helrift.Gate.Adapters.Firebase;

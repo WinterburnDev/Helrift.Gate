@@ -1,5 +1,5 @@
 ﻿using Helrift.Gate.Contracts;
-
+using Helrift.Gate.App.Domain;
 public sealed class PresenceService : IPresenceService
 {
     private readonly object _lock = new();

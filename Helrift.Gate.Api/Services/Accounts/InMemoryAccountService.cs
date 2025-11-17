@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 

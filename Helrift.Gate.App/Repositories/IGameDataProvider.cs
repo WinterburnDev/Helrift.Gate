@@ -1,7 +1,7 @@
 ﻿// Helrift.Gate.App/IGameDataProvider.cs
 using Helrift.Gate.Contracts;
 
-namespace Helrift.Gate.App
+namespace Helrift.Gate.App.Repositories
 {
     public interface IGameDataProvider
     {

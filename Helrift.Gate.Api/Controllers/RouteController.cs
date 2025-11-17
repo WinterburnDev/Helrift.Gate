@@ -1,7 +1,7 @@
 ﻿using Helrift.Gate.Api.Services.GameServers;
 using Helrift.Gate.Api.Services.Routing;
 using Helrift.Gate.Api.Services.Tokens;
-using Helrift.Gate.App;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
