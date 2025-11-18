@@ -15,6 +15,7 @@ namespace Helrift.Gate.App.Repositories
         Task SaveAsync(Party party, CancellationToken ct);
         Task DeleteAsync(string partyId, CancellationToken ct);
         Task<IReadOnlyCollection<Party>> GetAllAsync(CancellationToken ct);
+        void ClearIndex(string characterId);
     }
 
 }

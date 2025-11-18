@@ -11,6 +11,6 @@ namespace Helrift.Gate.Api.Services.Friends
         Task<bool> AcceptFriendRequestAsync(string accountId, string characterId, string fromCharacterId, CancellationToken ct);
         Task<bool> RejectFriendRequestAsync(string accountId, string characterId, string fromCharacterId, CancellationToken ct);
         Task<bool> CancelFriendRequestAsync(string accountId, string characterId, string targetCharacterId, CancellationToken ct);
-        Task<IReadOnlyList<string>> GetFriendsOfAsync(string characterId, CancellationToken ct);
+        Task<IReadOnlyList<string>> GetFriendsOfAsync(string characterName, CancellationToken ct);
     }
 }

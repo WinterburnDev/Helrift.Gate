@@ -7,13 +7,15 @@ using System.IO;
 
 public sealed class PartyService : IPartyService
 {
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IPartyDataProvider _repo;
     private readonly IFriendsService _friends;
 
     public event Action<Party, IEnumerable<string>>? PartyChanged;
 
-    public PartyService(IPartyDataProvider repo, IFriendsService friends)
+    public PartyService(IServiceScopeFactory scopeFactory, IPartyDataProvider repo, IFriendsService friends)
     {
+        _scopeFactory = scopeFactory;
         _repo = repo;
         _friends = friends;
     }
@@ -29,6 +31,7 @@ public sealed class PartyService : IPartyService
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         Enum.TryParse<OwnerSide>(request.Side, true, out var side);
+        Enum.TryParse<PartyVisibility>(request.Visibility, true, out var visibility);
 
         // Only allow Aresden / Elvine
         if (side != OwnerSide.Aresden && side != OwnerSide.Elvine)
@@ -42,7 +45,7 @@ public sealed class PartyService : IPartyService
         var party = new Party
         {
             LeaderCharacterId = request.CharacterId,
-            Visibility = request.Visibility,
+            Visibility = visibility,
             PartyName = request.PartyName,
             Side = side,
             Members =
@@ -68,14 +71,15 @@ public sealed class PartyService : IPartyService
     /// </summary>
     public async Task<IReadOnlyCollection<Party>> ListVisiblePartiesAsync(
         OwnerSide side,
-        string? viewerCharacterId,
+        string? accountId,
+        string? characterId,
         CancellationToken ct)
     {
         var all = await _repo.GetAllAsync(ct);
         var sideParties = all.Where(p => p.Side == side).ToList();
 
         // If no viewer known, only show Public parties.
-        if (string.IsNullOrWhiteSpace(viewerCharacterId))
+        if (string.IsNullOrWhiteSpace(characterId))
             return sideParties.Where(p => p.Visibility == PartyVisibility.Public).ToList();
 
         // Lazy-load viewer’s friends only if we hit a FriendsOnly party.
@@ -94,7 +98,7 @@ public sealed class PartyService : IPartyService
             if (party.Visibility == PartyVisibility.FriendsOnly)
             {
                 // Always see parties you are already in.
-                if (party.Members.Any(m => m.CharacterId == viewerCharacterId))
+                if (party.Members.Any(m => m.CharacterId == characterId))
                 {
                     result.Add(party);
                     continue;
@@ -103,9 +107,16 @@ public sealed class PartyService : IPartyService
                 // Resolve viewer's friends once.
                 if (viewerFriends == null)
                 {
-                    var friendIds = await _friends.GetFriendsOfAsync(viewerCharacterId, ct);
-                    viewerFriends = new HashSet<string>(friendIds ?? Array.Empty<string>(),
-                        StringComparer.OrdinalIgnoreCase);
+                    using var scope = _scopeFactory.CreateScope();
+                    var data = scope.ServiceProvider.GetRequiredService<IGameDataProvider>();
+
+                    var caller = await data.GetCharacterAsync(accountId, characterId, ct);
+                    if (caller != null)
+                    {
+                        var friendIds = await _friends.GetFriendsOfAsync(caller.CharacterName, ct);
+                        viewerFriends = new HashSet<string>(friendIds ?? Array.Empty<string>(),
+                            StringComparer.OrdinalIgnoreCase);
+                    }
                 }
 
                 if (party.Members.Any(m => viewerFriends.Contains(m.CharacterId)))
@@ -181,6 +192,7 @@ public sealed class PartyService : IPartyService
             return party; // nothing to do, but not an error
 
         party.Members.Remove(member);
+        _repo.ClearIndex(request.CharacterId);
 
         if (party.Members.Count == 0)
         {

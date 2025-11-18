@@ -1,7 +1,9 @@
 ﻿using Helrift.Gate.Api.Services;
 using Helrift.Gate.App.Domain;
 using Helrift.Gate.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Helrift.Gate.Api.Controllers
 {
@@ -14,6 +16,12 @@ namespace Helrift.Gate.Api.Controllers
         public PartyController(IPartyService partyService)
         {
             _partyService = partyService;
+        }
+
+        private bool IsAccountOwner(string accountId)
+        {
+            var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            return string.Equals(sub, accountId, StringComparison.Ordinal);
         }
 
         [HttpPost("create")]
@@ -60,17 +68,28 @@ namespace Helrift.Gate.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Authorize]
         public async Task<ActionResult<List<PartyDto>>> ListParties(
-        [FromQuery] string side,
-        [FromQuery] string? viewerCharacterId,
+        [FromQuery] OwnerSide side,
+        [FromQuery] string? accountId,
+        [FromQuery] string? characterId,
         CancellationToken ct)
         {
-            if (!Enum.TryParse<OwnerSide>(side, ignoreCase: true, out var parsedSide))
-                return BadRequest("Invalid side.");
+            if (!IsAccountOwner(accountId)) return Forbid();
 
-            var parties = await _partyService.ListVisiblePartiesAsync(parsedSide, viewerCharacterId, ct);
+            var parties = await _partyService.ListVisiblePartiesAsync(side, accountId, characterId, ct);
             var list = parties.Select(PartyMapper.ToDto).ToList();
             return Ok(list);
+        }
+
+        [HttpGet("listall")]
+        public async Task<ActionResult<IEnumerable<PartyDto>>> ListAll(
+            [FromQuery] OwnerSide side = OwnerSide.Any,
+            CancellationToken ct = default)
+        {
+            var parties = await _partyService.ListPartiesAsync(side, ct);
+            var dtos = parties.Select(PartyMapper.ToDto).ToList();
+            return Ok(dtos);
         }
     }
 

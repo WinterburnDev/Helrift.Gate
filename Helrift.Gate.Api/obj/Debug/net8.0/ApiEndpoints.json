@@ -302,8 +302,44 @@
   },
   {
     "ContainingType": "Helrift.Gate.Api.Controllers.PartyController",
-    "Method": "List",
+    "Method": "ListParties",
     "RelativePath": "api/party/list",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "side",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[PartyDto, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.PartyController",
+    "Method": "ListAll",
+    "RelativePath": "api/party/listall",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

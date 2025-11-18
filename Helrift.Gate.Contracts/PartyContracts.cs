@@ -27,7 +27,7 @@ public class CreatePartyRequest
     public string CharacterName { get; set; } = default!;
     public string PartyName { get; set; } = default!;
     public string Side { get; set; } = default!;
-    public PartyVisibility Visibility { get; set; } = PartyVisibility.Public;
+    public string Visibility { get; set; } = default!;
 }
 
 public class JoinPartyRequest

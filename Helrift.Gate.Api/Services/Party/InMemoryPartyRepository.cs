@@ -71,6 +71,11 @@ public sealed class InMemoryPartyRepository : IPartyDataProvider
         return Task.CompletedTask;
     }
 
+    public void ClearIndex(string characterId)
+    {
+        _characterIndex.TryRemove(characterId, out _);
+    }
+
     public Task<IReadOnlyCollection<Party>> GetAllAsync(CancellationToken ct)
     {
         var all = _parties.Values.ToList();

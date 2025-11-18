@@ -14,7 +14,7 @@ namespace Helrift.Gate.Api.Services
         Task<Party?> SetLeaderAsync(SetLeaderRequest request, CancellationToken ct);
         Task<Party?> KickMemberAsync(KickMemberRequest request, CancellationToken ct);
         Task<IReadOnlyCollection<Party>> ListPartiesAsync(OwnerSide sideFilter, CancellationToken ct);
-        Task<IReadOnlyCollection<Party>> ListVisiblePartiesAsync(OwnerSide side, string? viewerCharacterId, CancellationToken ct);
+        Task<IReadOnlyCollection<Party>> ListVisiblePartiesAsync(OwnerSide side, string? accountId, string? characterId, CancellationToken ct);
     }
 
 }

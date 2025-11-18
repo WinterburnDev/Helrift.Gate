@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Helrift.Gate.Contracts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+513d0b5e8b6a4a5e786e3f3fa1fb9223df34999b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44049650e900f56078974bc30b32ecc188e0177c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Helrift.Gate.Contracts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Helrift.Gate.Contracts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
