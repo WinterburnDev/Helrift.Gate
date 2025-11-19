@@ -1,4 +1,5 @@
-﻿using Helrift.Gate.Contracts;
+﻿using Helrift.Gate.App.Domain;
+using Helrift.Gate.Contracts;
 
 namespace Helrift.Gate.Api.Services.Friends
 {
@@ -12,5 +13,9 @@ namespace Helrift.Gate.Api.Services.Friends
         Task<bool> RejectFriendRequestAsync(string accountId, string characterId, string fromCharacterId, CancellationToken ct);
         Task<bool> CancelFriendRequestAsync(string accountId, string characterId, string targetCharacterId, CancellationToken ct);
         Task<IReadOnlyList<string>> GetFriendsOfAsync(string characterName, CancellationToken ct);
+
+        event Action<Friend> FriendRequestReceived;
+        event Action<Friend> FriendRequestAccepted;
+        event Action<Friend> FriendRequestRejected;
     }
 }

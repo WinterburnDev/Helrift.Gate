@@ -1,5 +1,6 @@
 ﻿using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
+using Helrift.Gate.App.Domain;
 
 namespace Helrift.Gate.Api.Services.Friends
 {
@@ -7,6 +8,10 @@ namespace Helrift.Gate.Api.Services.Friends
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IPresenceService _presence;
+
+        public event Action<Friend> FriendRequestReceived;
+        public event Action<Friend> FriendRequestAccepted;
+        public event Action<Friend> FriendRequestRejected;
 
         public FriendsService(IServiceScopeFactory scopeFactory, IPresenceService presence)
         {
@@ -245,6 +250,7 @@ namespace Helrift.Gate.Api.Services.Friends
             if (other != null)
                 await data.SaveCharacterAsync(other, ct);
 
+
             return true;
         }
 
@@ -310,6 +316,15 @@ namespace Helrift.Gate.Api.Services.Friends
 
             await data.SaveCharacterAsync(me, ct);
             await data.SaveCharacterAsync(target, ct);
+
+            var friend = new Friend
+            {
+                TargetCharacterId = targetCharacterId,
+                CharacterId = characterId,
+                CharacterName = me.CharacterName
+            };
+
+            FriendRequestReceived?.Invoke(friend);
 
             return true;
         }
@@ -383,6 +398,15 @@ namespace Helrift.Gate.Api.Services.Friends
             await data.SaveCharacterAsync(me, ct);
             await data.SaveCharacterAsync(other, ct);
 
+            var friend = new Friend
+            {
+                TargetCharacterId = fromCharacterId,
+                CharacterId = characterId,
+                CharacterName = me.CharacterName
+            };
+
+            FriendRequestAccepted?.Invoke(friend);
+
             return true;
         }
 
@@ -439,6 +463,15 @@ namespace Helrift.Gate.Api.Services.Friends
             await data.SaveCharacterAsync(me, ct);
             if (other != null)
                 await data.SaveCharacterAsync(other, ct);
+
+            var friend = new Friend
+            {
+                TargetCharacterId = fromCharacterId,
+                CharacterId = characterId,
+                CharacterName = me.CharacterName
+            };
+
+            FriendRequestRejected?.Invoke(friend);
 
             return true;
         }

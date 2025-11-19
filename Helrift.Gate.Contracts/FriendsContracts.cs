@@ -52,5 +52,4 @@ namespace Helrift.Gate.Contracts
     {
         public string TargetName { get; set; } = string.Empty;
     }
-
 }

@@ -23,7 +23,9 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     [Authorize(Policy = "ServerOnly")]
     public async Task<ActionResult<CharacterData>> Get([FromRoute] string accountId, [FromRoute] string charId, CancellationToken ct)
     {
-        return (await data.GetCharacterAsync(accountId, charId, ct)) is { } c ? Ok(c) : NotFound();
+        var character = await data.GetCharacterAsync(accountId, charId, ct);
+
+        return (character) is { } c ? Ok(c) : NotFound();
     }
 
     [HttpPost]

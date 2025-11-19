@@ -103,7 +103,6 @@ namespace Helrift.Gate.Adapters.Firebase
             return dict;
         }
 
-        // ---------------- nested READ helpers ----------------
         private static HumanAppearance ReadAppearance(JsonElement root, string key)
         {
             if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return null;
