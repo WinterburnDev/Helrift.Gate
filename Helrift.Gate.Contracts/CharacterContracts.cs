@@ -137,6 +137,7 @@ namespace Helrift.Gate.Contracts
         public string CoatingItemId { get; set; }
         public long ExpiresAtUnixUtc { get; set; }
         public bool Consumed { get; set; }
+        public int Endurance { get; set; }
     }
 
     [Serializable]
@@ -276,14 +277,14 @@ namespace Helrift.Gate.Contracts
     [Serializable]
     public class CharacterResearchData
     {
-        public Dictionary<int, CharacterResearchMaterialData> materialInsights { get; set; }
+        public Dictionary<int, CharacterResearchInsightsData> insights { get; set; }
         public Dictionary<string, ItemQuality> recipes { get; set; }
     }
 
     [Serializable]
-    public class CharacterResearchMaterialData
+    public class CharacterResearchInsightsData
     {
-        public int mi { get; set; }
+        public int points { get; set; }
     }
 
     [Serializable]

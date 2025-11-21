@@ -2257,6 +2257,10 @@
           },
           "consumed": {
             "type": "boolean"
+          },
+          "endurance": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

@@ -245,7 +245,8 @@ namespace Helrift.Gate.Adapters.Firebase
             {
                 CoatingItemId = J.Str(el, "coating_item_id", "coatingItemId"),
                 ExpiresAtUnixUtc = J.Long(el, "expires_at_unix_utc", "expiresAtUnixUtc"),
-                Consumed = J.Bool(el, "consumed")
+                Consumed = J.Bool(el, "consumed"),
+                Endurance = J.Int(el, "endurance")
             };
         }
 
@@ -508,39 +509,39 @@ namespace Helrift.Gate.Adapters.Firebase
 
             var r = new CharacterResearchData
             {
-                materialInsights = new Dictionary<int, CharacterResearchMaterialData>(),
+                insights = new Dictionary<int, CharacterResearchInsightsData>(),
                 recipes = new Dictionary<string, ItemQuality>()
             };
 
             // material_insights / materialInsights
-            if (el.TryGetProperty("material_insights", out var mi) || el.TryGetProperty("materialInsights", out mi))
+            if (el.TryGetProperty("insights", out var insights) || el.TryGetProperty("insights", out insights))
             {
-                if (mi.ValueKind == JsonValueKind.Object)
+                if (insights.ValueKind == JsonValueKind.Object)
                 {
-                    foreach (var prop in mi.EnumerateObject())
+                    foreach (var prop in insights.EnumerateObject())
                     {
-                        int materialType;
+                        int insightsType;
 
                         if (int.TryParse(prop.Name, out var intKey))
-                            materialType = intKey;
+                            insightsType = intKey;
                         else continue;
 
-                        CharacterResearchMaterialData matData;
+                        CharacterResearchInsightsData insightsData;
 
                         if (prop.Value.ValueKind == JsonValueKind.Object)
                         {
                             // expected shape: { "mi": 5 }
-                            matData = new CharacterResearchMaterialData
+                            insightsData = new CharacterResearchInsightsData
                             {
-                                mi = J.Int(prop.Value, "mi")
+                                points = J.Int(prop.Value, "points")
                             };
                         }
                         else if (prop.Value.ValueKind == JsonValueKind.Number)
                         {
                             // allow: "3": 5
-                            matData = new CharacterResearchMaterialData
+                            insightsData = new CharacterResearchInsightsData
                             {
-                                mi = prop.Value.GetInt32()
+                                points = prop.Value.GetInt32()
                             };
                         }
                         else
@@ -549,7 +550,7 @@ namespace Helrift.Gate.Adapters.Firebase
                             continue;
                         }
 
-                        r.materialInsights[materialType] = matData;
+                        r.insights[insightsType] = insightsData;
                     }
                 }
             }
@@ -748,9 +749,9 @@ namespace Helrift.Gate.Adapters.Firebase
         private static object Obj(CharacterResearchData r)
         {
             if (r == null) return null;
-            var mi = new Dictionary<string, object>();
-            foreach (var kv in r.materialInsights ?? new Dictionary<int, CharacterResearchMaterialData>())
-                mi[((int)kv.Key).ToString()] = new Dictionary<string, object> { ["mi"] = kv.Value?.mi ?? 0 };
+            var insights = new Dictionary<string, object>();
+            foreach (var kv in r.insights ?? new Dictionary<int, CharacterResearchInsightsData>())
+                insights[((int)kv.Key).ToString()] = new Dictionary<string, object> { ["points"] = kv.Value?.points ?? 0 };
 
             var rc = new Dictionary<string, int>();
             foreach (var kv in r.recipes ?? new Dictionary<string, ItemQuality>())
@@ -758,7 +759,7 @@ namespace Helrift.Gate.Adapters.Firebase
 
             return new Dictionary<string, object>
             {
-                ["material_insights"] = mi,
+                ["insights"] = insights,
                 ["recipes"] = rc
             };
         }
@@ -822,7 +823,8 @@ namespace Helrift.Gate.Adapters.Firebase
             {
                 ["coating_item_id"] = c.CoatingItemId,
                 ["expires_at_unix_utc"] = c.ExpiresAtUnixUtc,
-                ["consumed"] = c.Consumed
+                ["consumed"] = c.Consumed,
+                ["endurance"] = c.Endurance
             };
 
         // ---------------- JSON access helpers ----------------
