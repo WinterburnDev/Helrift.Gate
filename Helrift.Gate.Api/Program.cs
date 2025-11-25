@@ -89,10 +89,11 @@ builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
 builder.Services.AddSingleton<IPartyDataProvider, InMemoryPartyRepository>();
+builder.Services.AddSingleton<IBanRepository, FirebaseBanRepository>();
 
 // SERVICES
 builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectionRegistry>();
-builder.Services.AddSingleton<IAccountService, InMemoryAccountService>();
+builder.Services.AddSingleton<IAccountService, AccountService>();
 builder.Services.AddSingleton<IFriendsService, FriendsService>();
 builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
 builder.Services.AddSingleton<WebSocketFriendNotifier>();
@@ -102,6 +103,10 @@ builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
 builder.Services.AddSingleton<PartyPresenceCleanupListener>();
 builder.Services.AddSingleton<IPartyService, PartyService>();
+
+// ADMIN SERVICES
+builder.Services.AddScoped<ICharacterSearchService, CharacterSearchService>();
+builder.Services.AddSingleton<IBanService, BanService>();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
@@ -141,6 +146,8 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseStaticFiles();
 
 // GAME SERVER SOCKETS
 app.UseWebSockets();

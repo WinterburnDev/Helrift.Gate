@@ -1,5 +1,57 @@
 [
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.BansController",
+    "Method": "Create",
+    "RelativePath": "admin/api/Bans",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Contracts.CreateBanDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.CharactersController",
+    "Method": "Search",
+    "RelativePath": "admin/api/Characters/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GameServersController",
+    "Method": "Get",
+    "RelativePath": "admin/api/GameServers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Helrift.Gate.Api.Controllers.GameServersController\u002BGameServerDto, Helrift.Gate.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "Gate.Controllers.FriendsController",
     "Method": "AddFriend",
     "RelativePath": "api/accounts/{accountId}/characters/{characterId}/friends",

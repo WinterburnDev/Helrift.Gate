@@ -513,24 +513,20 @@ namespace Helrift.Gate.Adapters.Firebase
                 recipes = new Dictionary<string, ItemQuality>()
             };
 
-            // material_insights / materialInsights
-            if (el.TryGetProperty("insights", out var insights) || el.TryGetProperty("insights", out insights))
+            if (el.TryGetProperty("insights", out var insights))
             {
                 if (insights.ValueKind == JsonValueKind.Object)
                 {
                     foreach (var prop in insights.EnumerateObject())
                     {
-                        int insightsType;
 
-                        if (int.TryParse(prop.Name, out var intKey))
-                            insightsType = intKey;
-                        else continue;
+                        if (!Enum.TryParse<InsightsType>(prop.Name, true, out var insightsType))
+                            continue;
 
                         CharacterResearchInsightsData insightsData;
 
                         if (prop.Value.ValueKind == JsonValueKind.Object)
                         {
-                            // expected shape: { "mi": 5 }
                             insightsData = new CharacterResearchInsightsData
                             {
                                 points = J.Int(prop.Value, "points")
@@ -538,7 +534,6 @@ namespace Helrift.Gate.Adapters.Firebase
                         }
                         else if (prop.Value.ValueKind == JsonValueKind.Number)
                         {
-                            // allow: "3": 5
                             insightsData = new CharacterResearchInsightsData
                             {
                                 points = prop.Value.GetInt32()
@@ -546,11 +541,10 @@ namespace Helrift.Gate.Adapters.Firebase
                         }
                         else
                         {
-                            // unhandled shape, skip
                             continue;
                         }
 
-                        r.insights[insightsType] = insightsData;
+                        r.insights[(int)insightsType] = insightsData;
                     }
                 }
             }
@@ -577,7 +571,6 @@ namespace Helrift.Gate.Adapters.Firebase
 
             return r;
         }
-
 
         private static CharacterSpellsData ReadSpells(JsonElement root, string key)
         {
@@ -751,7 +744,7 @@ namespace Helrift.Gate.Adapters.Firebase
             if (r == null) return null;
             var insights = new Dictionary<string, object>();
             foreach (var kv in r.insights ?? new Dictionary<int, CharacterResearchInsightsData>())
-                insights[((int)kv.Key).ToString()] = new Dictionary<string, object> { ["points"] = kv.Value?.points ?? 0 };
+                insights[((InsightsType)kv.Key).ToString().ToLower()] = new Dictionary<string, object> { ["points"] = kv.Value?.points ?? 0 };
 
             var rc = new Dictionary<string, int>();
             foreach (var kv in r.recipes ?? new Dictionary<string, ItemQuality>())

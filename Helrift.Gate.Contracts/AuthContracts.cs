@@ -26,4 +26,28 @@ namespace Helrift.Gate.Contracts
         public string steamId { get; set; }
         public string accountId { get; set; }
     }
+
+    public enum AuthFailureReason
+    {
+        None = 0,
+
+        InvalidRequest = 1,
+        SteamVerificationFailed = 2,
+        Banned = 3,
+        VersionMismatch = 4,
+
+        // Future:
+        // Maintenance = 5,
+        // InvalidRealm = 6,
+    }
+
+    public sealed class AuthFailureResponse
+    {
+        public int errorCode { get; set; }                      // integer for network efficiency
+        public string errorKey { get; set; }                    // optional string enum key ("Banned")
+        public long? bannedUntilUnixUtc { get; set; }           // only when banned
+        public long? bannedAtUnixUtc { get; set; }              // only when banned
+        public string? steamId { get; set; }                    // optional
+        public string? reason { get; set; }
+    }
 }

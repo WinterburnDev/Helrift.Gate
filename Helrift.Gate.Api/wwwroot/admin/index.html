@@ -1,0 +1,792 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Helrift Gate Admin</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            background: #111827;
+            color: #e5e7eb;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 200px;
+            background: #020617;
+            border-right: 1px solid #1f2937;
+            padding: 12px 10px;
+            box-sizing: border-box;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 4px 8px 8px;
+            margin-bottom: 8px;
+        }
+
+        .nav-group-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6b7280;
+            padding: 6px 8px 4px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 12px;
+        }
+
+        .nav-item {
+            margin-bottom: 2px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #e5e7eb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+            .nav-link:hover {
+                background: #111827;
+            }
+
+            .nav-link.active {
+                background: #1f2937;
+            }
+
+        /* Main content */
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        header {
+            padding: 12px 20px;
+            background: #020617;
+            border-bottom: 1px solid #1f2937;
+        }
+
+            header h1 {
+                margin: 0;
+                font-size: 18px;
+            }
+
+        main {
+            padding: 16px 20px 40px;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+            .section h2 {
+                margin: 0 0 4px;
+                font-size: 16px;
+            }
+
+        .meta {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: #020617;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        th {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        tr:hover td {
+            background: #030712;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+        }
+
+        .pill-online {
+            background: rgba(34,197,94,0.15);
+            color: #4ade80;
+        }
+
+        .pill-closing {
+            background: rgba(234,179,8,0.15);
+            color: #facc15;
+        }
+
+        .pill-offline {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: #1f2937;
+            margin-left: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Cards & form helpers */
+
+        .card {
+            background: #020617;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            padding: 12px 14px 14px;
+            max-width: 840px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .field label {
+                font-size: 12px;
+                color: #9ca3af;
+                margin-bottom: 4px;
+            }
+
+            .field input {
+                background: #020617;
+                border: 1px solid #374151;
+                border-radius: 4px;
+                color: #e5e7eb;
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+
+                .field input:focus {
+                    outline: none;
+                    border-color: #60a5fa;
+                }
+
+            .field small {
+                font-size: 11px;
+                color: #6b7280;
+                margin-top: 3px;
+            }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .form-row-divider {
+            white-space: nowrap;
+            padding-top: 18px;
+        }
+
+        .form-actions {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
+            border: 1px solid #1f2937;
+            background: #1f2937;
+            color: #e5e7eb;
+            cursor: pointer;
+        }
+
+            .btn:hover {
+                background: #111827;
+            }
+
+        #banStatus {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Characters view */
+
+        .characters-search-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+            .characters-search-bar input {
+                flex: 1;
+                min-width: 180px;
+            }
+
+        .muted {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-title">Gate Admin</div>
+
+            <div class="nav-group-label">Pages</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a id="nav-overview" class="nav-link active">Overview</a>
+                </li>
+                <li class="nav-item">
+                    <a id="nav-characters" class="nav-link">Characters</a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="content">
+            <header>
+                <h1>Helrift Gate Admin</h1>
+            </header>
+
+            <main>
+                <!-- OVERVIEW VIEW -->
+                <div id="view-overview">
+                    <!-- Game servers section -->
+                    <section class="section">
+                        <h2>Game Servers</h2>
+                        <div class="meta">
+                            Connected: <span id="serverCount">0</span>
+                            · Last updated: <span id="serversLastUpdated">—</span>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server ID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serversBody">
+                                <tr>
+                                    <td colspan="2" style="text-align:center; padding:12px;">Loading…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <!-- Online players section -->
+                    <section class="section">
+                        <h2>Online Players</h2>
+                        <div class="meta">
+                            Total: <span id="playerCount">0</span>
+                            · Aresden: <span id="playerCountAresden">0</span>
+                            · Elvine: <span id="playerCountElvine">0</span>
+                            · Other: <span id="playerCountOther">0</span>
+                            · Last updated: <span id="playersLastUpdated">—</span>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Server</th>
+                                    <th>Side</th>
+                                    <th>Last Seen (UTC)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playersBody">
+                                <tr>
+                                    <td colspan="4" style="text-align:center; padding:12px;">Loading…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <!-- Add Ban section -->
+                    <section class="section">
+                        <h2>Add Ban</h2>
+                        <div class="meta">
+                            Create a ban by Steam ID or IP address. Either SteamId or IpAddress is required.
+                        </div>
+
+                        <div class="card">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label for="banRealmId">Realm Id</label>
+                                    <input id="banRealmId" type="text" value="default" />
+                                </div>
+
+                                <div class="field">
+                                    <label for="banCreatedBy">Created By</label>
+                                    <input id="banCreatedBy" type="text" value="admin" />
+                                </div>
+
+                                <div class="field">
+                                    <label for="banDuration">Duration (minutes)</label>
+                                    <input id="banDuration" type="number" min="1" />
+                                    <small>Leave empty for a permanent ban.</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="margin-top: 12px;">
+                                <div class="field" style="flex:1;">
+                                    <label for="banSteamId">Steam Id</label>
+                                    <input id="banSteamId" type="text" />
+                                </div>
+                                <div class="form-row-divider">OR</div>
+                                <div class="field" style="flex:1;">
+                                    <label for="banIp">IP Address</label>
+                                    <input id="banIp" type="text" />
+                                </div>
+                            </div>
+
+                            <div class="form-grid" style="margin-top:12px;">
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="banReason">Reason</label>
+                                    <input id="banReason" type="text" />
+                                    <small>Example: Cheating, toxic behaviour, exploiting, etc.</small>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button class="btn" onclick="submitBan()">Create Ban</button>
+                                <span id="banStatus"></span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- CHARACTERS VIEW -->
+                <div id="view-characters" class="hidden">
+                    <section class="section">
+                        <h2>Characters</h2>
+                        <div class="meta">
+                            Search characters by name. This will look up from <code>character_names</code> and then load character data.
+                        </div>
+
+                        <div class="card">
+                            <div class="characters-search-bar">
+                                <div class="field" style="flex:1;">
+                                    <label for="charSearchName">Character Name</label>
+                                    <input id="charSearchName" type="text" placeholder="e.g. Winterburn" />
+                                </div>
+                                <button class="btn" onclick="searchCharacters()">Search</button>
+                                <span id="charSearchStatus" class="muted"></span>
+                            </div>
+
+                            <div class="meta">
+                                Results: <span id="charResultCount">0</span>
+                            </div>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Realm</th>
+                                        <th>Account</th>
+                                        <th>Character Id</th>
+                                        <th>Side</th>
+                                        <th>Level</th>
+                                        <th>Last Seen (UTC)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="charResultsBody">
+                                    <tr>
+                                        <td colspan="7" style="text-align:center; padding:12px;">Enter a name and search.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- NAV / VIEWS ---
+
+        function switchView(view) {
+            const overview = document.getElementById('view-overview');
+            const characters = document.getElementById('view-characters');
+
+            overview.classList.add('hidden');
+            characters.classList.add('hidden');
+
+            document.getElementById('nav-overview').classList.remove('active');
+            document.getElementById('nav-characters').classList.remove('active');
+
+            if (view === 'overview') {
+                overview.classList.remove('hidden');
+                document.getElementById('nav-overview').classList.add('active');
+            } else if (view === 'characters') {
+                characters.classList.remove('hidden');
+                document.getElementById('nav-characters').classList.add('active');
+            }
+        }
+
+        document.getElementById('nav-overview').addEventListener('click', () => switchView('overview'));
+        document.getElementById('nav-characters').addEventListener('click', () => switchView('characters'));
+
+        // --- OVERVIEW: servers ---
+
+        async function loadServers() {
+            try {
+                const res = await fetch('/admin/api/gameservers', { cache: 'no-store' });
+                if (!res.ok) {
+                    console.error('Failed to load servers', res.status);
+                    return;
+                }
+                const servers = await res.json();
+                renderServers(servers);
+            } catch (err) {
+                console.error('Error fetching servers', err);
+            }
+        }
+
+        function renderServers(servers) {
+            const tbody = document.getElementById('serversBody');
+            tbody.innerHTML = '';
+
+            document.getElementById('serverCount').textContent = servers.length.toString();
+            document.getElementById('serversLastUpdated').textContent =
+                new Date().toLocaleTimeString();
+
+            if (!servers.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 2;
+                td.style.textAlign = 'center';
+                td.style.padding = '12px';
+                td.textContent = 'No connected game servers';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            for (const s of servers) {
+                const tr = document.createElement('tr');
+
+                const idTd = document.createElement('td');
+                idTd.textContent = s.id;
+                tr.appendChild(idTd);
+
+                const stateTd = document.createElement('td');
+                const pill = document.createElement('span');
+                pill.classList.add('pill');
+
+                const state = (s.state || '').toLowerCase();
+                if (state === 'online') pill.classList.add('pill-online');
+                else if (state === 'closing') pill.classList.add('pill-closing');
+                else pill.classList.add('pill-offline');
+
+                pill.textContent = s.state || 'Unknown';
+                stateTd.appendChild(pill);
+                tr.appendChild(stateTd);
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        // --- OVERVIEW: players ---
+
+        async function loadPlayers() {
+            try {
+                const res = await fetch('/api/v1/presence/online', { cache: 'no-store' });
+                if (!res.ok) {
+                    console.error('Failed to load players', res.status);
+                    return;
+                }
+                const players = await res.json();
+                renderPlayers(players);
+            } catch (err) {
+                console.error('Error fetching players', err);
+            }
+        }
+
+        function renderPlayers(players) {
+            const tbody = document.getElementById('playersBody');
+            tbody.innerHTML = '';
+
+            const total = players.length;
+            let aresden = 0, elvine = 0, other = 0;
+
+            for (const p of players) {
+                const side = (p.side || '').toLowerCase();
+                if (side === 'aresden') aresden++;
+                else if (side === 'elvine') elvine++;
+                else other++;
+            }
+
+            document.getElementById('playerCount').textContent = total.toString();
+            document.getElementById('playerCountAresden').textContent = aresden.toString();
+            document.getElementById('playerCountElvine').textContent = elvine.toString();
+            document.getElementById('playerCountOther').textContent = other.toString();
+            document.getElementById('playersLastUpdated').textContent =
+                new Date().toLocaleTimeString();
+
+            if (!players.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 4;
+                td.style.textAlign = 'center';
+                td.style.padding = '12px';
+                td.textContent = 'No players online';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            players.sort((a, b) => {
+                if (a.gameServerId === b.gameServerId) {
+                    return (a.characterName || '').localeCompare(b.characterName || '');
+                }
+                return (a.gameServerId || '').localeCompare(b.gameServerId || '');
+            });
+
+            for (const p of players) {
+                const tr = document.createElement('tr');
+
+                const nameTd = document.createElement('td');
+                nameTd.textContent = p.characterName || '(unknown)';
+                tr.appendChild(nameTd);
+
+                const serverTd = document.createElement('td');
+                serverTd.textContent = p.gameServerId || '';
+                tr.appendChild(serverTd);
+
+                const sideTd = document.createElement('td');
+                const side = p.side || '';
+                sideTd.textContent = side || '-';
+                tr.appendChild(sideTd);
+
+                const lastSeenTd = document.createElement('td');
+                lastSeenTd.textContent = p.lastSeenUtc
+                    ? new Date(p.lastSeenUtc).toISOString().replace('T', ' ').replace('Z', 'Z')
+                    : '-';
+                tr.appendChild(lastSeenTd);
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        // --- OVERVIEW: bans ---
+
+        async function submitBan() {
+            const realmId = document.getElementById('banRealmId').value.trim();
+            const steamId = document.getElementById('banSteamId').value.trim();
+            const ip = document.getElementById('banIp').value.trim();
+            const durationRaw = document.getElementById('banDuration').value.trim();
+            const reason = document.getElementById('banReason').value.trim();
+            const createdBy = document.getElementById('banCreatedBy').value.trim();
+            const statusEl = document.getElementById('banStatus');
+
+            statusEl.textContent = '';
+
+            if (!realmId) {
+                statusEl.textContent = 'RealmId is required.';
+                return;
+            }
+
+            if (!steamId && !ip) {
+                statusEl.textContent = 'Either Steam Id or IP address is required.';
+                return;
+            }
+
+            if (!reason) {
+                statusEl.textContent = 'Reason is required.';
+                return;
+            }
+
+            const durationMinutes = durationRaw ? parseInt(durationRaw, 10) : null;
+
+            const payload = {
+                realmId,
+                steamId: steamId || null,
+                ipAddress: ip || null,
+                reason,
+                durationMinutes,
+                createdBy: createdBy || 'admin'
+            };
+
+            try {
+                const res = await fetch('/admin/api/bans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    statusEl.textContent = `Error: ${res.status} ${text}`;
+                    return;
+                }
+
+                statusEl.textContent = 'Ban created successfully.';
+                document.getElementById('banSteamId').value = '';
+                document.getElementById('banIp').value = '';
+                document.getElementById('banDuration').value = '';
+                document.getElementById('banReason').value = '';
+            } catch (err) {
+                console.error('Error creating ban', err);
+                statusEl.textContent = 'Error creating ban (see console).';
+            }
+        }
+
+        // --- CHARACTERS: search ---
+
+        async function searchCharacters() {
+            const nameInput = document.getElementById('charSearchName');
+            const statusEl = document.getElementById('charSearchStatus');
+            const name = nameInput.value.trim();
+
+            statusEl.textContent = '';
+            if (!name) {
+                statusEl.textContent = 'Enter a character name.';
+                return;
+            }
+
+            statusEl.textContent = 'Searching…';
+
+            try {
+                const res = await fetch('/admin/api/characters/search?name=' + encodeURIComponent(name), {
+                    cache: 'no-store'
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    statusEl.textContent = `Error: ${res.status} ${text}`;
+                    return;
+                }
+                const results = await res.json();
+                renderCharacterResults(results);
+                statusEl.textContent = '';
+            } catch (err) {
+                console.error('Error searching characters', err);
+                statusEl.textContent = 'Error searching (see console).';
+            }
+        }
+
+        function renderCharacterResults(results) {
+            const tbody = document.getElementById('charResultsBody');
+            tbody.innerHTML = '';
+
+            document.getElementById('charResultCount').textContent = results.length.toString();
+
+            if (!results.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 7;
+                td.style.textAlign = 'center';
+                td.style.padding = '12px';
+                td.textContent = 'No characters found.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            results.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            for (const c of results) {
+                const tr = document.createElement('tr');
+
+                const nameTd = document.createElement('td');
+                nameTd.textContent = c.name || '';
+                tr.appendChild(nameTd);
+
+                const realmTd = document.createElement('td');
+                realmTd.textContent = c.realmId || 'default';
+                tr.appendChild(realmTd);
+
+                const accountTd = document.createElement('td');
+                accountTd.textContent = c.accountId || '';
+                tr.appendChild(accountTd);
+
+                const charIdTd = document.createElement('td');
+                charIdTd.textContent = c.characterId || '';
+                tr.appendChild(charIdTd);
+
+                const sideTd = document.createElement('td');
+                sideTd.textContent = c.side || '-';
+                tr.appendChild(sideTd);
+
+                const levelTd = document.createElement('td');
+                levelTd.textContent = c.level != null ? c.level.toString() : '-';
+                tr.appendChild(levelTd);
+
+                const lastSeenTd = document.createElement('td');
+                if (c.lastSeenUnixUtc) {
+                    const d = new Date(c.lastSeenUnixUtc * 1000);
+                    lastSeenTd.textContent = d.toISOString().replace('T', ' ').replace('Z', 'Z');
+                } else {
+                    lastSeenTd.textContent = '-';
+                }
+                tr.appendChild(lastSeenTd);
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        // --- initial refresh for overview ---
+
+        async function refreshAll() {
+            await Promise.all([
+                loadServers(),
+                loadPlayers()
+            ]);
+        }
+
+        switchView('overview');
+        refreshAll();
+        setInterval(refreshAll, 5000);
+    </script>
+</body>
+</html>

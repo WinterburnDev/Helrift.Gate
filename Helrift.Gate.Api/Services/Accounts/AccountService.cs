@@ -5,12 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Helrift.Gate.Api.Services.Accounts
 {
-    public sealed class InMemoryAccountService : IAccountService
+    public sealed class AccountService : IAccountService
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ConcurrentDictionary<string, AccountData> _bySteam = new();
 
-        public InMemoryAccountService(IServiceScopeFactory scopeFactory)
+        public AccountService(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
         }

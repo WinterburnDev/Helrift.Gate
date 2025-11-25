@@ -92,6 +92,37 @@
         }
       }
     },
+    "/admin/api/Bans": {
+      "post": {
+        "tags": [
+          "Bans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBanDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBanDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/v1/accounts/{accountId}/characters": {
       "get": {
         "tags": [
@@ -314,6 +345,27 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/admin/api/Characters/search": {
+      "get": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           }
         }
       }
@@ -805,6 +857,44 @@
         "responses": {
           "200": {
             "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/GameServers": {
+      "get": {
+        "tags": [
+          "GameServers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GameServerDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GameServerDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GameServerDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2491,10 +2581,10 @@
       "CharacterResearchData": {
         "type": "object",
         "properties": {
-          "materialInsights": {
+          "insights": {
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/CharacterResearchMaterialData"
+              "$ref": "#/components/schemas/CharacterResearchInsightsData"
             },
             "nullable": true
           },
@@ -2508,10 +2598,10 @@
         },
         "additionalProperties": false
       },
-      "CharacterResearchMaterialData": {
+      "CharacterResearchInsightsData": {
         "type": "object",
         "properties": {
-          "mi": {
+          "points": {
             "type": "integer",
             "format": "int32"
           }
@@ -2652,6 +2742,37 @@
             "nullable": true
           },
           "originServerId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBanDto": {
+        "type": "object",
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "steamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdBy": {
             "type": "string",
             "nullable": true
           }
@@ -2895,6 +3016,20 @@
           },
           "payload": {
             "$ref": "#/components/schemas/FriendsSnapshotPayload"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GameServerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
