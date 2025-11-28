@@ -13,6 +13,7 @@
         public string GateSession { get; init; }
         public string RefreshToken { get; init; }
         public string SteamId { get; init; }
+        public string AccountId { get; init; }
     }
 
     public interface ITokenService

@@ -35,6 +35,7 @@ namespace Helrift.Gate.Contracts
         SteamVerificationFailed = 2,
         Banned = 3,
         VersionMismatch = 4,
+        InvalidSession = 5
 
         // Future:
         // Maintenance = 5,
@@ -49,5 +50,11 @@ namespace Helrift.Gate.Contracts
         public long? bannedAtUnixUtc { get; set; }              // only when banned
         public string? steamId { get; set; }                    // optional
         public string? reason { get; set; }
+    }
+
+    public sealed class AuthRefreshRequest
+    {
+        public string refreshToken { get; set; }
+        public string buildVersion { get; set; }  // optional but handy to re-check version
     }
 }

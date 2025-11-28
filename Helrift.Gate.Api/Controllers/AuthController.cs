@@ -87,4 +87,42 @@ public class AuthController : ControllerBase
             profile = new AuthSteamProfile() { steamId = verify.SteamId64, accountId = account.Id }
         });
     }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthSteamResponse>> Refresh([FromBody] AuthRefreshRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req?.refreshToken))
+        {
+            return BadRequest(new AuthFailureResponse
+            {
+                errorCode = (int)AuthFailureReason.InvalidRequest,
+                errorKey = AuthFailureReason.InvalidRequest.ToString()
+            });
+        }
+
+        var result = await _tokens.RefreshAsync(req.refreshToken);
+        if (result == null || !result.Success || string.IsNullOrWhiteSpace(result.GateSession))
+        {
+            // Invalid / expired / revoked refresh token
+            return Unauthorized(new AuthFailureResponse
+            {
+                errorCode = (int)AuthFailureReason.InvalidSession,
+                errorKey = AuthFailureReason.InvalidSession.ToString()
+            });
+        }
+
+        var response = new AuthSteamResponse
+        {
+            gateSession = result.GateSession,
+            refreshToken = result.RefreshToken,
+            profile = new AuthSteamProfile
+            {
+                steamId = result.SteamId,
+                accountId = result.AccountId
+            }
+        };
+
+        return Ok(response);
+    }
+
 }
