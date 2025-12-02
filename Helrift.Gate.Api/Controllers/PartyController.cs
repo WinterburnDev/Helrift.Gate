@@ -9,6 +9,7 @@ namespace Helrift.Gate.Api.Controllers
 {
     [ApiController]
     [Route("api/party")]
+    [Authorize]
     public class PartyController : ControllerBase
     {
         private readonly IPartyService _partyService;

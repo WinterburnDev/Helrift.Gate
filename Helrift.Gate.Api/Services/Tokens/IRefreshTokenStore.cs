@@ -9,7 +9,7 @@
     public sealed class RefreshRecord
     {
         public string Token { get; init; }
-        public string MasterClientId { get; init; }
+        public string AccountId { get; init; }
         public string SteamId { get; init; }
         public string BuildVersion { get; init; }
         public DateTimeOffset ExpiresUtc { get; init; }

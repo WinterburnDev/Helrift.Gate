@@ -55,7 +55,7 @@ namespace Helrift.Gate.Api.Services.Tokens
 
             var (jwt, newRefresh) = await IssueAsync(new TokenIssueRequest
             {
-                AccountId = record.MasterClientId,
+                AccountId = record.AccountId,
                 SteamId = record.SteamId,
                 BuildVersion = record.BuildVersion
             });

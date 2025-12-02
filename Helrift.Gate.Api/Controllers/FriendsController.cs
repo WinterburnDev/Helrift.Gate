@@ -12,7 +12,7 @@ namespace Gate.Controllers
 {
     [ApiController]
     [Route("api/accounts/{accountId}/characters/{characterId}/friends")]
-    //[Authorize]
+    [Authorize]
     public class FriendsController : ControllerBase
     {
         private readonly IFriendsService _friends;
@@ -31,13 +31,12 @@ namespace Gate.Controllers
         }
 
         [HttpGet("snapshot")]
-        //[Authorize]
         public async Task<ActionResult<Envelope<FriendsSnapshotPayload>>> GetSnapshot(
             [FromRoute] string accountId,
             [FromRoute] string characterId,
             CancellationToken ct)
         {
-            //if (!IsAccountOwner(accountId) return Forbid();
+            if (!IsAccountOwner(accountId)) return Forbid();
 
             var me = await _data.GetCharacterAsync(accountId, characterId, ct);
             if (me == null)
@@ -90,7 +89,6 @@ namespace Gate.Controllers
 
 
         [HttpPost]
-        //[Authorize]
         public async Task<ActionResult<FriendStatusDto>> AddFriend(
             [FromRoute] string accountId,
             [FromRoute] string characterId,
@@ -99,7 +97,8 @@ namespace Gate.Controllers
         {
             //if (!IsAccountOwner(accountId)) return Forbid();
 
-            // dont allow this for now. we might re-add this as an admin tool. but all friend logic must now go through the 2 phase process
+            // dont allow this for now. we might re-add this as an admin tool.
+            // but all friend logic must now go through the 2 phase process
             return BadRequest(); 
 
             // ensure character exists (and belongs to account)
@@ -121,7 +120,6 @@ namespace Gate.Controllers
         }
 
         [HttpDelete("{friendCharacterId}")]
-        //[Authorize]
         public async Task<IActionResult> DeleteFriend(
             [FromRoute] string accountId,
             [FromRoute] string characterId,
@@ -148,7 +146,7 @@ namespace Gate.Controllers
             [FromBody] SendFriendRequestDto body,
             CancellationToken ct)
         {
-            //if (!IsAccountOwner(accountId)) return Forbid();
+            if (!IsAccountOwner(accountId)) return Forbid();
 
             if (string.IsNullOrWhiteSpace(body?.TargetName))
                 return BadRequest("TargetName is required.");
@@ -171,7 +169,7 @@ namespace Gate.Controllers
             [FromRoute] string fromCharacterId,
             CancellationToken ct)
         {
-            //if (!IsAccountOwner(accountId)) return Forbid();
+            if (!IsAccountOwner(accountId)) return Forbid();
 
             var me = await _data.GetCharacterAsync(accountId, characterId, ct);
             if (me == null)
@@ -191,7 +189,7 @@ namespace Gate.Controllers
             [FromRoute] string fromCharacterId,
             CancellationToken ct)
         {
-            //if (!IsAccountOwner(accountId)) return Forbid();
+            if (!IsAccountOwner(accountId)) return Forbid();
 
             var me = await _data.GetCharacterAsync(accountId, characterId, ct);
             if (me == null)
@@ -204,7 +202,6 @@ namespace Gate.Controllers
             return NoContent();
         }
 
-        // POST /api/accounts/{accountId}/characters/{characterId}/friends/requests/{targetCharacterId}/cancel
         [HttpPost("requests/{targetCharacterId}/cancel")]
         public async Task<IActionResult> CancelFriendRequest(
             [FromRoute] string accountId,
@@ -212,7 +209,7 @@ namespace Gate.Controllers
             [FromRoute] string targetCharacterId,
             CancellationToken ct)
         {
-            //if (!IsAccountOwner(accountId)) return Forbid();
+            if (!IsAccountOwner(accountId)) return Forbid();
 
             var me = await _data.GetCharacterAsync(accountId, characterId, ct);
             if (me == null)

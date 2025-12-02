@@ -4,12 +4,12 @@
     {
         private readonly Dictionary<string, RefreshRecord> _db = new();
 
-        public Task SaveAsync(string token, string masterClientId, string steamId, string buildVersion, DateTimeOffset expiresUtc)
+        public Task SaveAsync(string token, string accountId, string steamId, string buildVersion, DateTimeOffset expiresUtc)
         {
             _db[token] = new RefreshRecord
             {
                 Token = token,
-                MasterClientId = masterClientId,
+                AccountId = accountId,
                 SteamId = steamId,
                 BuildVersion = buildVersion,
                 ExpiresUtc = expiresUtc

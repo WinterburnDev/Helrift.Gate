@@ -1162,6 +1162,32 @@
   },
   {
     "ContainingType": "AuthController",
+    "Method": "Refresh",
+    "RelativePath": "auth/refresh",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "Helrift.Gate.Contracts.AuthRefreshRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.AuthSteamResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "AuthController",
     "Method": "Steam",
     "RelativePath": "auth/steam",
     "HttpMethod": "POST",
