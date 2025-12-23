@@ -1,4 +1,5 @@
-﻿using Helrift.Gate.App.Repositories;
+﻿using Helrift.Gate.Api.Services.Accounts;
+using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using System.Security.Claims;
 
 [ApiController]
 [Route("api/v1/accounts/{accountId}/characters")]
-public sealed class CharactersController(IGameDataProvider data) : ControllerBase
+public sealed class CharactersController(IGameDataProvider data, IAdminService adminService) : ControllerBase
 {
     [HttpGet]
     [Authorize]
@@ -25,6 +26,13 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
     {
         var character = await data.GetCharacterAsync(accountId, charId, ct);
 
+        if (character != null)
+        {
+            var isAdmin = await adminService.IsAdminAsync("default", charId, ct);
+
+            character.IsAdmin = isAdmin;
+        }
+
         return (character) is { } c ? Ok(c) : NotFound();
     }
 
@@ -40,8 +48,8 @@ public sealed class CharactersController(IGameDataProvider data) : ControllerBas
         {
             Username = accountId,
             Level = 1,
-            MapId = "travellerzone",
-            Position = new Vec3 { x = -367.529327f, y = 5, z = -326.01825f },
+            MapId = "chunk_-6_-6",
+            Position = new Vec3 { x = -1413.141f, y = 12, z = -1442.955f },
             Hp = 100,
             Mp = 100,
             Sp = 100,

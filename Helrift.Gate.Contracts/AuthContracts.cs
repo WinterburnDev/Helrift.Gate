@@ -35,8 +35,9 @@ namespace Helrift.Gate.Contracts
         SteamVerificationFailed = 2,
         Banned = 3,
         VersionMismatch = 4,
-        InvalidSession = 5
-
+        InvalidSession = 5,
+        RealmUnavailable = 6,
+        RealmFull = 7
         // Future:
         // Maintenance = 5,
         // InvalidRealm = 6,
@@ -50,6 +51,9 @@ namespace Helrift.Gate.Contracts
         public long? bannedAtUnixUtc { get; set; }              // only when banned
         public string? steamId { get; set; }                    // optional
         public string? reason { get; set; }
+        public int? retryAfterSeconds { get; set; }            // client countdown
+        public long? shutdownAtUnixUtc { get; set; }           // absolute time (optional but helpful)
+        public string? realmMessage { get; set; }              // friendly text
     }
 
     public sealed class AuthRefreshRequest

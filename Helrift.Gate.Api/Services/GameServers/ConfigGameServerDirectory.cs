@@ -19,6 +19,13 @@ public sealed class ConfigGameServerDirectory : IGameServerDirectory
 
     public GameServerDescriptor PickForCharacter(string mapIdOrShard)
     {
+        if (mapIdOrShard.Equals("adminzone"))
+        {
+            var ret = _byId.Values.FirstOrDefault(s => s.Id == "gs-02");
+            if (ret != null)
+                return ret;
+        }
+
         // TODO: replace with map->server lookup. For now: first server.
         return _byId.Values.FirstOrDefault();
     }

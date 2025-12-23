@@ -1135,6 +1135,48 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmController",
+    "Method": "Clear",
+    "RelativePath": "api/v1/realm/clear",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Api.Controllers.ClearRealmRequest",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmController",
+    "Method": "ScheduleShutdown",
+    "RelativePath": "api/v1/realm/shutdown/schedule",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Api.Controllers.ScheduleRealmShutdownRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmController",
+    "Method": "GetState",
+    "RelativePath": "api/v1/realm/state",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "RouteController",
     "Method": "RouteCharacter",
     "RelativePath": "api/v1/route/character",

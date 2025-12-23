@@ -57,6 +57,7 @@ namespace Helrift.Gate.Contracts
         public int Criticals { get; set; }
         public int EnemyKillPoints { get; set; }
         public int MajesticPoints { get; set; }
+        public bool IsAdmin { get; set; }
 
         public CharacterItemData[] Inventory { get; set; }
         public CharacterItemData[] Warehouse { get; set; }

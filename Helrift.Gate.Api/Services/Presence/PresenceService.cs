@@ -1,10 +1,13 @@
 ﻿using Helrift.Gate.Contracts;
 using Helrift.Gate.App.Domain;
+
 public sealed class PresenceService : IPresenceService
 {
     private readonly object _lock = new();
+
     private readonly Dictionary<string, OnlinePlayer> _onlineByName =
         new(StringComparer.OrdinalIgnoreCase);
+
     private readonly Dictionary<string, HashSet<string>> _playersByServer =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -28,16 +31,37 @@ public sealed class PresenceService : IPresenceService
         if (string.IsNullOrWhiteSpace(gameServerId))
             return;
 
+        List<OnlinePlayer> wentOffline = null;
+
         lock (_lock)
         {
             if (_playersByServer.TryGetValue(gameServerId, out var names))
             {
                 foreach (var name in names)
                 {
-                    _onlineByName.Remove(name);
+                    if (_onlineByName.TryGetValue(name, out var existing) &&
+                        string.Equals(existing.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _onlineByName.Remove(name);
+
+                        wentOffline ??= new List<OnlinePlayer>();
+                        wentOffline.Add(existing);
+                    }
+                    else
+                    {
+                        _onlineByName.Remove(name);
+                    }
                 }
             }
+
             _playersByServer.Remove(gameServerId);
+        }
+
+        // fire outside lock
+        if (wentOffline != null)
+        {
+            foreach (var p in wentOffline)
+                PlayerWentOffline?.Invoke(p);
         }
     }
 
@@ -45,6 +69,8 @@ public sealed class PresenceService : IPresenceService
     {
         if (string.IsNullOrWhiteSpace(gameServerId) || string.IsNullOrWhiteSpace(characterName))
             return;
+
+        OnlinePlayer cameOnline = null;
 
         lock (_lock)
         {
@@ -56,8 +82,7 @@ public sealed class PresenceService : IPresenceService
 
             set.Add(characterName);
 
-            _onlineByName.TryGetValue(characterName, out var existing);
-            bool wasOnline = existing != null;
+            var wasOnline = _onlineByName.ContainsKey(characterName);
 
             var online = new OnlinePlayer
             {
@@ -70,10 +95,13 @@ public sealed class PresenceService : IPresenceService
 
             _onlineByName[characterName] = online;
 
-            // 🔔 fire only on transition offline -> online
+            // capture event outside lock
             if (!wasOnline)
-                PlayerCameOnline?.Invoke(online);
+                cameOnline = online;
         }
+
+        if (cameOnline != null)
+            PlayerCameOnline?.Invoke(cameOnline);
     }
 
     public void RemovePlayer(string gameServerId, string characterId, string characterName)
@@ -81,26 +109,35 @@ public sealed class PresenceService : IPresenceService
         if (string.IsNullOrWhiteSpace(gameServerId) || string.IsNullOrWhiteSpace(characterName))
             return;
 
+        OnlinePlayer wentOffline = null;
+
         lock (_lock)
         {
             if (_playersByServer.TryGetValue(gameServerId, out var set))
-            {
                 set.Remove(characterName);
-            }
 
             if (_onlineByName.TryGetValue(characterName, out var existing) &&
                 string.Equals(existing.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
             {
                 _onlineByName.Remove(characterName);
 
-                // 🔔 fire only when we actually removed them
-                PlayerWentOffline?.Invoke(existing);
+                // capture event outside lock
+                wentOffline = existing;
             }
         }
+
+        if (wentOffline != null)
+            PlayerWentOffline?.Invoke(wentOffline);
     }
 
     public void ReplacePlayersForServer(string gameServerId, IEnumerable<PlayerOnlineDto> players)
     {
+        if (string.IsNullOrWhiteSpace(gameServerId))
+            return;
+
+        List<OnlinePlayer> cameOnline = null;
+        List<OnlinePlayer> wentOffline = null;
+
         lock (_lock)
         {
             // old set of names on this server
@@ -113,9 +150,13 @@ public sealed class PresenceService : IPresenceService
             // build new presence + detect new online for this server
             foreach (var pl in players)
             {
+                if (pl == null || string.IsNullOrWhiteSpace(pl.CharacterName))
+                    continue;
+
                 newSet.Add(pl.CharacterName);
 
-                bool wasOnline = _onlineByName.TryGetValue(pl.CharacterName, out var existing);
+                var wasOnline = _onlineByName.ContainsKey(pl.CharacterName);
+
                 var online = new OnlinePlayer
                 {
                     CharacterId = pl.CharacterId,
@@ -128,22 +169,42 @@ public sealed class PresenceService : IPresenceService
                 _onlineByName[pl.CharacterName] = online;
 
                 if (!wasOnline)
-                    PlayerCameOnline?.Invoke(online);
+                {
+                    cameOnline ??= new List<OnlinePlayer>();
+                    cameOnline.Add(online);
+                }
             }
 
             // detect which names disappeared from this server
             foreach (var oldName in oldNames)
             {
-                if (!newSet.Contains(oldName) &&
-                    _onlineByName.TryGetValue(oldName, out var existing) &&
+                if (newSet.Contains(oldName))
+                    continue;
+
+                if (_onlineByName.TryGetValue(oldName, out var existing) &&
                     string.Equals(existing.GameServerId, gameServerId, StringComparison.OrdinalIgnoreCase))
                 {
                     _onlineByName.Remove(oldName);
-                    PlayerWentOffline?.Invoke(existing);
+
+                    wentOffline ??= new List<OnlinePlayer>();
+                    wentOffline.Add(existing);
                 }
             }
 
             _playersByServer[gameServerId] = newSet;
+        }
+
+        // fire outside lock
+        if (cameOnline != null)
+        {
+            foreach (var p in cameOnline)
+                PlayerCameOnline?.Invoke(p);
+        }
+
+        if (wentOffline != null)
+        {
+            foreach (var p in wentOffline)
+                PlayerWentOffline?.Invoke(p);
         }
     }
 
@@ -187,4 +248,3 @@ public sealed class PresenceService : IPresenceService
         }
     }
 }
-

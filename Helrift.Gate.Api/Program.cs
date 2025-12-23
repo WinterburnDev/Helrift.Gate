@@ -90,6 +90,7 @@ builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvide
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
 builder.Services.AddSingleton<IPartyDataProvider, InMemoryPartyRepository>();
 builder.Services.AddSingleton<IBanRepository, FirebaseBanRepository>();
+builder.Services.AddSingleton<IAdminRepository, FirebaseAdminRepository>();
 
 // SERVICES
 builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectionRegistry>();
@@ -103,10 +104,12 @@ builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
 builder.Services.AddSingleton<PartyPresenceCleanupListener>();
 builder.Services.AddSingleton<IPartyService, PartyService>();
+builder.Services.AddSingleton<IRealmService, RealmService>();
 
 // ADMIN SERVICES
 builder.Services.AddScoped<ICharacterSearchService, CharacterSearchService>();
 builder.Services.AddSingleton<IBanService, BanService>();
+builder.Services.AddSingleton<IAdminService, AdminService>();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();

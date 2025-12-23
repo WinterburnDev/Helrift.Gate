@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using Helrift.Gate.Contracts;
+using Helrift.Gate.Services;
 
 [ApiController]
 [Route("api/v1/presence")]
@@ -28,6 +29,7 @@ public sealed class PresenceController(IPresenceService presence) : ControllerBa
         if (string.IsNullOrWhiteSpace(dto.CharacterName)) return BadRequest("CharacterName required");
 
         presence.RemovePlayer(dto.GameServerId, dto.CharacterId, dto.CharacterName);
+
         return Ok();
     }
 
