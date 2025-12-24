@@ -34,8 +34,8 @@ public sealed class PartyService : IPartyService
         Enum.TryParse<PartyVisibility>(request.Visibility, true, out var visibility);
 
         // Only allow Aresden / Elvine
-        if (side != OwnerSide.Aresden && side != OwnerSide.Elvine)
-            throw new InvalidOperationException($"Invalid side for party: {request.Side}");
+        //if (side != OwnerSide.Aresden && side != OwnerSide.Elvine)
+        //    throw new InvalidOperationException($"Invalid side for party: {request.Side}");
 
         // Member can only be in 1 party
         var existing = await _repo.GetByCharacterIdAsync(request.CharacterId, ct);
