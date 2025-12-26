@@ -379,33 +379,85 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
         if (evt?.Rows == null || evt.Rows.Length == 0)
             return true;
 
-        // Option B: best-effort apply. We do NOT guarantee atomicity across the batch.
-        // We also keep it simple: try merge if stackable-ish, else insert.
-        // (Later, for better merges, include MaxStack in payload.)
+        // Basic validation
+        if (!string.Equals(evt.NpcId, npcId, StringComparison.Ordinal))
+            return false;
+
+        var nowUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        // Fetch merge index ONCE
+        var existing = await GetAllForMergeAsync(npcId, nowUnix, ct);
+
+        // Build an index: mergeKey -> list of listingIds (stable order: older first)
+        // We prefer older rows to keep listings stable over time.
+        var index = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        foreach (var x in existing
+            .Where(x => x != null && x.Quantity > 0)
+            .OrderBy(x => x.ListedAtUnix))
+        {
+            var key = MakeMergeKey(x);
+            if (!index.TryGetValue(key, out var ids))
+            {
+                ids = new List<string>(4);
+                index[key] = ids;
+            }
+            ids.Add(x.ListingId);
+        }
+
+        // Apply each sold row
         foreach (var row in evt.Rows)
         {
             ct.ThrowIfCancellationRequested();
-
             if (row == null) continue;
             if (!string.Equals(row.NpcId, npcId, StringComparison.Ordinal))
-            {
-                // Don't let clients write to another NPC by mistake.
                 return false;
-            }
+
+            // Ensure sane quantity
+            var qty = Math.Max(1, row.Quantity);
+            row.Quantity = qty;
 
             bool stored = false;
 
-            // Heuristic: if Quantity > 1, likely stackable; attempt merge then insert fallback.
-            if (row.Quantity > 1)
+            // Heuristic: attempt merge when qty > 1 (likely stackable)
+            // If you want perfect accuracy later, add MaxStack or Stackable flag to payload.
+            if (qty > 1)
             {
-                var (merged, _) = await TryMergeStackableAsync(npcId, row, ct);
-                if (merged) stored = true;
+                var key = MakeMergeKey(row);
+                if (index.TryGetValue(key, out var candidates) && candidates.Count > 0)
+                {
+                    // Try candidates in order; under concurrency, some increments may 412 and retry internally.
+                    for (int i = 0; i < candidates.Count; i++)
+                    {
+                        var listingId = candidates[i];
+
+                        var ok = await TryIncrementQuantityAsync(npcId, listingId, qty, ct);
+                        if (ok)
+                        {
+                            stored = true;
+                            break;
+                        }
+                        // If failed, try next candidate.
+                    }
+                }
             }
 
             if (!stored)
             {
                 var id = await TryInsertAsync(npcId, row, ct);
                 stored = !string.IsNullOrWhiteSpace(id);
+
+                // If we inserted a stackable-ish row, add it to index so subsequent rows in the same event can merge into it.
+                if (stored && row.Quantity > 1)
+                {
+                    var key = MakeMergeKey(row);
+                    if (!index.TryGetValue(key, out var ids))
+                    {
+                        ids = new List<string>(4);
+                        index[key] = ids;
+                    }
+                    ids.Add(row.ListingId);
+                }
             }
 
             if (!stored)
@@ -414,4 +466,5 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
 
         return true;
     }
+
 }
