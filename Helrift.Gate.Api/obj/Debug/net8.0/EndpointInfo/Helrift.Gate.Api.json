@@ -1495,6 +1495,37 @@
         }
       }
     },
+    "/api/v1/merchants/{npcId}/sell-events": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantSellEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/party/create": {
       "post": {
         "tags": [
@@ -3720,6 +3751,35 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "MerchantSellEvent": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "npcId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAtUnix": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MerchantItemRow"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "MergeRequest": {
         "type": "object",

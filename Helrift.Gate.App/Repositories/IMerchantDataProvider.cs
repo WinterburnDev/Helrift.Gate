@@ -21,4 +21,6 @@ public interface IMerchantDataProvider
     Task<int> DeleteExpiredAsync(string npcId, long nowUnix, int maxBatch, CancellationToken ct);
     Task<int> TrimOverflowAsync(string npcId, int maxItems, long nowUnix, CancellationToken ct);
     Task<IReadOnlyList<MerchantItemRow>> GetAllForMergeAsync(string npcId, long nowUnix, CancellationToken ct);
+    Task<bool> TryApplySellEventAsync(string npcId, MerchantSellEvent evt, CancellationToken ct);
+
 }

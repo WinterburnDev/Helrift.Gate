@@ -13,7 +13,9 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
     private static readonly JsonSerializerOptions J = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private static string NpcPath(string npcId) => $"merchants/{npcId}/listings.json";
-    private static string OnePath(string npcId, string listingId) => $"merchants/{npcId}/listings/{listingId}.json";
+    private static string OnePath(string npcId, string listingId) => $"{OnePathNoJson(npcId, listingId)}.json";
+
+    private static string OnePathNoJson(string npcId, string listingId) => $"merchants/{npcId}/listings/{listingId}";
 
     public async Task<MerchantPageResult> QueryAsync(string npcId, MerchantQuery q, CancellationToken ct)
     {
@@ -132,6 +134,14 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
         // write row as a full object
         var dict = MerchantMapper.ToFirebaseDict(row);
         var res = await _http.PutAsJsonAsync(OnePath(npcId, id), dict, J, ct);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            var body = await res.Content.ReadAsStringAsync(ct);
+            Debug.WriteLine("Merchant insert failed. npcId={NpcId} id={Id} status={Status} body={Body}",
+                npcId, id, (int)res.StatusCode, body);
+        }
+
         return res.IsSuccessStatusCode ? id : null;
     }
 
@@ -141,34 +151,99 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
         return res.IsSuccessStatusCode;
     }
 
-    public async Task<(bool ok, int newQty)> TryDecrementQuantityOrDeleteAsync(string npcId, string listingId, int count, CancellationToken ct)
+    public async Task<(bool ok, int newQty)> TryDecrementQuantityOrDeleteAsync(
+    string npcId,
+    string listingId,
+    int count,
+    CancellationToken ct)
     {
-        // Read-modify-write: best-effort (RTDB admin REST doesn’t have transactions here)
-        var row = await GetAsync(npcId, listingId, ct);
-        if (row == null) return (false, -1);
+        if (count <= 0) return (false, -1);
 
-        var newQty = Math.Max(0, row.Quantity - Math.Max(1, count));
-        if (newQty == 0)
+        const int maxAttempts = 6;
+        int dec = Math.Max(1, count);
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            var del = await TryDeleteAsync(npcId, listingId, ct);
-            return del ? (true, 0) : (false, row.Quantity);
+            var (row, etag) = await GetWithEtagAsync(npcId, listingId, ct);
+            if (row == null) return (false, -1);
+
+            if (row.Quantity <= 0) return (false, 0);
+
+            int newQty = Math.Max(0, row.Quantity - dec);
+
+            HttpRequestMessage writeReq;
+
+            if (newQty == 0)
+            {
+                // RTDB: PUT null deletes the node (and works nicely with If-Match)
+                writeReq = new HttpRequestMessage(HttpMethod.Put, OnePath(npcId, listingId))
+                {
+                    Content = JsonContent.Create<object?>(null, options: J)
+                };
+            }
+            else
+            {
+                var patch = new Dictionary<string, object> { ["quantity"] = newQty };
+                writeReq = new HttpRequestMessage(new HttpMethod("PATCH"), OnePath(npcId, listingId))
+                {
+                    Content = JsonContent.Create(patch, options: J)
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(etag))
+                writeReq.Headers.TryAddWithoutValidation("If-Match", etag);
+
+            using var res = await _http.SendAsync(writeReq, ct);
+
+            if (res.IsSuccessStatusCode)
+                return (true, newQty);
+
+            // 412 = someone else changed it. Retry.
+            if ((int)res.StatusCode == 412)
+                continue;
+
+            // Anything else: fail closed (GS refunds)
+            return (false, row.Quantity);
         }
 
-        var patch = new Dictionary<string, object> { ["quantity"] = newQty };
-        var res = await _http.PatchAsJsonAsync(OnePath(npcId, listingId), patch, J, ct);
-        return res.IsSuccessStatusCode ? (true, newQty) : (false, row.Quantity);
+        // Too much contention: fail closed
+        return (false, -1);
     }
+
+
 
     public async Task<bool> TryIncrementQuantityAsync(string npcId, string listingId, int delta, CancellationToken ct)
     {
         if (delta <= 0) return true;
-        var row = await GetAsync(npcId, listingId, ct);
-        if (row == null) return false;
 
-        var newQty = row.Quantity + delta;
-        var patch = new Dictionary<string, object> { ["quantity"] = newQty };
-        var res = await _http.PatchAsJsonAsync(OnePath(npcId, listingId), patch, J, ct);
-        return res.IsSuccessStatusCode;
+        const int maxAttempts = 6;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            var (row, etag) = await GetWithEtagAsync(npcId, listingId, ct);
+            if (row == null) return false;
+
+            int newQty = row.Quantity + delta;
+
+            var patch = new Dictionary<string, object> { ["quantity"] = newQty };
+
+            using var req = new HttpRequestMessage(new HttpMethod("PATCH"), OnePath(npcId, listingId))
+            {
+                Content = JsonContent.Create(patch, options: J)
+            };
+
+            if (!string.IsNullOrWhiteSpace(etag))
+                req.Headers.TryAddWithoutValidation("If-Match", etag);
+
+            using var res = await _http.SendAsync(req, ct);
+
+            if (res.IsSuccessStatusCode) return true;
+            if ((int)res.StatusCode == 412) continue;
+
+            return false;
+        }
+
+        return false;
     }
 
     public async Task<(bool merged, string? listingId)> TryMergeStackableAsync(string npcId, MerchantItemRow row, CancellationToken ct)
@@ -270,5 +345,73 @@ public sealed class FirebaseMerchantDataProvider(IHttpClientFactory httpFactory)
                 parts.Add($"p:{p.k}={p.v ?? ""}");
         }
         return string.Join("|", parts);
+    }
+
+    private async Task<(MerchantItemRow? row, string? etag)> GetWithEtagAsync(
+    string npcId,
+    string listingId,
+    CancellationToken ct)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, OnePath(npcId, listingId));
+        req.Headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
+
+        using var res = await _http.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode) return (null, null);
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return (null, null);
+
+        using var doc = JsonDocument.Parse(json);
+        var row = ParseRow(listingId, doc.RootElement);
+
+        // Prefer strongly-typed ETag if present
+        var etag = res.Headers.ETag?.Tag;
+
+        // Fallback: raw header lookup
+        if (string.IsNullOrWhiteSpace(etag) && res.Headers.TryGetValues("ETag", out var vals))
+            etag = vals.FirstOrDefault();
+
+        return (row, etag);
+    }
+
+    public async Task<bool> TryApplySellEventAsync(string npcId, MerchantSellEvent evt, CancellationToken ct)
+    {
+        if (evt?.Rows == null || evt.Rows.Length == 0)
+            return true;
+
+        // Option B: best-effort apply. We do NOT guarantee atomicity across the batch.
+        // We also keep it simple: try merge if stackable-ish, else insert.
+        // (Later, for better merges, include MaxStack in payload.)
+        foreach (var row in evt.Rows)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (row == null) continue;
+            if (!string.Equals(row.NpcId, npcId, StringComparison.Ordinal))
+            {
+                // Don't let clients write to another NPC by mistake.
+                return false;
+            }
+
+            bool stored = false;
+
+            // Heuristic: if Quantity > 1, likely stackable; attempt merge then insert fallback.
+            if (row.Quantity > 1)
+            {
+                var (merged, _) = await TryMergeStackableAsync(npcId, row, ct);
+                if (merged) stored = true;
+            }
+
+            if (!stored)
+            {
+                var id = await TryInsertAsync(npcId, row, ct);
+                stored = !string.IsNullOrWhiteSpace(id);
+            }
+
+            if (!stored)
+                return false;
+        }
+
+        return true;
     }
 }

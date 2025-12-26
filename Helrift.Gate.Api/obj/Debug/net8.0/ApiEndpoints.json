@@ -1036,6 +1036,27 @@
   },
   {
     "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
+    "Method": "ApplySellEvent",
+    "RelativePath": "api/v1/merchants/{npcId}/sell-events",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "evt",
+        "Type": "MerchantSellEvent",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.MerchantsController",
     "Method": "TrimOverflow",
     "RelativePath": "api/v1/merchants/{npcId}/trim-overflow",
     "HttpMethod": "POST",

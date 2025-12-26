@@ -65,24 +65,36 @@ public sealed class MerchantsController(IMerchantDataProvider data) : Controller
 
     [HttpPost("listings/{listingId}/decrement")]
     public async Task<ActionResult<object>> Decrement(
-        string npcId,
-        string listingId,
-        [FromQuery] int count,
-        CancellationToken ct)
+    string npcId,
+    string listingId,
+    [FromQuery] int count,
+    CancellationToken ct)
     {
+        // 🔒 API-level validation
+        if (count <= 0)
+            return BadRequest(new { error = "count must be > 0" });
+
         var (ok, newQty) = await data.TryDecrementQuantityOrDeleteAsync(npcId, listingId, count, ct);
-        return Ok(new { ok, newQuantity = newQty });
+
+        // Explicit conflict signal helps the GS reason about retries/refunds
+        if (!ok)
+            return Conflict(new { ok = false, newQuantity = newQty });
+
+        return Ok(new { ok = true, newQuantity = newQty });
     }
 
     [HttpPost("listings/{listingId}/increment")]
     public async Task<ActionResult<object>> Increment(
-        string npcId,
-        string listingId,
-        [FromQuery] int delta,
-        CancellationToken ct)
+    string npcId,
+    string listingId,
+    [FromQuery] int delta,
+    CancellationToken ct)
     {
+        if (delta <= 0)
+            return BadRequest(new { error = "delta must be > 0" });
+
         var ok = await data.TryIncrementQuantityAsync(npcId, listingId, delta, ct);
-        return Ok(new { ok });
+        return ok ? Ok(new { ok = true }) : Conflict(new { ok = false });
     }
 
     // --- Merge stackables ---
@@ -128,4 +140,22 @@ public sealed class MerchantsController(IMerchantDataProvider data) : Controller
         [FromQuery] long now,
         CancellationToken ct)
         => Ok(await data.GetAllForMergeAsync(npcId, now, ct));
+
+    [HttpPost("sell-events")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> ApplySellEvent(
+        string npcId,
+        [FromBody] MerchantSellEvent evt,
+        CancellationToken ct)
+    {
+        if (evt == null) return BadRequest(new { error = "Missing body." });
+        if (!string.Equals(evt.NpcId, npcId, StringComparison.Ordinal))
+            return BadRequest(new { error = "NpcId mismatch." });
+
+        // Option B: best-effort; client already got paid on GS.
+        var ok = await data.TryApplySellEventAsync(npcId, evt, ct);
+
+        // 202 is nice because it communicates "accepted for processing"
+        return ok ? Accepted(new { ok = true }) : StatusCode(503, new { ok = false });
+    }
 }

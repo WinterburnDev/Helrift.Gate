@@ -110,3 +110,12 @@ public struct ItemProp
     public string k { get; set; }
     public string v { get; set; }
 }
+
+public sealed class MerchantSellEvent
+{
+    public required string EventId { get; init; }
+    public required string NpcId { get; init; }
+    public required string SellerCharacterId { get; init; }
+    public long CreatedAtUnix { get; init; }
+    public required MerchantItemRow[] Rows { get; init; }
+}
