@@ -70,7 +70,8 @@ public sealed class ChatController(IChatBroadcaster broadcaster, IPresenceServic
                 SenderName = dto.SenderName,
                 TargetName = dto.TargetName,
                 Message = dto.Message,
-                SenderSide = dto.SenderSide
+                SenderSide = dto.SenderSide,
+                IsAdmin = dto.IsAdmin
             }
         };
 

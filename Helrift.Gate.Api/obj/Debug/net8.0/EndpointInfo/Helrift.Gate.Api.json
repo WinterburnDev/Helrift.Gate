@@ -2914,6 +2914,9 @@
           "originServerId": {
             "type": "string",
             "nullable": true
+          },
+          "isAdmin": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -4078,6 +4081,9 @@
           "message": {
             "type": "string",
             "nullable": true
+          },
+          "isAdmin": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

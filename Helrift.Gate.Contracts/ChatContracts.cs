@@ -14,6 +14,7 @@ public sealed class ChatBroadcastData
     public string PartyId { get; set; } = string.Empty;
     public string GuildId { get; set; } = string.Empty;
     public string OriginServerId { get; set; } = string.Empty;
+    public bool IsAdmin { get; set; } = false;
 }
 
 public sealed class WhisperSendDto
@@ -23,6 +24,7 @@ public sealed class WhisperSendDto
     public string? SenderSide { get; set; }
     public string TargetName { get; set; }
     public string Message { get; set; }
+    public bool IsAdmin { get; set; }
 }
 
 public sealed class WhisperSendResultDto

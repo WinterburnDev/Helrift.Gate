@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Helrift.Gate.Adapters.Firebase")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce29c8d2ddf93e792b088b8151da4c9c5d8524ec")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f898bbe4a77525813648d07c05083231e2b114cf")]
 [assembly: System.Reflection.AssemblyProductAttribute("Helrift.Gate.Adapters.Firebase")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Helrift.Gate.Adapters.Firebase")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
