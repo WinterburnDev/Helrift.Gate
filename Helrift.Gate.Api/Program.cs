@@ -34,18 +34,15 @@ var fbOptions = new FirebaseOptions
 builder.Services.AddSingleton(fbOptions);
 
 // GOOGLE AUTH
-var saPath = builder.Configuration["Firebase:ServiceAccountJsonPath"];
-GoogleCredential credential = !string.IsNullOrWhiteSpace(saPath)
-    ? GoogleCredential.FromFile(saPath)
-    : GoogleCredential.GetApplicationDefault();
-
-credential = credential.CreateScoped(new[]
+builder.Services.AddSingleton(sp =>
 {
-    "https://www.googleapis.com/auth/firebase.database",
-    "https://www.googleapis.com/auth/userinfo.email"
+    var saPath = builder.Configuration["Firebase:ServiceAccountJsonPath"]!;
+    return GoogleCredential
+        .FromFile(saPath)
+        .CreateScoped(
+            "https://www.googleapis.com/auth/firebase.database",
+            "https://www.googleapis.com/auth/userinfo.email");
 });
-
-builder.Services.AddSingleton(credential);
 builder.Services.AddTransient<GoogleAuthDelegatingHandler>();
 
 // FIREBASE AUTH
