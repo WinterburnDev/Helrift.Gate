@@ -96,6 +96,7 @@ namespace Helrift.Gate.Api.Controllers
         }
 
         [HttpPost("experience")]
+        [Authorize(Policy = "ServerOnly")]
         public async Task<IActionResult> AddExperience([FromBody] PartyExperienceEventBatchDto batch, CancellationToken ct)
         {
             if (batch?.Events == null || batch.Events.Count == 0)
