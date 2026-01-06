@@ -1874,6 +1874,37 @@
         }
       }
     },
+    "/api/party/experience": {
+      "post": {
+        "tags": [
+          "Party"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyExperienceEventBatchDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyExperienceEventBatchDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyExperienceEventBatchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/v1/presence/register": {
       "post": {
         "tags": [
@@ -3852,6 +3883,61 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "PartyExperienceEventBatchDto": {
+        "type": "object",
+        "properties": {
+          "gameServerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartyExperienceEventDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartyExperienceEventDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "partyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "earnerCharacterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "baseXp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourceX": {
+            "type": "number",
+            "format": "float"
+          },
+          "sourceY": {
+            "type": "number",
+            "format": "float"
+          },
+          "sourceZ": {
+            "type": "number",
+            "format": "float"
+          },
+          "occurredAtUnixMs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
       },
       "PartyMemberDto": {
         "type": "object",

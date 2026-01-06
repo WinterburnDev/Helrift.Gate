@@ -276,6 +276,22 @@
   },
   {
     "ContainingType": "Helrift.Gate.Api.Controllers.PartyController",
+    "Method": "AddExperience",
+    "RelativePath": "api/party/experience",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "batch",
+        "Type": "PartyExperienceEventBatchDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.PartyController",
     "Method": "Join",
     "RelativePath": "api/party/join",
     "HttpMethod": "POST",

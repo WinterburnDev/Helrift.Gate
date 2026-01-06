@@ -13,10 +13,12 @@ namespace Helrift.Gate.Api.Controllers
     public class PartyController : ControllerBase
     {
         private readonly IPartyService _partyService;
+        private readonly IPartyExperienceService _experienceService;
 
-        public PartyController(IPartyService partyService)
+        public PartyController(IPartyService partyService, IPartyExperienceService experienceService)
         {
             _partyService = partyService;
+            _experienceService = experienceService;
         }
 
         private bool IsAccountOwner(string accountId)
@@ -92,6 +94,15 @@ namespace Helrift.Gate.Api.Controllers
             var dtos = parties.Select(PartyMapper.ToDto).ToList();
             return Ok(dtos);
         }
-    }
 
+        [HttpPost("experience")]
+        public async Task<IActionResult> AddExperience([FromBody] PartyExperienceEventBatchDto batch, CancellationToken ct)
+        {
+            if (batch?.Events == null || batch.Events.Count == 0)
+                return Accepted();
+
+            await _experienceService.ProcessBatchAsync(batch, ct);
+            return Accepted();
+        }
+    }
 }

@@ -56,3 +56,45 @@ public class KickMemberRequest
     public string TargetCharacterId { get; set; } = default!;
 }
 
+public sealed class PartyExperienceEventBatchDto
+{
+    public string GameServerId { get; set; } = default!;
+    public List<PartyExperienceEventDto> Events { get; set; } = new();
+}
+
+public sealed class PartyExperienceEventDto
+{
+    public string EventId { get; set; } = default!;
+    public string PartyId { get; set; } = default!;
+    public string EarnerCharacterId { get; set; } = default!;
+    public int BaseXp { get; set; }
+
+    public float SourceX { get; set; }
+    public float SourceY { get; set; }
+    public float SourceZ { get; set; }
+
+    public long OccurredAtUnixMs { get; set; }
+}
+
+/// <summary>
+/// Payload sent over WS to a specific GS. Mirrors party.state pattern with recipients.
+/// </summary>
+public sealed class PartyExperiencePayloadDto
+{
+    public string PartyId { get; set; } = default!;
+    public float SourceX { get; set; }
+    public float SourceY { get; set; }
+    public float SourceZ { get; set; }
+
+    public float ShareRange { get; set; }
+
+    public string[] Recipients { get; set; } = Array.Empty<string>();
+    public List<PartyExperienceDeltaDto> Deltas { get; set; } = new();
+}
+
+public sealed class PartyExperienceDeltaDto
+{
+    public string EventId { get; set; } = default!;
+    public string CharacterId { get; set; } = default!;
+    public int BaseXpShare { get; set; }
+}

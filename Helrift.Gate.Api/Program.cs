@@ -95,13 +95,17 @@ builder.Services.AddSingleton<IAccountService, AccountService>();
 builder.Services.AddSingleton<IFriendsService, FriendsService>();
 builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
 builder.Services.AddSingleton<WebSocketFriendNotifier>();
-builder.Services.AddSingleton<WebSocketPartyNotifier>();
 builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
 builder.Services.AddSingleton<PartyPresenceCleanupListener>();
-builder.Services.AddSingleton<IPartyService, PartyService>();
 builder.Services.AddSingleton<IRealmService, RealmService>();
+
+// PARTY
+builder.Services.AddSingleton<WebSocketPartyNotifier>();
+builder.Services.AddSingleton<IPartyService, PartyService>();
+builder.Services.AddSingleton<IPartyExperienceBroadcaster, WebSocketPartyExperienceBroadcaster>();
+builder.Services.AddSingleton<IPartyExperienceService, PartyExperienceService>();
 
 // ADMIN SERVICES
 builder.Services.AddScoped<ICharacterSearchService, CharacterSearchService>();

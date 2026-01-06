@@ -7,6 +7,7 @@ namespace Helrift.Gate.Api.Services
     {
         event Action<Party, IEnumerable<string>> PartyChanged;
 
+        Task<Party?> GetByIdAsync(string partyId, CancellationToken ct);
         Task<Party?> GetByCharacterIdAsync(string characterId, CancellationToken ct);
         Task<Party> CreatePartyAsync(CreatePartyRequest request, CancellationToken ct);
         Task<Party?> JoinPartyAsync(JoinPartyRequest request, CancellationToken ct);
