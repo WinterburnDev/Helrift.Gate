@@ -373,6 +373,7 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
             Research = c.Research,
             Spells = c.Spells,
             Cosmetics = c.Cosmetics,
+            Tutorials = c.Tutorials,
             LastLoggedIn = c.LastLoggedIn,
             Friends = c.Friends
         };
