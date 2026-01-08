@@ -70,6 +70,7 @@ namespace Helrift.Gate.Contracts
         public CharacterResearchData Research { get; set; }
         public CharacterSpellsData Spells { get; set; }
         public CharacterCosmeticData Cosmetics { get; set; }
+        public CharacterTutorialData Tutorials { get; set; }
 
         public DateTime? LastLoggedIn { get; set; }
 
@@ -300,6 +301,13 @@ namespace Helrift.Gate.Contracts
         public string activeCastEffect { get; set; }
         public string[] unlockedCastEffects { get; set; }
         public string[] unlockedSkins { get; set; }
+    }
+
+    [Serializable]
+    public class CharacterTutorialData
+    {
+        public bool tutorialsDisabled { get; set; }
+        public List<string> completedIds { get; set; }
     }
 
     public enum CharacterDeletionState

@@ -2,7 +2,7 @@
 {
     public sealed class PartyExperienceOptions
     {
-        public float ShareRange { get; set; } = 35f; // tune for Helrift scale
+        public float ShareRange { get; set; } = 50f;
         public bool RemainderToEarner { get; set; } = true;
     }
 }

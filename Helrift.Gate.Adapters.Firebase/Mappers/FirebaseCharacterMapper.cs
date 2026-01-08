@@ -47,6 +47,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 Research = ReadResearch(el, "research"),
                 Spells = ReadSpells(el, "spells"),
                 Cosmetics = ReadCosmetics(el, "cosmetics"),
+                Tutorials = ReadTutorials(el, "tutorials"),
                 LastLoggedIn = J.Date(el, "last_logged_in", "lastLoggedIn"),
                 Friends = ReadFriends(el, "friends"),
                 FriendRequests = ReadFriendRequests(el, "friend_requests")
@@ -93,6 +94,7 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["research"] = Obj(c.Research),
                 ["spells"] = Obj(c.Spells),
                 ["cosmetics"] = Obj(c.Cosmetics),
+                ["tutorials"] = Obj(c.Tutorials),
                 ["friends"] = Obj(c.Friends, FriendObj),
                 ["friend_requests"] = Obj(c.FriendRequests, FriendRequestObj),
             };
@@ -589,6 +591,16 @@ namespace Helrift.Gate.Adapters.Firebase
             };
         }
 
+        private static CharacterTutorialData ReadTutorials(JsonElement root, string key)
+        {
+            if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return null;
+            return new CharacterTutorialData
+            {
+                tutorialsDisabled = J.Bool(el, "tutorials_disabled", "tutorialsDisabled"),
+                completedIds = J.StringArray(el, "completed_ids", "completedIds").ToList()
+            };
+        }
+
         // ---------------- nested WRITE helpers ----------------
         private static object Obj(Vec3 v) => new Dictionary<string, object> { ["x"] = v.x, ["y"] = v.y, ["z"] = v.z };
         private static object Obj(Vec2 v) => new Dictionary<string, object> { ["x"] = v.x, ["y"] = v.y };
@@ -766,6 +778,13 @@ namespace Helrift.Gate.Adapters.Firebase
                 ["active_cast_effect"] = c.activeCastEffect ?? "",
                 ["unlocked_cast_effects"] = c.unlockedCastEffects ?? Array.Empty<string>(),
                 ["unlocked_skins"] = c.unlockedSkins ?? Array.Empty<string>()
+            };
+
+        private static object Obj(CharacterTutorialData c)
+            => c == null ? null : new Dictionary<string, object>
+            {
+                ["tutorials_disabled"] = c.tutorialsDisabled,
+                ["completed_ids"] = c.completedIds ?? Array.Empty<string>().ToList()
             };
 
         private static object ItemObj(CharacterItemData it)
