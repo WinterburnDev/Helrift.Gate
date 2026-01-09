@@ -12,6 +12,10 @@ namespace Helrift.Gate.App.Repositories
         Task<IReadOnlyList<CharacterData>> GetCharactersAsync(string accountId, CancellationToken ct);
         Task<CharacterData?> GetCharacterAsync(string accountId, string charId, CancellationToken ct);
         Task<CharacterNameRecord?> GetCharacterByNameAsync(string characterName, CancellationToken ct);
+        Task<IReadOnlyDictionary<string, string>> GetCharacterNamesByIdsAsync(
+            string realmId,
+            IReadOnlyList<string> characterIds,
+            CancellationToken ct = default);
         Task CreateCharacterAsync(CharacterData character, CancellationToken ct);
         Task SaveCharacterAsync(CharacterData character, CancellationToken ct);
         Task DeleteCharacterAsync(string accountId, string charId, string characterName, CancellationToken ct);

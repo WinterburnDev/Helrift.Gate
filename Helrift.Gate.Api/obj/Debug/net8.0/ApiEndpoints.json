@@ -249,6 +249,73 @@
     ]
   },
   {
+    "ContainingType": "Helrift.Gate.Controllers.LeaderboardsController",
+    "Method": "GetTop",
+    "RelativePath": "api/leaderboards/{metricKey}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "metricKey",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "side",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "window",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "bucketStartUtc",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.Leaderboards.LeaderboardResponseDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Controllers.LeaderboardsController",
+    "Method": "Increment",
+    "RelativePath": "api/leaderboards/increment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "Helrift.Gate.Contracts.Leaderboards.LeaderboardIncrementData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.PartyController",
     "Method": "Create",
     "RelativePath": "api/party/create",

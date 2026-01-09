@@ -120,6 +120,90 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         };
     }
 
+    public async Task<IReadOnlyDictionary<string, string>> GetCharacterNamesByIdsAsync(
+    string realmId,
+    IReadOnlyList<string> characterIds,
+    CancellationToken ct = default)
+    {
+        if (characterIds == null || characterIds.Count == 0)
+            return new Dictionary<string, string>();
+
+        // Keep it robust: distinct, trim, and cap list size defensively.
+        var ids = characterIds
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .Take(500) // hard cap to prevent abuse
+            .ToArray();
+
+        if (ids.Length == 0)
+            return new Dictionary<string, string>();
+
+        // RTDB doesn't support multi-get by arbitrary keys cleanly.
+        // We'll do parallel GETs with throttling (good enough for top-N leaderboards).
+        const int maxConcurrency = 12;
+        using var sem = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+
+        var results = new Dictionary<string, string>(ids.Length, StringComparer.Ordinal);
+
+        var tasks = ids.Select(async id =>
+        {
+            await sem.WaitAsync(ct).ConfigureAwait(false);
+            try
+            {
+                // New index node: character_ids/{characterId}
+                using var res = await _http.GetAsync($"character_ids/{id}.json", ct).ConfigureAwait(false);
+                if (!res.IsSuccessStatusCode)
+                    return;
+
+                var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(json) || json == "null")
+                    return;
+
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                // Allow either a simple string or an object.
+                // Option A: "Bob"
+                if (root.ValueKind == JsonValueKind.String)
+                {
+                    var name = root.GetString();
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        lock (results) results[id] = name!;
+                    }
+                    return;
+                }
+
+                // Option B: { "character_name": "Bob", ... }
+                if (root.ValueKind == JsonValueKind.Object)
+                {
+                    if (root.TryGetProperty("character_name", out var nameEl) &&
+                        nameEl.ValueKind == JsonValueKind.String)
+                    {
+                        var name = nameEl.GetString();
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            lock (results) results[id] = name!;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Best-effort: ignore per-id failures; caller can show "Unknown".
+            }
+            finally
+            {
+                sem.Release();
+            }
+        });
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+        return results;
+    }
+
+
     /// <summary>
     /// Optional convenience if your interface includes it:
     /// Returns username + character count from /accounts/{accountId}.
@@ -244,6 +328,17 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         var namePut = await _http.PutAsJsonAsync(namePath, nameDoc, Json, ct);
         namePut.EnsureSuccessStatusCode();
 
+        // 2b) Write ID -> name index for fast lookups (leaderboards, etc.)
+        var idPath = $"character_ids/{charId}.json";
+        var idDoc = new
+        {
+            character_name = c.CharacterName,
+            account_id = c.Username,
+            created_at = nowMs
+        };
+        var idPut = await _http.PutAsJsonAsync(idPath, idDoc, Json, ct);
+        idPut.EnsureSuccessStatusCode();
+
         // 3) Write character document (snake_case)
         var charDocPath = $"accounts/{c.Username}/characters/{charId}.json";
         var toWrite = CloneWithId(c, charId);
@@ -325,6 +420,14 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
                     
                 }
             }
+        }
+
+        // Remove id index (best-effort)
+        if (!string.IsNullOrWhiteSpace(charId))
+        {
+            var idPath = $"character_ids/{charId}.json";
+            using var res = await _http.DeleteAsync(idPath, ct);
+            // ignore failures best-effort
         }
     }
 

@@ -1,4 +1,5 @@
 using Google.Apis.Auth.OAuth2;
+using Helrift.Gate;
 using Helrift.Gate.Adapters.Firebase;
 using Helrift.Gate.Api.Services;
 using Helrift.Gate.Api.Services.Accounts;
@@ -111,6 +112,8 @@ builder.Services.AddSingleton<IPartyExperienceService, PartyExperienceService>()
 builder.Services.AddScoped<ICharacterSearchService, CharacterSearchService>();
 builder.Services.AddSingleton<IBanService, BanService>();
 builder.Services.AddSingleton<IAdminService, AdminService>();
+
+builder.Services.AddLeaderboards();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();

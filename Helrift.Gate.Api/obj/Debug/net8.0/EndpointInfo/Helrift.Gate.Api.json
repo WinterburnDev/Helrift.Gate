@@ -1123,6 +1123,114 @@
         }
       }
     },
+    "/api/leaderboards/{metricKey}": {
+      "get": {
+        "tags": [
+          "Leaderboards"
+        ],
+        "parameters": [
+          {
+            "name": "metricKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "realmId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "side",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SideType"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/LeaderboardWindowType"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "bucketStartUtc",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaderboards/increment": {
+      "post": {
+        "tags": [
+          "Leaderboards"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaderboardIncrementData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaderboardIncrementData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaderboardIncrementData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/v1/merchants/{npcId}/query": {
       "post": {
         "tags": [
@@ -2480,6 +2588,9 @@
           "cosmetics": {
             "$ref": "#/components/schemas/CharacterCosmeticData"
           },
+          "tutorials": {
+            "$ref": "#/components/schemas/CharacterTutorialData"
+          },
           "lastLoggedIn": {
             "type": "string",
             "format": "date-time",
@@ -2907,6 +3018,22 @@
           "lastUpdated": {
             "type": "string",
             "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterTutorialData": {
+        "type": "object",
+        "properties": {
+          "tutorialsDisabled": {
+            "type": "boolean"
+          },
+          "completedIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3601,6 +3728,115 @@
         },
         "additionalProperties": false
       },
+      "LeaderboardEntryDto": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LeaderboardIncrementData": {
+        "type": "object",
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "occurredUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "$ref": "#/components/schemas/SideType"
+          },
+          "metricKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectType": {
+            "$ref": "#/components/schemas/LeaderboardSubjectType"
+          },
+          "subjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "delta": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourceGameServerId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LeaderboardResponseDto": {
+        "type": "object",
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "$ref": "#/components/schemas/SideType"
+          },
+          "metricKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "window": {
+            "$ref": "#/components/schemas/LeaderboardWindowType"
+          },
+          "bucketStartUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardEntryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LeaderboardSubjectType": {
+        "enum": [
+          1
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "LeaderboardWindowType": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "LeavePartyRequest": {
         "type": "object",
         "properties": {
@@ -4076,6 +4312,14 @@
           }
         },
         "additionalProperties": false
+      },
+      "SideType": {
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "StatRangeFilter": {
         "type": "object",
