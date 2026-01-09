@@ -139,59 +139,28 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
         if (ids.Length == 0)
             return new Dictionary<string, string>();
 
-        // RTDB doesn't support multi-get by arbitrary keys cleanly.
-        // We'll do parallel GETs with throttling (good enough for top-N leaderboards).
+        var results = new Dictionary<string, string>(ids.Length, StringComparer.Ordinal);
+
+        // ---------------------------
+        // 1) Fast path: character_ids
+        // ---------------------------
         const int maxConcurrency = 12;
         using var sem = new SemaphoreSlim(maxConcurrency, maxConcurrency);
 
-        var results = new Dictionary<string, string>(ids.Length, StringComparer.Ordinal);
-
-        var tasks = ids.Select(async id =>
+        var fastTasks = ids.Select(async id =>
         {
             await sem.WaitAsync(ct).ConfigureAwait(false);
             try
             {
-                // New index node: character_ids/{characterId}
-                using var res = await _http.GetAsync($"character_ids/{id}.json", ct).ConfigureAwait(false);
-                if (!res.IsSuccessStatusCode)
-                    return;
-
-                var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                if (string.IsNullOrWhiteSpace(json) || json == "null")
-                    return;
-
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-
-                // Allow either a simple string or an object.
-                // Option A: "Bob"
-                if (root.ValueKind == JsonValueKind.String)
+                var name = await TryGetNameFromCharacterIdsAsync(id, ct).ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(name))
                 {
-                    var name = root.GetString();
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        lock (results) results[id] = name!;
-                    }
-                    return;
-                }
-
-                // Option B: { "character_name": "Bob", ... }
-                if (root.ValueKind == JsonValueKind.Object)
-                {
-                    if (root.TryGetProperty("character_name", out var nameEl) &&
-                        nameEl.ValueKind == JsonValueKind.String)
-                    {
-                        var name = nameEl.GetString();
-                        if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            lock (results) results[id] = name!;
-                        }
-                    }
+                    lock (results) results[id] = name!;
                 }
             }
             catch
             {
-                // Best-effort: ignore per-id failures; caller can show "Unknown".
+                // best-effort
             }
             finally
             {
@@ -199,9 +168,51 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
             }
         });
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(fastTasks).ConfigureAwait(false);
+
+        // Work out what we still need
+        var missing = ids.Where(id => !results.ContainsKey(id)).ToArray();
+        if (missing.Length == 0)
+            return results;
+
+        // -------------------------------------------
+        // 2) Fallback: query character_names by charId
+        // -------------------------------------------
+        // RTDB query is per characterId, so do parallel queries with same throttling.
+        var fallbackTasks = missing.Select(async id =>
+        {
+            await sem.WaitAsync(ct).ConfigureAwait(false);
+            try
+            {
+                var hit = await TryFindInCharacterNamesByCharacterIdAsync(id, ct).ConfigureAwait(false);
+                if (hit == null) return;
+
+                if (!string.IsNullOrWhiteSpace(hit.CharacterName))
+                {
+                    lock (results) results[id] = hit.CharacterName!;
+                }
+
+                // ---------------------------------
+                // 3) Backfill character_ids (best-effort)
+                // ---------------------------------
+                // Don't await; never fail the request due to backfill
+                _ = TryUpsertCharacterIdIndexAsync(id, hit.AccountId, hit.CharacterName!, ct);
+            }
+            catch
+            {
+                // best-effort
+            }
+            finally
+            {
+                sem.Release();
+            }
+        });
+
+        await Task.WhenAll(fallbackTasks).ConfigureAwait(false);
+
         return results;
     }
+
 
 
     /// <summary>
@@ -434,6 +445,119 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
     // --------------------------------------------------------------------
     // Helpers
     // --------------------------------------------------------------------
+
+    private async Task<string?> TryGetNameFromCharacterIdsAsync(string characterId, CancellationToken ct)
+    {
+        using var res = await _http.GetAsync($"character_ids/{Uri.EscapeDataString(characterId)}.json", ct).ConfigureAwait(false);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        // Option A: "Bob"
+        if (root.ValueKind == JsonValueKind.String)
+            return root.GetString();
+
+        // Option B: { "character_name": "Bob", ... }
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            if (root.TryGetProperty("character_name", out var nameEl) &&
+                nameEl.ValueKind == JsonValueKind.String)
+                return nameEl.GetString();
+        }
+
+        return null;
+    }
+
+    private sealed record CharacterNamesHit(string AccountId, string CharacterName);
+
+    private async Task<CharacterNamesHit?> TryFindInCharacterNamesByCharacterIdAsync(string characterId, CancellationToken ct)
+    {
+        // Query:
+        // /character_names.json?orderBy="character_id"&equalTo="<characterId>"&limitToFirst=1
+        var orderBy = Uri.EscapeDataString("\"character_id\"");
+        var equalTo = Uri.EscapeDataString($"\"{characterId}\"");
+
+        var url = $"character_names.json?orderBy={orderBy}&equalTo={equalTo}&limitToFirst=1";
+
+        using var res = await _http.GetAsync(url, ct).ConfigureAwait(false);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
+        // Result shape: { "<nameKey>": { character_name, character_id, account_id, created_at } }
+        foreach (var prop in root.EnumerateObject())
+        {
+            if (prop.Value.ValueKind != JsonValueKind.Object)
+                continue;
+
+            var obj = prop.Value;
+
+            var accountId = obj.TryGetProperty("account_id", out var accEl) && accEl.ValueKind == JsonValueKind.String
+                ? accEl.GetString()
+                : null;
+
+            var name = obj.TryGetProperty("character_name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String
+                ? nameEl.GetString()
+                : null;
+
+            if (string.IsNullOrWhiteSpace(accountId) || string.IsNullOrWhiteSpace(name))
+                return null;
+
+            return new CharacterNamesHit(accountId!, name!);
+        }
+
+        return null;
+    }
+
+    private async Task<bool> TryUpsertCharacterIdIndexAsync(
+        string characterId,
+        string accountId,
+        string characterName,
+        CancellationToken ct)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(characterId) ||
+                string.IsNullOrWhiteSpace(accountId) ||
+                string.IsNullOrWhiteSpace(characterName))
+                return false;
+
+            var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            // Match your existing CreateCharacterAsync shape as closely as possible.
+            // Keep created_at if missing; otherwise this Put will replace the doc.
+            // If you want to preserve created_at, switch to PATCH and only write character_name/account_id.
+            var idDoc = new
+            {
+                character_name = characterName,
+                account_id = accountId,
+                created_at = nowMs
+            };
+
+            var idPath = $"character_ids/{Uri.EscapeDataString(characterId)}.json";
+            var put = await _http.PutAsJsonAsync(idPath, idDoc, Json, ct).ConfigureAwait(false);
+            return put.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
 
     private static string NormalizeNameKey(string name)
         => Regex.Replace((name ?? "").ToLowerInvariant(), "[^a-z0-9]", "");
