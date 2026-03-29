@@ -1,5 +1,37 @@
 [
   {
+    "ContainingType": "Program\u002B\u003C\u003Ec",
+    "Method": "\u003C\u003CMain\u003E$\u003Eb__0_7",
+    "RelativePath": "",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.BansController",
+    "Method": "List",
+    "RelativePath": "admin/api/Bans",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.Admin.BansController",
     "Method": "Create",
     "RelativePath": "admin/api/Bans",
@@ -10,6 +42,105 @@
       {
         "Name": "dto",
         "Type": "Helrift.Gate.Contracts.CreateBanDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.BansController",
+    "Method": "Revoke",
+    "RelativePath": "admin/api/Bans",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "steamId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ipAddress",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.CharactersController",
+    "Method": "Get",
+    "RelativePath": "admin/api/Characters/{accountId}/{charId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.CharactersController",
+    "Method": "Ban",
+    "RelativePath": "admin/api/Characters/{accountId}/{charId}/ban",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Api.Controllers.Admin.AdminBanCharacterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.CharactersController",
+    "Method": "Kick",
+    "RelativePath": "admin/api/Characters/{accountId}/{charId}/kick",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "charId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Api.Controllers.Admin.AdminActionDto",
         "IsRequired": true
       }
     ],
@@ -50,6 +181,151 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GameServersController",
+    "Method": "GetById",
+    "RelativePath": "admin/api/GameServers/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Api.Controllers.GameServersController\u002BGameServerDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminGuildsController",
+    "Method": "Get",
+    "RelativePath": "admin/api/guilds/{guildId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "guildId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminLeaderboardsController",
+    "Method": "GetTop",
+    "RelativePath": "admin/api/leaderboards/{metricKey}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "metricKey",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "side",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "window",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "bucketStartUtc",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.Leaderboards.LeaderboardResponseDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminLeaderboardsController",
+    "Method": "GetKeys",
+    "RelativePath": "admin/api/leaderboards/keys",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminMerchantsController",
+    "Method": "ListNpcs",
+    "RelativePath": "admin/api/merchants",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminMerchantsController",
+    "Method": "GetNpcListings",
+    "RelativePath": "admin/api/merchants/{npcId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "npcId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminPartiesController",
+    "Method": "ListAll",
+    "RelativePath": "admin/api/parties",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "side",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "Gate.Controllers.FriendsController",
@@ -783,6 +1059,48 @@
     ]
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GameServerRegistrationController",
+    "Method": "Get",
+    "RelativePath": "api/v1/gameservers/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Api.Services.GameServers.Models.GameServerRegistration",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.GameServerRegistrationController",
+    "Method": "Register",
+    "RelativePath": "api/v1/gameservers/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Contracts.GameServerRegistrationDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.GuildsController",
     "Method": "Query",
     "RelativePath": "api/v1/guilds",
@@ -1239,6 +1557,80 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmEventsController",
+    "Method": "Publish",
+    "RelativePath": "api/v1/realm-events/publish",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "env",
+        "Type": "Helrift.Gate.Contracts.RealmEventEnvelope",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmEventsController",
+    "Method": "GetRecent",
+    "RelativePath": "api/v1/realm-events/recent/{realmId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmEventsController",
+    "Method": "GetSnapshot",
+    "RelativePath": "api/v1/realm-events/snapshot/{realmId}/{eventInstanceId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "eventInstanceId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmEventsController",
+    "Method": "Subscribe",
+    "RelativePath": "api/v1/realm-events/subscribe",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Helrift.Gate.Api.Services.RealmEvents.SubscriptionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.RealmController",
     "Method": "Clear",
     "RelativePath": "api/v1/realm/clear",
@@ -1376,6 +1768,27 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.RealmEventsController",
+    "Method": "InternalPush",
+    "RelativePath": "internal/realm-events/push/{subscriptionId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "subscriptionId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "env",
+        "Type": "Helrift.Gate.Contracts.RealmEventEnvelope",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   }
 ]

@@ -3,790 +3,359 @@
 <head>
     <meta charset="UTF-8" />
     <title>Helrift Gate Admin</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            margin: 0;
-            background: #111827;
-            color: #e5e7eb;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-
-        .sidebar {
-            width: 200px;
-            background: #020617;
-            border-right: 1px solid #1f2937;
-            padding: 12px 10px;
-            box-sizing: border-box;
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 600;
-            padding: 4px 8px 8px;
-            margin-bottom: 8px;
-        }
-
-        .nav-group-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #6b7280;
-            padding: 6px 8px 4px;
-        }
-
-        .nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 12px;
-        }
-
-        .nav-item {
-            margin-bottom: 2px;
-        }
-
-        .nav-link {
-            display: block;
-            padding: 6px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #e5e7eb;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-            .nav-link:hover {
-                background: #111827;
-            }
-
-            .nav-link.active {
-                background: #1f2937;
-            }
-
-        /* Main content */
-
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        header {
-            padding: 12px 20px;
-            background: #020617;
-            border-bottom: 1px solid #1f2937;
-        }
-
-            header h1 {
-                margin: 0;
-                font-size: 18px;
-            }
-
-        main {
-            padding: 16px 20px 40px;
-        }
-
-        .section {
-            margin-bottom: 28px;
-        }
-
-            .section h2 {
-                margin: 0 0 4px;
-                font-size: 16px;
-            }
-
-        .meta {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-bottom: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            background: #020617;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 8px 10px;
-            text-align: left;
-            border-bottom: 1px solid #1f2937;
-        }
-
-        th {
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        tr:hover td {
-            background: #030712;
-        }
-
-        .pill {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 11px;
-        }
-
-        .pill-online {
-            background: rgba(34,197,94,0.15);
-            color: #4ade80;
-        }
-
-        .pill-closing {
-            background: rgba(234,179,8,0.15);
-            color: #facc15;
-        }
-
-        .pill-offline {
-            background: rgba(239,68,68,0.15);
-            color: #f87171;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 999px;
-            font-size: 11px;
-            background: #1f2937;
-            margin-left: 4px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Cards & form helpers */
-
-        .card {
-            background: #020617;
-            border-radius: 8px;
-            border: 1px solid #1f2937;
-            padding: 12px 14px 14px;
-            max-width: 840px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px 16px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
-
-            .field label {
-                font-size: 12px;
-                color: #9ca3af;
-                margin-bottom: 4px;
-            }
-
-            .field input {
-                background: #020617;
-                border: 1px solid #374151;
-                border-radius: 4px;
-                color: #e5e7eb;
-                padding: 6px 8px;
-                font-size: 13px;
-            }
-
-                .field input:focus {
-                    outline: none;
-                    border-color: #60a5fa;
-                }
-
-            .field small {
-                font-size: 11px;
-                color: #6b7280;
-                margin-top: 3px;
-            }
-
-        .form-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            font-size: 11px;
-            color: #6b7280;
-        }
-
-        .form-row-divider {
-            white-space: nowrap;
-            padding-top: 18px;
-        }
-
-        .form-actions {
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            font-size: 13px;
-            border-radius: 4px;
-            border: 1px solid #1f2937;
-            background: #1f2937;
-            color: #e5e7eb;
-            cursor: pointer;
-        }
-
-            .btn:hover {
-                background: #111827;
-            }
-
-        #banStatus {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-
-        /* Characters view */
-
-        .characters-search-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-            .characters-search-bar input {
-                flex: 1;
-                min-width: 180px;
-            }
-
-        .muted {
-            font-size: 12px;
-            color: #6b7280;
-        }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
+    <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
-    <div class="layout">
-        <aside class="sidebar">
-            <div class="sidebar-title">Gate Admin</div>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">
+            <img src="img/logo.png" alt="Helrift" class="sidebar-logo" />
+            <small>Gate Admin</small>
+        </div>
+        <div class="nav-group-label">Overview</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link active" data-page="dashboard"><span class="nav-icon material-symbols-outlined">dashboard</span> Dashboard</a></li>
+        </ul>
 
-            <div class="nav-group-label">Pages</div>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a id="nav-overview" class="nav-link active">Overview</a>
-                </li>
-                <li class="nav-item">
-                    <a id="nav-characters" class="nav-link">Characters</a>
-                </li>
-            </ul>
-        </aside>
+        <div class="nav-group-label">API</div>
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a class="nav-link" href="/swagger" target="_blank" rel="noopener noreferrer">
+                    <span class="nav-icon material-symbols-outlined">api</span> Swagger
+                </a>
+            </li>
+        </ul>
 
-        <div class="content">
-            <header>
-                <h1>Helrift Gate Admin</h1>
-            </header>
+        <div class="nav-group-label">Infrastructure</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="servers"><span class="nav-icon material-symbols-outlined">dns</span> Game Servers</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="realm"><span class="nav-icon material-symbols-outlined">public</span> Realm State</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="realm-events"><span class="nav-icon material-symbols-outlined">bolt</span> Realm Events</a></li>
+        </ul>
+        <div class="nav-group-label">Players</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="presence"><span class="nav-icon material-symbols-outlined">group</span> Online Players</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="characters"><span class="nav-icon material-symbols-outlined">person_search</span> Characters</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="character" style="display:none;"><span class="nav-icon material-symbols-outlined">assignment_ind</span> Character Detail</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="accounts"><span class="nav-icon material-symbols-outlined">manage_accounts</span> Accounts</a></li>
+        </ul>
+        <div class="nav-group-label">Social</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="parties"><span class="nav-icon material-symbols-outlined">diversity_3</span> Parties</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="guilds"><span class="nav-icon material-symbols-outlined">shield</span> Guilds</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="guild" style="display:none;"><span class="nav-icon material-symbols-outlined">shield</span> Guild Detail</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="chat"><span class="nav-icon material-symbols-outlined">campaign</span> Chat Broadcast</a></li>
+        </ul>
+        <div class="nav-group-label">Economy</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="merchants"><span class="nav-icon material-symbols-outlined">storefront</span> Merchants</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="leaderboards"><span class="nav-icon material-symbols-outlined">leaderboard</span> Leaderboards</a></li>
+        </ul>
+        <div class="nav-group-label">Moderation</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="bans"><span class="nav-icon material-symbols-outlined">gavel</span> Bans</a></li>
+        </ul>
+        <!-- Add hidden nav item under Players/Social hidden-detail links (anywhere in sidebar list area is fine) -->
+        <li class="nav-item"><a class="nav-link" data-page="server" style="display:none;"><span class="nav-icon material-symbols-outlined">dns</span> Game Server Detail</a></li>
+    </aside>
 
-            <main>
-                <!-- OVERVIEW VIEW -->
-                <div id="view-overview">
-                    <!-- Game servers section -->
-                    <section class="section">
+    <div class="content">
+        <header>
+            <h1 id="pageTitle">Dashboard</h1>
+            <span id="headerClock"></span>
+        </header>
+        <main>
+            <!-- DASHBOARD -->
+            <div id="page-dashboard" class="page active">
+                <div id="realmAlert"></div>
+                <div class="stats-grid" id="dashStats"></div>
+                <div class="inline-grid-2">
+                    <div class="section">
                         <h2>Game Servers</h2>
-                        <div class="meta">
-                            Connected: <span id="serverCount">0</span>
-                            · Last updated: <span id="serversLastUpdated">—</span>
-                        </div>
+                        <table><thead><tr><th>Server ID</th><th>Status</th></tr></thead><tbody id="dashServersBody"><tr><td colspan="2" class="empty-row">Loading…</td></tr></tbody></table>
+                    </div>
+                    <div class="section">
+                        <h2>Recent Players</h2>
+                        <table><thead><tr><th>Name</th><th>Server</th><th>Side</th></tr></thead><tbody id="dashPlayersBody"><tr><td colspan="3" class="empty-row">Loading…</td></tr></tbody></table>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2>Maps Online</h2>
+                    <div class="scroll-x">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Map</th>
+                                    <th>Cell</th>
+                                    <th>Flags</th>
+                                    <th>Server</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashMapsBody"><tr><td colspan="4" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
+            <!-- GAME SERVERS -->
+            <div id="page-servers" class="page">
+                <div class="section">
+                    <div class="section-desc">Connected + registered game servers. Auto-refreshes every 5 seconds.</div>
+                    <div class="scroll-x">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Server ID</th>
                                     <th>Status</th>
+                                    <th>Build</th>
+                                    <th>Maps</th>
+                                    <th>Registered (UTC)</th>
+                                    <th>Last Heartbeat (UTC)</th>
+                                    <th></th>
                                 </tr>
                             </thead>
-                            <tbody id="serversBody">
-                                <tr>
-                                    <td colspan="2" style="text-align:center; padding:12px;">Loading…</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="serversBody"><tr><td colspan="7" class="empty-row">Loading…</td></tr></tbody>
                         </table>
-                    </section>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Online players section -->
-                    <section class="section">
-                        <h2>Online Players</h2>
-                        <div class="meta">
-                            Total: <span id="playerCount">0</span>
-                            · Aresden: <span id="playerCountAresden">0</span>
-                            · Elvine: <span id="playerCountElvine">0</span>
-                            · Other: <span id="playerCountOther">0</span>
-                            · Last updated: <span id="playersLastUpdated">—</span>
-                        </div>
+            <!-- REALM STATE -->
+            <div id="page-realm" class="page">
+                <div class="action-bar">
+                    <button class="btn btn-warning" onclick="openDrawer_scheduleShutdown()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">power_settings_new</span> Schedule Shutdown</button>
+                    <button class="btn btn-danger" onclick="openDrawer_clearRealm()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">clear_all</span> Clear All Operations</button>
+                </div>
+                <div class="section">
+                    <h2>Current State</h2>
+                    <div class="section-desc">Live realm flags pushed to all game servers.</div>
+                    <div class="card"><table class="kv-table"><tbody id="realmStateBody"><tr><td>Loading…</td><td></td></tr></tbody></table></div>
+                </div>
+                <div class="section">
+                    <h2>Active Operations</h2>
+                    <table><thead><tr><th>ID</th><th>Type</th><th>Started</th><th>Ends</th><th>Message</th><th>By</th></tr></thead><tbody id="realmOpsBody"><tr><td colspan="6" class="empty-row">None</td></tr></tbody></table>
+                </div>
+            </div>
 
+            <!-- REALM EVENTS -->
+            <div id="page-realm-events" class="page">
+                <div class="section">
+                    <h2>Recent Realm Events</h2>
+                    <div class="section-desc">Live feed of realm events (Crusade, etc.) from game servers.</div>
+                    <div class="search-bar">
+                        <div class="field"><label>Realm ID</label><input id="realmEventsRealmId" type="text" value="default" /></div>
+                        <div class="field"><label>Limit</label><input id="realmEventsLimit" type="number" value="25" min="1" max="200" /></div>
+                        <button class="btn" onclick="loadRealmEvents()">Load</button>
+                    </div>
+                    <table><thead><tr><th>Time (UTC)</th><th>Type</th><th>Event Type</th><th>Instance ID</th><th>Seq</th></tr></thead><tbody id="realmEventsBody"><tr><td colspan="5" class="empty-row">Click Load to fetch</td></tr></tbody></table>
+                </div>
+            </div>
+
+            <!-- ONLINE PLAYERS -->
+            <div id="page-presence" class="page">
+                <div class="section">
+                    <div class="section-desc">Total: <strong id="presTotal">0</strong> · Aresden: <strong id="presAresden">0</strong> · Elvine: <strong id="presElvine">0</strong> · Other: <strong id="presOther">0</strong></div>
+                    <table><thead><tr><th>Name</th><th>Character ID</th><th>Server</th><th>Side</th><th>Last Seen (UTC)</th></tr></thead><tbody id="presBody"><tr><td colspan="5" class="empty-row">Loading…</td></tr></tbody></table>
+                </div>
+            </div>
+
+            <!-- CHARACTERS -->
+            <div id="page-characters" class="page">
+                <div class="section">
+                    <div class="section-desc">Search characters by name. Loads from the character name index.</div>
+                    <div class="search-bar">
+                        <div class="field"><label>Character Name</label><input id="charSearchName" type="text" placeholder="e.g. Winterburn" /></div>
+                        <button class="btn" onclick="searchCharacters()">Search</button>
+                        <span id="charSearchStatus" class="status-msg"></span>
+                    </div>
+                    <div class="section-desc">Results: <strong id="charResultCount">0</strong></div>
+                    <div class="scroll-x">
+                        <table><thead><tr><th>Name</th><th>Realm</th><th>Account</th><th>Character ID</th><th>Side</th><th>Level</th><th>Last Seen</th><th></th></tr></thead><tbody id="charResultsBody"><tr><td colspan="8" class="empty-row">Enter a name and search.</td></tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARACTER DETAIL -->
+            <div id="page-character" class="page">
+                <div class="section">
+                    <div id="charDetailContent"><div class="empty-row">No character loaded.</div></div>
+                </div>
+            </div>
+
+            <!-- ACCOUNTS -->
+            <div id="page-accounts" class="page">
+                <div class="section">
+                    <div class="section-desc">Look up an account by ID to view account data and list characters.</div>
+                    <div class="search-bar">
+                        <div class="field"><label>Account ID</label><input id="accountLookupId" type="text" placeholder="e.g. 76561198000000000" /></div>
+                        <button class="btn" onclick="lookupAccount()">Look Up</button>
+                        <span id="accountStatus" class="status-msg"></span>
+                    </div>
+                    <div id="accountResult"></div>
+                </div>
+            </div>
+
+            <!-- PARTIES -->
+            <div id="page-parties" class="page">
+                <div class="section">
+                    <div class="section-desc">All active parties across all game servers.</div>
+                    <div class="search-bar">
+                        <div class="field"><label>Side Filter</label><select id="partySideFilter"><option value="0">Any</option><option value="1">Aresden</option><option value="2">Elvine</option></select></div>
+                        <button class="btn" onclick="loadParties()">Refresh</button>
+                    </div>
+                    <table><thead><tr><th>Party ID</th><th>Name</th><th>Leader</th><th>Side</th><th>Visibility</th><th>Exp Mode</th><th>Members</th></tr></thead><tbody id="partiesBody"><tr><td colspan="7" class="empty-row">Loading…</td></tr></tbody></table>
+                    <div id="partyDetail" style="margin-top:16px;"></div>
+                </div>
+            </div>
+
+            <!-- GUILDS (search) -->
+            <div id="page-guilds" class="page">
+                <div class="section">
+                    <div class="section-desc">Search guilds by name or side. Click View to see full details with member names.</div>
+                    <div class="search-bar">
+                        <div class="field"><label>Search</label><input id="guildSearch" type="text" placeholder="Guild name…" /></div>
+                        <div class="field"><label>Side</label><select id="guildSideFilter"><option value="">Any</option><option value="Aresden">Aresden</option><option value="Elvine">Elvine</option></select></div>
+                        <button class="btn" onclick="loadGuilds()">Search</button>
+                    </div>
+                    <table><thead><tr><th>Guild ID</th><th>Name</th><th>Side</th><th>Leader</th><th>Members</th><th>Created</th><th>MOTD</th><th></th></tr></thead><tbody id="guildsBody"><tr><td colspan="8" class="empty-row">Enter a search and click Search.</td></tr></tbody></table>
+                </div>
+            </div>
+
+            <!-- GUILD DETAIL -->
+            <div id="page-guild" class="page">
+                <div class="section">
+                    <button class="btn" onclick="history.back()" style="margin-bottom:12px;">← Back</button>
+                    <div id="guildDetailContent"><div class="empty-row">No guild loaded.</div></div>
+                </div>
+            </div>
+
+            <!-- CHAT BROADCAST -->
+            <div id="page-chat" class="page">
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="openDrawer_broadcast()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">campaign</span> New Broadcast</button>
+                </div>
+                <div class="section">
+                    <div class="section-desc">Send a server-wide chat message to all connected game servers.</div>
+                    <p style="color:var(--dim); font-size:13px;">Use the <strong style="color:var(--muted);">New Broadcast</strong> button above to compose and send a message.</p>
+                </div>
+            </div>
+
+            <!-- MERCHANTS -->
+            <div id="page-merchants" class="page">
+                <div class="section">
+                    <div class="section-desc">All NPC merchants. Click one to browse its listings.</div>
+                    <div id="merchantNpcList"><p style="color:var(--dim); font-size:12px;">Loading…</p></div>
+                </div>
+                <div id="merchantListingsSection" style="display:none;" class="section">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <button class="btn" onclick="closeMerchantDrilldown()">← All Merchants</button>
+                        <h2 style="margin:0; font-size:16px;" id="merchantDrilldownTitle"></h2>
+                    </div>
+                    <div class="search-bar">
+                        <div class="field"><label>Sort</label><select id="merchantSort"><option value="3">Listed (Recent)</option><option value="0">Price (Low)</option><option value="1">Price (High)</option><option value="2">Rarity (High)</option></select></div>
+                        <div class="field"><label>Page</label><input id="merchantPage" type="number" value="1" min="1" style="width:70px;" /></div>
+                        <button class="btn" onclick="merchantRefresh()">Refresh</button>
+                        <span id="merchantStatus" class="status-msg"></span>
+                    </div>
+                    <div class="section-desc">Results: <strong id="merchantTotal">0</strong></div>
+                    <div class="scroll-x">
+                        <table><thead><tr><th>Listing ID</th><th>Item</th><th>Type</th><th>Quality</th><th>Qty</th><th>Buy Price</th><th>Seller</th><th>Listed</th><th>Expires</th></tr></thead><tbody id="merchantBody"><tr><td colspan="9" class="empty-row">Select a merchant.</td></tr></tbody></table>
+                    </div>
+                    <div class="form-actions" style="margin-top:8px;"><button class="btn" onclick="merchantPrev()">← Prev</button><button class="btn" onclick="merchantNext()">Next →</button></div>
+                </div>
+            </div>
+
+            <!-- LEADERBOARDS -->
+            <div id="page-leaderboards" class="page">
+                <div class="section">
+                    <div class="section-desc">All active leaderboard metric keys. Click one to view rankings.</div>
+                    <div id="lbKeyList"><p style="color:var(--dim); font-size:12px;">Loading…</p></div>
+                </div>
+                <div id="lbDrilldownSection" style="display:none;" class="section">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <button class="btn" onclick="closeLbDrilldown()">← All Metrics</button>
+                        <h2 style="margin:0; font-size:16px;" id="lbDrilldownTitle"></h2>
+                    </div>
+                    <div class="search-bar">
+                        <div class="field"><label>Side</label><select id="lbSide"><option value="1">Aresden</option><option value="2">Elvine</option></select></div>
+                        <div class="field"><label>Window</label><select id="lbWindow"><option value="2">Weekly</option><option value="1">Daily</option><option value="3">Monthly</option></select></div>
+                        <div class="field"><label>Limit</label><input id="lbLimit" type="number" value="50" min="1" max="200" /></div>
+                        <button class="btn" onclick="lbRefresh()">Refresh</button>
+                    </div>
+                    <div id="lbMeta" class="section-desc"></div>
+                    <table><thead><tr><th>#</th><th>Subject ID</th><th>Display Name</th><th>Value</th></tr></thead><tbody id="lbBody"><tr><td colspan="4" class="empty-row">Select a metric.</td></tr></tbody></table>
+                </div>
+            </div>
+
+            <!-- BANS -->
+            <div id="page-bans" class="page">
+                <div class="action-bar">
+                    <div class="field" style="min-width:160px; max-width:220px;">
+                        <label>Realm ID</label>
+                        <input id="banRealmId" type="text" value="default" />
+                    </div>
+                    <button class="btn" onclick="Admin.pageHandlers['bans'].onEnter()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">refresh</span> Refresh</button>
+                    <div class="action-bar-spacer"></div>
+                    <button class="btn btn-danger" onclick="openDrawer_createBan()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">gavel</span> Create Ban</button>
+                </div>
+                <div class="section">
+                    <h2>Active Bans</h2>
+                    <div class="section-desc">All non-expired bans for the selected realm. Click Revoke to immediately lift a ban.</div>
+                    <div class="scroll-x">
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Server</th>
-                                    <th>Side</th>
-                                    <th>Last Seen (UTC)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="playersBody">
-                                <tr>
-                                    <td colspan="4" style="text-align:center; padding:12px;">Loading…</td>
-                                </tr>
-                            </tbody>
+                            <thead><tr><th>Steam ID</th><th>IP Address</th><th>Reason</th><th>Banned By</th><th>Banned At (UTC)</th><th>Expires</th><th></th></tr></thead>
+                            <tbody id="activeBansBody"><tr><td colspan="7" class="empty-row">Loading…</td></tr></tbody>
                         </table>
-                    </section>
-
-                    <!-- Add Ban section -->
-                    <section class="section">
-                        <h2>Add Ban</h2>
-                        <div class="meta">
-                            Create a ban by Steam ID or IP address. Either SteamId or IpAddress is required.
-                        </div>
-
-                        <div class="card">
-                            <div class="form-grid">
-                                <div class="field">
-                                    <label for="banRealmId">Realm Id</label>
-                                    <input id="banRealmId" type="text" value="default" />
-                                </div>
-
-                                <div class="field">
-                                    <label for="banCreatedBy">Created By</label>
-                                    <input id="banCreatedBy" type="text" value="admin" />
-                                </div>
-
-                                <div class="field">
-                                    <label for="banDuration">Duration (minutes)</label>
-                                    <input id="banDuration" type="number" min="1" />
-                                    <small>Leave empty for a permanent ban.</small>
-                                </div>
-                            </div>
-
-                            <div class="form-row" style="margin-top: 12px;">
-                                <div class="field" style="flex:1;">
-                                    <label for="banSteamId">Steam Id</label>
-                                    <input id="banSteamId" type="text" />
-                                </div>
-                                <div class="form-row-divider">OR</div>
-                                <div class="field" style="flex:1;">
-                                    <label for="banIp">IP Address</label>
-                                    <input id="banIp" type="text" />
-                                </div>
-                            </div>
-
-                            <div class="form-grid" style="margin-top:12px;">
-                                <div class="field" style="grid-column: 1 / -1;">
-                                    <label for="banReason">Reason</label>
-                                    <input id="banReason" type="text" />
-                                    <small>Example: Cheating, toxic behaviour, exploiting, etc.</small>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button class="btn" onclick="submitBan()">Create Ban</button>
-                                <span id="banStatus"></span>
-                            </div>
-                        </div>
-                    </section>
+                    </div>
                 </div>
+            </div>
 
-                <!-- CHARACTERS VIEW -->
-                <div id="view-characters" class="hidden">
-                    <section class="section">
-                        <h2>Characters</h2>
-                        <div class="meta">
-                            Search characters by name. This will look up from <code>character_names</code> and then load character data.
-                        </div>
-
-                        <div class="card">
-                            <div class="characters-search-bar">
-                                <div class="field" style="flex:1;">
-                                    <label for="charSearchName">Character Name</label>
-                                    <input id="charSearchName" type="text" placeholder="e.g. Winterburn" />
-                                </div>
-                                <button class="btn" onclick="searchCharacters()">Search</button>
-                                <span id="charSearchStatus" class="muted"></span>
-                            </div>
-
-                            <div class="meta">
-                                Results: <span id="charResultCount">0</span>
-                            </div>
-
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Realm</th>
-                                        <th>Account</th>
-                                        <th>Character Id</th>
-                                        <th>Side</th>
-                                        <th>Level</th>
-                                        <th>Last Seen (UTC)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="charResultsBody">
-                                    <tr>
-                                        <td colspan="7" style="text-align:center; padding:12px;">Enter a name and search.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+            <!-- SERVER DETAIL -->
+            <div id="page-server" class="page">
+                <div class="section">
+                    <div id="serverDetailContent"><div class="empty-row">No game server loaded.</div></div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
+</div>
 
-    <script>
-        // --- NAV / VIEWS ---
+<!-- ── Shared drawer ───────────────────────────────────────── -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="Admin.closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">
+        <span class="drawer-title" id="drawerTitle"></span>
+        <button class="drawer-close" onclick="Admin.closeDrawer()">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer">
+        <button class="btn btn-primary" id="drawerConfirmBtn" onclick="Admin._drawerConfirm()">Confirm</button>
+        <button class="btn" onclick="Admin.closeDrawer()">Cancel</button>
+        <span class="status-msg" id="drawerStatus"></span>
+    </div>
+</div>
 
-        function switchView(view) {
-            const overview = document.getElementById('view-overview');
-            const characters = document.getElementById('view-characters');
-
-            overview.classList.add('hidden');
-            characters.classList.add('hidden');
-
-            document.getElementById('nav-overview').classList.remove('active');
-            document.getElementById('nav-characters').classList.remove('active');
-
-            if (view === 'overview') {
-                overview.classList.remove('hidden');
-                document.getElementById('nav-overview').classList.add('active');
-            } else if (view === 'characters') {
-                characters.classList.remove('hidden');
-                document.getElementById('nav-characters').classList.add('active');
-            }
-        }
-
-        document.getElementById('nav-overview').addEventListener('click', () => switchView('overview'));
-        document.getElementById('nav-characters').addEventListener('click', () => switchView('characters'));
-
-        // --- OVERVIEW: servers ---
-
-        async function loadServers() {
-            try {
-                const res = await fetch('/admin/api/gameservers', { cache: 'no-store' });
-                if (!res.ok) {
-                    console.error('Failed to load servers', res.status);
-                    return;
-                }
-                const servers = await res.json();
-                renderServers(servers);
-            } catch (err) {
-                console.error('Error fetching servers', err);
-            }
-        }
-
-        function renderServers(servers) {
-            const tbody = document.getElementById('serversBody');
-            tbody.innerHTML = '';
-
-            document.getElementById('serverCount').textContent = servers.length.toString();
-            document.getElementById('serversLastUpdated').textContent =
-                new Date().toLocaleTimeString();
-
-            if (!servers.length) {
-                const tr = document.createElement('tr');
-                const td = document.createElement('td');
-                td.colSpan = 2;
-                td.style.textAlign = 'center';
-                td.style.padding = '12px';
-                td.textContent = 'No connected game servers';
-                tr.appendChild(td);
-                tbody.appendChild(tr);
-                return;
-            }
-
-            for (const s of servers) {
-                const tr = document.createElement('tr');
-
-                const idTd = document.createElement('td');
-                idTd.textContent = s.id;
-                tr.appendChild(idTd);
-
-                const stateTd = document.createElement('td');
-                const pill = document.createElement('span');
-                pill.classList.add('pill');
-
-                const state = (s.state || '').toLowerCase();
-                if (state === 'online') pill.classList.add('pill-online');
-                else if (state === 'closing') pill.classList.add('pill-closing');
-                else pill.classList.add('pill-offline');
-
-                pill.textContent = s.state || 'Unknown';
-                stateTd.appendChild(pill);
-                tr.appendChild(stateTd);
-
-                tbody.appendChild(tr);
-            }
-        }
-
-        // --- OVERVIEW: players ---
-
-        async function loadPlayers() {
-            try {
-                const res = await fetch('/api/v1/presence/online', { cache: 'no-store' });
-                if (!res.ok) {
-                    console.error('Failed to load players', res.status);
-                    return;
-                }
-                const players = await res.json();
-                renderPlayers(players);
-            } catch (err) {
-                console.error('Error fetching players', err);
-            }
-        }
-
-        function renderPlayers(players) {
-            const tbody = document.getElementById('playersBody');
-            tbody.innerHTML = '';
-
-            const total = players.length;
-            let aresden = 0, elvine = 0, other = 0;
-
-            for (const p of players) {
-                const side = (p.side || '').toLowerCase();
-                if (side === 'aresden') aresden++;
-                else if (side === 'elvine') elvine++;
-                else other++;
-            }
-
-            document.getElementById('playerCount').textContent = total.toString();
-            document.getElementById('playerCountAresden').textContent = aresden.toString();
-            document.getElementById('playerCountElvine').textContent = elvine.toString();
-            document.getElementById('playerCountOther').textContent = other.toString();
-            document.getElementById('playersLastUpdated').textContent =
-                new Date().toLocaleTimeString();
-
-            if (!players.length) {
-                const tr = document.createElement('tr');
-                const td = document.createElement('td');
-                td.colSpan = 4;
-                td.style.textAlign = 'center';
-                td.style.padding = '12px';
-                td.textContent = 'No players online';
-                tr.appendChild(td);
-                tbody.appendChild(tr);
-                return;
-            }
-
-            players.sort((a, b) => {
-                if (a.gameServerId === b.gameServerId) {
-                    return (a.characterName || '').localeCompare(b.characterName || '');
-                }
-                return (a.gameServerId || '').localeCompare(b.gameServerId || '');
-            });
-
-            for (const p of players) {
-                const tr = document.createElement('tr');
-
-                const nameTd = document.createElement('td');
-                nameTd.textContent = p.characterName || '(unknown)';
-                tr.appendChild(nameTd);
-
-                const serverTd = document.createElement('td');
-                serverTd.textContent = p.gameServerId || '';
-                tr.appendChild(serverTd);
-
-                const sideTd = document.createElement('td');
-                const side = p.side || '';
-                sideTd.textContent = side || '-';
-                tr.appendChild(sideTd);
-
-                const lastSeenTd = document.createElement('td');
-                lastSeenTd.textContent = p.lastSeenUtc
-                    ? new Date(p.lastSeenUtc).toISOString().replace('T', ' ').replace('Z', 'Z')
-                    : '-';
-                tr.appendChild(lastSeenTd);
-
-                tbody.appendChild(tr);
-            }
-        }
-
-        // --- OVERVIEW: bans ---
-
-        async function submitBan() {
-            const realmId = document.getElementById('banRealmId').value.trim();
-            const steamId = document.getElementById('banSteamId').value.trim();
-            const ip = document.getElementById('banIp').value.trim();
-            const durationRaw = document.getElementById('banDuration').value.trim();
-            const reason = document.getElementById('banReason').value.trim();
-            const createdBy = document.getElementById('banCreatedBy').value.trim();
-            const statusEl = document.getElementById('banStatus');
-
-            statusEl.textContent = '';
-
-            if (!realmId) {
-                statusEl.textContent = 'RealmId is required.';
-                return;
-            }
-
-            if (!steamId && !ip) {
-                statusEl.textContent = 'Either Steam Id or IP address is required.';
-                return;
-            }
-
-            if (!reason) {
-                statusEl.textContent = 'Reason is required.';
-                return;
-            }
-
-            const durationMinutes = durationRaw ? parseInt(durationRaw, 10) : null;
-
-            const payload = {
-                realmId,
-                steamId: steamId || null,
-                ipAddress: ip || null,
-                reason,
-                durationMinutes,
-                createdBy: createdBy || 'admin'
-            };
-
-            try {
-                const res = await fetch('/admin/api/bans', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!res.ok) {
-                    const text = await res.text();
-                    statusEl.textContent = `Error: ${res.status} ${text}`;
-                    return;
-                }
-
-                statusEl.textContent = 'Ban created successfully.';
-                document.getElementById('banSteamId').value = '';
-                document.getElementById('banIp').value = '';
-                document.getElementById('banDuration').value = '';
-                document.getElementById('banReason').value = '';
-            } catch (err) {
-                console.error('Error creating ban', err);
-                statusEl.textContent = 'Error creating ban (see console).';
-            }
-        }
-
-        // --- CHARACTERS: search ---
-
-        async function searchCharacters() {
-            const nameInput = document.getElementById('charSearchName');
-            const statusEl = document.getElementById('charSearchStatus');
-            const name = nameInput.value.trim();
-
-            statusEl.textContent = '';
-            if (!name) {
-                statusEl.textContent = 'Enter a character name.';
-                return;
-            }
-
-            statusEl.textContent = 'Searching…';
-
-            try {
-                const res = await fetch('/admin/api/characters/search?name=' + encodeURIComponent(name), {
-                    cache: 'no-store'
-                });
-                if (!res.ok) {
-                    const text = await res.text();
-                    statusEl.textContent = `Error: ${res.status} ${text}`;
-                    return;
-                }
-                const results = await res.json();
-                renderCharacterResults(results);
-                statusEl.textContent = '';
-            } catch (err) {
-                console.error('Error searching characters', err);
-                statusEl.textContent = 'Error searching (see console).';
-            }
-        }
-
-        function renderCharacterResults(results) {
-            const tbody = document.getElementById('charResultsBody');
-            tbody.innerHTML = '';
-
-            document.getElementById('charResultCount').textContent = results.length.toString();
-
-            if (!results.length) {
-                const tr = document.createElement('tr');
-                const td = document.createElement('td');
-                td.colSpan = 7;
-                td.style.textAlign = 'center';
-                td.style.padding = '12px';
-                td.textContent = 'No characters found.';
-                tr.appendChild(td);
-                tbody.appendChild(tr);
-                return;
-            }
-
-            results.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-
-            for (const c of results) {
-                const tr = document.createElement('tr');
-
-                const nameTd = document.createElement('td');
-                nameTd.textContent = c.name || '';
-                tr.appendChild(nameTd);
-
-                const realmTd = document.createElement('td');
-                realmTd.textContent = c.realmId || 'default';
-                tr.appendChild(realmTd);
-
-                const accountTd = document.createElement('td');
-                accountTd.textContent = c.accountId || '';
-                tr.appendChild(accountTd);
-
-                const charIdTd = document.createElement('td');
-                charIdTd.textContent = c.characterId || '';
-                tr.appendChild(charIdTd);
-
-                const sideTd = document.createElement('td');
-                sideTd.textContent = c.side || '-';
-                tr.appendChild(sideTd);
-
-                const levelTd = document.createElement('td');
-                levelTd.textContent = c.level != null ? c.level.toString() : '-';
-                tr.appendChild(levelTd);
-
-                const lastSeenTd = document.createElement('td');
-                if (c.lastSeenUnixUtc) {
-                    const d = new Date(c.lastSeenUnixUtc * 1000);
-                    lastSeenTd.textContent = d.toISOString().replace('T', ' ').replace('Z', 'Z');
-                } else {
-                    lastSeenTd.textContent = '-';
-                }
-                tr.appendChild(lastSeenTd);
-
-                tbody.appendChild(tr);
-            }
-        }
-
-        // --- initial refresh for overview ---
-
-        async function refreshAll() {
-            await Promise.all([
-                loadServers(),
-                loadPlayers()
-            ]);
-        }
-
-        switchView('overview');
-        refreshAll();
-        setInterval(refreshAll, 5000);
-    </script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/servers.js"></script>
+<script src="js/pages/realm.js"></script>
+<script src="js/pages/realm-events.js"></script>
+<script src="js/pages/presence.js"></script>
+<script src="js/pages/characters.js"></script>
+<script src="js/pages/character.js"></script>
+<script src="js/pages/accounts.js"></script>
+<script src="js/pages/parties.js"></script>
+<script src="js/pages/guilds.js"></script>
+<script src="js/pages/guild.js"></script>
+<script src="js/pages/chat.js"></script>
+<script src="js/pages/merchants.js"></script>
+<script src="js/pages/leaderboards.js"></script>
+<script src="js/pages/bans.js"></script>
+<script src="js/pages/server.js"></script>
+<script>Admin._boot();</script>
 </body>
 </html>

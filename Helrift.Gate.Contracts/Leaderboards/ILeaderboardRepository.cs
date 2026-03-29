@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Helrift.Gate.Contracts.Leaderboards;
 
@@ -34,6 +36,16 @@ public sealed record LeaderboardIncrementData(
     string SourceGameServerId
 );
 
+public sealed record LeaderboardCounterKey(
+    string RealmId,
+    SideType Side,
+    string MetricKey,
+    LeaderboardWindowType Window,
+    DateTime BucketStartUtc,
+    LeaderboardSubjectType SubjectType,
+    string SubjectId
+);
+
 public sealed record LeaderboardEntryDto(
     int Rank,
     string SubjectId,
@@ -58,3 +70,15 @@ public sealed record GetLeaderboardQuery(
     int Limit,
     DateTime? BucketStartUtc // null => current bucket
 );
+
+public interface ILeaderboardRepository
+{
+    Task<bool> TryInsertEventAsync(string idempotencyKey, LeaderboardIncrementData data, CancellationToken ct);
+    Task UpsertCounterIncrementAsync(LeaderboardCounterKey key, long delta, DateTime updatedUtc, CancellationToken ct);
+    Task<IReadOnlyList<(LeaderboardCounterKey Key, long Value)>> GetTopAsync(
+        string realmId, SideType side, string metricKey, LeaderboardWindowType window,
+        DateTime bucketStartUtc, int limit, CancellationToken ct);
+
+    /// <summary>Returns all distinct metric keys currently tracked.</summary>
+    IReadOnlyList<string> GetDistinctMetricKeys();
+}

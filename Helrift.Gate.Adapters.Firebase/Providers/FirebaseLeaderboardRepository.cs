@@ -6,16 +6,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Helrift.Gate.Contracts.Leaderboards;
-using Helrift.Gate.Services.Leaderboards;
 
 namespace Helrift.Gate.Adapters.Firebase.Leaderboards;
 
-/// <summary>
-/// Firebase RTDB leaderboards repository using Admin OAuth (no ?auth=).
-/// Structure:
-///   realms/{realmId}/leaderboards/events/{idempotencyKey}
-///   realms/{realmId}/leaderboards/counters/{metricKey}/{window}/{bucket}/{side}/{subjectId} = long
-/// </summary>
 public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
 {
     private readonly HttpClient _http;
@@ -34,18 +27,11 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
 
     public async Task<bool> TryInsertEventAsync(string idempotencyKey, LeaderboardIncrementData data, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(idempotencyKey))
-            return false;
+        if (string.IsNullOrWhiteSpace(idempotencyKey)) return false;
 
-        // NOTE: Firebase keys cannot contain '.', '#', '$', '[', ']', '/'.
-        // If your idempotencyKey might contain unsafe chars, encode it first.
         var safeKey = SafeKey(idempotencyKey);
-
         var eventPath = Path($"{data.RealmId}/leaderboards/events/{safeKey}");
 
-        // Best-effort idempotency:
-        // 1) If exists -> false
-        // 2) Else PUT -> true
         using (var check = await _http.GetAsync(eventPath, ct).ConfigureAwait(false))
         {
             if (check.IsSuccessStatusCode)
@@ -56,7 +42,6 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
             }
         }
 
-        // Store a slim event doc (keep it tiny)
         var evt = new
         {
             occurred_utc = data.OccurredUtc.ToUniversalTime().ToString("o"),
@@ -75,20 +60,14 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
 
     public async Task UpsertCounterIncrementAsync(LeaderboardCounterKey key, long delta, DateTime updatedUtc, CancellationToken ct)
     {
-        if (delta == 0)
-            return;
+        if (delta == 0) return;
 
         var counterPath = Path(GetCounterRelPath(key));
-
-        // Pragmatic RTDB "increment" with retries:
-        // GET current value -> PUT new value
-        // For playtest scale this is fine.
         const int maxAttempts = 4;
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             ct.ThrowIfCancellationRequested();
-
             long current = 0;
 
             using (var get = await _http.GetAsync(counterPath, ct).ConfigureAwait(false))
@@ -97,98 +76,77 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
                 {
                     var json = await get.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     if (!string.IsNullOrWhiteSpace(json) && json != "null")
-                    {
-                        // Could be a number, or a quoted string if it was written incorrectly.
-                        if (!TryParseLongFromJson(json, out current))
-                            current = 0;
-                    }
+                        if (!TryParseLongFromJson(json, out current)) current = 0;
                 }
             }
 
-            var next = current + delta;
-            var put = await _http.PutAsJsonAsync(counterPath, next, J, ct).ConfigureAwait(false);
+            var put = await _http.PutAsJsonAsync(counterPath, current + delta, J, ct).ConfigureAwait(false);
+            if (put.IsSuccessStatusCode) return;
 
-            if (put.IsSuccessStatusCode)
-                return;
-
-            // brief backoff
             await Task.Delay(TimeSpan.FromMilliseconds(25 * attempt), ct).ConfigureAwait(false);
         }
-
-        // If we get here, we failed to increment after retries.
-        // It's OK to swallow for playtest, but you might want logging here.
     }
 
     public async Task<IReadOnlyList<(LeaderboardCounterKey Key, long Value)>> GetTopAsync(
-        string realmId,
-        SideType side,
-        string metricKey,
-        LeaderboardWindowType window,
-        DateTime bucketStartUtc,
-        int limit,
-        CancellationToken ct)
+        string realmId, SideType side, string metricKey, LeaderboardWindowType window,
+        DateTime bucketStartUtc, int limit, CancellationToken ct)
     {
         limit = Math.Clamp(limit, 1, 200);
-
         var bucketPath = Path(GetBucketSideRelPath(realmId, metricKey, window, bucketStartUtc, side));
 
         using var res = await _http.GetAsync(bucketPath, ct).ConfigureAwait(false);
-        if (!res.IsSuccessStatusCode)
-            return Array.Empty<(LeaderboardCounterKey, long)>();
+        if (!res.IsSuccessStatusCode) return [];
 
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(json) || json == "null")
-            return Array.Empty<(LeaderboardCounterKey, long)>();
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return [];
 
         using var doc = JsonDocument.Parse(json);
-        if (doc.RootElement.ValueKind != JsonValueKind.Object)
-            return Array.Empty<(LeaderboardCounterKey, long)>();
+        if (doc.RootElement.ValueKind != JsonValueKind.Object) return [];
 
         var results = new List<(LeaderboardCounterKey, long)>();
-
         foreach (var p in doc.RootElement.EnumerateObject())
         {
-            var subjectId = p.Name;
             long value = 0;
+            if (p.Value.ValueKind == JsonValueKind.Number) { if (!p.Value.TryGetInt64(out value)) continue; }
+            else if (p.Value.ValueKind == JsonValueKind.String) { if (!long.TryParse(p.Value.GetString(), out value)) continue; }
+            else continue;
 
-            if (p.Value.ValueKind == JsonValueKind.Number)
-            {
-                if (!p.Value.TryGetInt64(out value))
-                    continue;
-            }
-            else if (p.Value.ValueKind == JsonValueKind.String)
-            {
-                if (!long.TryParse(p.Value.GetString(), out value))
-                    continue;
-            }
-            else
-            {
-                continue;
-            }
-
-            var k = new LeaderboardCounterKey(
-                RealmId: realmId,
-                Side: side,
-                MetricKey: metricKey,
-                Window: window,
+            results.Add((new LeaderboardCounterKey(
+                RealmId: realmId, Side: side, MetricKey: metricKey, Window: window,
                 BucketStartUtc: NormalizeBucket(bucketStartUtc),
-                SubjectType: LeaderboardSubjectType.Character, // phase 1
-                SubjectId: subjectId
-            );
-
-            results.Add((k, value));
+                SubjectType: LeaderboardSubjectType.Character, SubjectId: p.Name), value));
         }
 
         results.Sort((a, b) => b.Item2.CompareTo(a.Item2));
-        if (results.Count > limit)
-            results = results.Take(limit).ToList();
-
-        return results;
+        return results.Count > limit ? results.Take(limit).ToList() : results;
     }
 
-    // -------------------------
-    // Paths
-    // -------------------------
+    public IReadOnlyList<string> GetDistinctMetricKeys()
+        => GetDistinctMetricKeysAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+    private async Task<IReadOnlyList<string>> GetDistinctMetricKeysAsync(CancellationToken ct)
+    {
+        // Use explicit HttpRequestMessage so the auth handler appends its token
+        // as an additional param rather than replacing our shallow=true param
+        using var req = new HttpRequestMessage(HttpMethod.Get,
+            new Uri(_http.BaseAddress!, "realms/default/leaderboards/counters.json?shallow=true"));
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
+        if (!res.IsSuccessStatusCode) return [];
+
+        var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return [];
+
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Object) return [];
+
+        return doc.RootElement.EnumerateObject()
+            .Select(p => p.Name)
+            .OrderBy(k => k)
+            .ToList();
+    }
+
+    // ── Path helpers ──────────────────────────────────────────────────────────
 
     private static string GetBucketSideRelPath(string realmId, string metricKey, LeaderboardWindowType window, DateTime bucketStartUtc, SideType side)
     {
@@ -202,19 +160,11 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
     private static DateTime NormalizeBucket(DateTime dt)
         => dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
 
-    // Firebase key safety for path segments
     private static string SafeKey(string s)
     {
-        if (string.IsNullOrWhiteSpace(s))
-            return "_";
-
-        // Disallow '/', '.', '#', '$', '[', ']'
-        // Simple, readable encoding: replace with '_'
-        // If you prefer reversible encoding, swap to Base64Url.
-        var bad = new[] { '/', '.', '#', '$', '[', ']' };
-        foreach (var ch in bad)
+        if (string.IsNullOrWhiteSpace(s)) return "_";
+        foreach (var ch in new[] { '/', '.', '#', '$', '[', ']' })
             s = s.Replace(ch, '_');
-
         return s;
     }
 
@@ -222,25 +172,9 @@ public sealed class FirebaseLeaderboardRepository : ILeaderboardRepository
     {
         value = 0;
         raw = raw.Trim();
-
-        // number
-        if (long.TryParse(raw, out value))
-            return true;
-
-        // quoted number
-        if (raw.Length >= 2 && raw[0] == '"' && raw[^1] == '"')
-        {
-            var inner = raw.Substring(1, raw.Length - 2);
-            return long.TryParse(inner, out value);
-        }
-
-        // JSON number (double) - last resort
-        if (double.TryParse(raw, out var d))
-        {
-            value = (long)d;
-            return true;
-        }
-
+        if (long.TryParse(raw, out value)) return true;
+        if (raw.Length >= 2 && raw[0] == '"' && raw[^1] == '"' && long.TryParse(raw[1..^1], out value)) return true;
+        if (double.TryParse(raw, out var d)) { value = (long)d; return true; }
         return false;
     }
 }

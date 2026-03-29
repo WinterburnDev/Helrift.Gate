@@ -47,7 +47,11 @@ public sealed class CharactersController(IGameDataProvider data, IAdminService a
         CharacterData saveData = new CharacterData()
         {
             Username = accountId,
-            Level = 1,
+            //Level = 1,
+            Progression = new CharacterProgressionData()
+            {
+                level = 1
+            },
             MapId = "chunk_-6_-6",
             Position = new Vec3 { x = -1413.141f, y = 12, z = -1442.955f },
             Hp = 100,

@@ -71,11 +71,17 @@ namespace Helrift.Gate.Contracts
         public CharacterSpellsData Spells { get; set; }
         public CharacterCosmeticData Cosmetics { get; set; }
         public CharacterTutorialData Tutorials { get; set; }
+        public CharacterProgressionData Progression { get; set; }
 
         public DateTime? LastLoggedIn { get; set; }
 
         public Dictionary<string, FriendEntry>? Friends { get; set; }
         public Dictionary<string, FriendRequestEntry>? FriendRequests { get; set; }
+
+        // Lifetime counters owned and incremented by the Game Server.
+        // Gate is responsible for persistence only — no aggregation or analytics.
+        // Defaults to an empty dictionary so older records without this field deserialise safely.
+        public Dictionary<string, long> Stats { get; set; } = new();
     }
 
     [Serializable]
@@ -308,6 +314,27 @@ namespace Helrift.Gate.Contracts
     {
         public bool tutorialsDisabled { get; set; }
         public List<string> completedIds { get; set; }
+    }
+
+    [Serializable]
+    public class CharacterProgressionData
+    {
+        public int level { get; set; }
+        public long xp { get; set; }
+        public int rebirths { get; set; }
+        public long lifetimeXp { get; set; }
+
+        public int masteryPoints { get; set; }
+        public int majesticPoints { get; set; }
+
+        public string masteryUnlocks { get; set; }
+        public string majesticUnlocks { get; set; }
+
+        public int divineFavour { get; set; }
+
+        public int weeklyDivineFavourWeekId { get; set; }
+        public int weeklyCrusadeFavourEarned { get; set; }
+        public int weeklyEkFavourEarned { get; set; }
     }
 
     public enum CharacterDeletionState

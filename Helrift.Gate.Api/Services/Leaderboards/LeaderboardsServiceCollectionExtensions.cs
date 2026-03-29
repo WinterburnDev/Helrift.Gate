@@ -1,5 +1,6 @@
 ﻿using Helrift.Gate.Adapters.Firebase.Leaderboards;
 using Helrift.Gate.Api.Services.Accounts;
+using Helrift.Gate.Contracts.Leaderboards;
 using Helrift.Gate.Services.Leaderboards;
 using Microsoft.Extensions.DependencyInjection;
 

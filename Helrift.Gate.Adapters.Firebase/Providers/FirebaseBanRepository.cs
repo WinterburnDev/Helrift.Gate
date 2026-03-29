@@ -19,11 +19,6 @@ public sealed class FirebaseBanRepository : IBanRepository
         _http = httpFactory.CreateClient("firebase-admin");
     }
 
-    /// <summary>
-    /// RTDB layout suggestion:
-    /// /realms/{realmId}/bans/bySteam/{steamId}.json
-    /// /realms/{realmId}/bans/byIp/{ip}.json
-    /// </summary>
     public async Task<BanRecord?> GetActiveBanAsync(
         string realmId,
         string steamId,
@@ -44,9 +39,7 @@ public sealed class FirebaseBanRepository : IBanRepository
             {
                 var json = await res.Content.ReadAsStringAsync(ct);
                 if (!string.IsNullOrWhiteSpace(json) && json != "null")
-                {
                     steamBan = JsonSerializer.Deserialize<BanRecord>(json, Json);
-                }
             }
         }
 
@@ -59,23 +52,17 @@ public sealed class FirebaseBanRepository : IBanRepository
             {
                 var json = await res.Content.ReadAsStringAsync(ct);
                 if (!string.IsNullOrWhiteSpace(json) && json != "null")
-                {
                     ipBan = JsonSerializer.Deserialize<BanRecord>(json, Json);
-                }
             }
         }
 
-        // Prefer Steam ban over IP ban if both exist
         var candidate = steamBan ?? ipBan;
         if (candidate == null)
             return null;
 
         if (candidate.ExpiresAtUnixUtc.HasValue &&
             candidate.ExpiresAtUnixUtc.Value <= now)
-        {
-            // Ban expired; keep in Firebase as history but don't enforce
             return null;
-        }
 
         return candidate;
     }
@@ -87,7 +74,6 @@ public sealed class FirebaseBanRepository : IBanRepository
 
         var realmId = ban.RealmId;
 
-        // You can choose to always write both, or only one depending on which key is present.
         if (!string.IsNullOrWhiteSpace(ban.SteamId))
         {
             var path = $"realms/{realmId}/bans/bySteam/{ban.SteamId}.json";
@@ -100,6 +86,76 @@ public sealed class FirebaseBanRepository : IBanRepository
             var path = $"realms/{realmId}/bans/byIp/{ban.IpAddress}.json";
             var put = await _http.PutAsJsonAsync(path, ban, Json, ct);
             put.EnsureSuccessStatusCode();
+        }
+    }
+
+    public async Task<IReadOnlyList<BanRecord>> ListActiveBansAsync(string realmId, CancellationToken ct)
+    {
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var results = new List<BanRecord>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // Fetch all bySteam entries
+        using var steamRes = await _http.GetAsync($"realms/{realmId}/bans/bySteam.json", ct);
+        if (steamRes.IsSuccessStatusCode)
+        {
+            var json = await steamRes.Content.ReadAsStringAsync(ct);
+            if (!string.IsNullOrWhiteSpace(json) && json != "null")
+            {
+                var dict = JsonSerializer.Deserialize<Dictionary<string, BanRecord>>(json, Json);
+                if (dict != null)
+                {
+                    foreach (var (key, record) in dict)
+                    {
+                        if (record is null) continue;
+                        if (record.ExpiresAtUnixUtc.HasValue && record.ExpiresAtUnixUtc.Value <= now) continue;
+                        results.Add(record);
+                        if (!string.IsNullOrWhiteSpace(record.SteamId))
+                            seen.Add("steam:" + record.SteamId);
+                    }
+                }
+            }
+        }
+
+        // Fetch all byIp entries (skip any already captured via SteamId)
+        using var ipRes = await _http.GetAsync($"realms/{realmId}/bans/byIp.json", ct);
+        if (ipRes.IsSuccessStatusCode)
+        {
+            var json = await ipRes.Content.ReadAsStringAsync(ct);
+            if (!string.IsNullOrWhiteSpace(json) && json != "null")
+            {
+                var dict = JsonSerializer.Deserialize<Dictionary<string, BanRecord>>(json, Json);
+                if (dict != null)
+                {
+                    foreach (var (key, record) in dict)
+                    {
+                        if (record is null) continue;
+                        if (record.ExpiresAtUnixUtc.HasValue && record.ExpiresAtUnixUtc.Value <= now) continue;
+                        // Skip IP-only entries that were already captured as a steam ban
+                        if (!string.IsNullOrWhiteSpace(record.SteamId) && seen.Contains("steam:" + record.SteamId)) continue;
+                        results.Add(record);
+                    }
+                }
+            }
+        }
+
+        return results.OrderByDescending(b => b.BannedAtUnixUtc).ToList();
+    }
+
+    public async Task RevokeBanAsync(string realmId, string? steamId, string? ipAddress, CancellationToken ct)
+    {
+        if (!string.IsNullOrWhiteSpace(steamId))
+        {
+            var path = $"realms/{realmId}/bans/bySteam/{steamId}.json";
+            await _http.DeleteAsync(path, ct);
+        }
+
+        if (!string.IsNullOrWhiteSpace(ipAddress))
+        {
+            // Sanitise dots — Firebase keys cannot contain dots; encode them
+            var safeIp = ipAddress.Replace(".", ",");
+            var path = $"realms/{realmId}/bans/byIp/{safeIp}.json";
+            await _http.DeleteAsync(path, ct);
         }
     }
 }

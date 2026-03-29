@@ -15,6 +15,13 @@ public class BansController : ControllerBase
         _banService = banService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> List([FromQuery] string realmId = "default", CancellationToken ct = default)
+    {
+        var bans = await _banService.ListActiveBansAsync(realmId, ct);
+        return Ok(bans);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateBanDto dto, CancellationToken ct)
     {
@@ -42,5 +49,18 @@ public class BansController : ControllerBase
 
         var record = await _banService.CreateBanAsync(req, ct);
         return Ok(record);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Revoke([FromQuery] string realmId, [FromQuery] string? steamId, [FromQuery] string? ipAddress, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(realmId))
+            return BadRequest("realmId required.");
+
+        if (string.IsNullOrWhiteSpace(steamId) && string.IsNullOrWhiteSpace(ipAddress))
+            return BadRequest("Either steamId or ipAddress required.");
+
+        await _banService.RevokeBanAsync(realmId, steamId, ipAddress, ct);
+        return NoContent();
     }
 }

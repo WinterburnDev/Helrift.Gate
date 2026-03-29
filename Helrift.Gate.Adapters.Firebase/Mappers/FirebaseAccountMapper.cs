@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Helrift.Gate.Contracts;
-using Helrift.Gate.Adapters.Firebase; // <-- for FirebaseCharacterMapper
+using Helrift.Gate.Adapters.Firebase;
+using Helrift.Gate.Adapters.Firebase.Mappers; // <-- for FirebaseCharacterMapper
 
 internal static class FirebaseAccountMapper
 {

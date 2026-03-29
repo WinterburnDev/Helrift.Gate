@@ -14,7 +14,6 @@ namespace Helrift.Gate.Api.Services.Accounts
 
         public Task<BanRecord?> GetActiveBanAsync(string realmId, string steamId, string ipAddress)
         {
-            // Any additional logic like picking the "strongest" ban could go here later.
             return _repo.GetActiveBanAsync(realmId, steamId, ipAddress, CancellationToken.None);
         }
 
@@ -41,7 +40,7 @@ namespace Helrift.Gate.Api.Services.Accounts
 
             var record = new BanRecord
             {
-                Id = "", // Firebase will generate key (or repo will assign)
+                Id = "",
                 RealmId = request.RealmId,
                 SteamId = request.SteamId ?? "",
                 IpAddress = request.IpAddress ?? "",
@@ -54,5 +53,11 @@ namespace Helrift.Gate.Api.Services.Accounts
             await _repo.SaveBanAsync(record, ct);
             return record;
         }
+
+        public Task<IReadOnlyList<BanRecord>> ListActiveBansAsync(string realmId, CancellationToken ct = default)
+            => _repo.ListActiveBansAsync(realmId, ct);
+
+        public Task RevokeBanAsync(string realmId, string? steamId, string? ipAddress, CancellationToken ct = default)
+            => _repo.RevokeBanAsync(realmId, steamId, ipAddress, ct);
     }
 }

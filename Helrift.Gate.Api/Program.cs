@@ -13,6 +13,7 @@ using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Infrastructure;
 using Helrift.Gate.Infrastructure.Parties;
 using Helrift.Gate.Services;
+using Helrift.Gate.Api.Services.RealmEvents;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -85,6 +86,7 @@ builder.Services.AddSingleton<IReservationClient, HttpReservationClient>();
 builder.Services.AddScoped<IGameDataProvider, FirebaseGameDataProvider>();
 builder.Services.AddSingleton<IGuildDataProvider, FirebaseGuildDataProvider>();
 builder.Services.AddSingleton<IMerchantDataProvider, FirebaseMerchantDataProvider>();
+builder.Services.AddSingleton<IAdminMerchantDirectory, FirebaseMerchantDirectory>();
 builder.Services.AddSingleton<IEntitlementsDataProvider, FirebaseEntitlementsDataProvider>();
 builder.Services.AddSingleton<IPartyDataProvider, InMemoryPartyRepository>();
 builder.Services.AddSingleton<IBanRepository, FirebaseBanRepository>();
@@ -92,6 +94,7 @@ builder.Services.AddSingleton<IAdminRepository, FirebaseAdminRepository>();
 
 // SERVICES
 builder.Services.AddSingleton<IGameServerConnectionRegistry, GameServerConnectionRegistry>();
+builder.Services.AddSingleton<IGameServerRegistrationRegistry, InMemoryGameServerRegistrationRegistry>();
 builder.Services.AddSingleton<IAccountService, AccountService>();
 builder.Services.AddSingleton<IFriendsService, FriendsService>();
 builder.Services.AddSingleton<IChatBroadcaster, WebSocketChatBroadcaster>();
@@ -101,6 +104,10 @@ builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPresenceService, PresenceService>();
 builder.Services.AddSingleton<PartyPresenceCleanupListener>();
 builder.Services.AddSingleton<IRealmService, RealmService>();
+
+// Register realm events service (in-memory implementation)
+// InMemoryRealmEventService depends on ILogger<T> and IHttpClientFactory (already available).
+builder.Services.AddSingleton<IRealmEventService, InMemoryRealmEventService>();
 
 // PARTY
 builder.Services.AddSingleton<WebSocketPartyNotifier>();
@@ -155,6 +162,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseStaticFiles();
+
+// Default app entrypoint -> Admin UI
+app.MapGet("/", () => Results.Redirect("/admin/index.html"));
 
 // GAME SERVER SOCKETS
 app.UseWebSockets();

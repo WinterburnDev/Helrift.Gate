@@ -44,6 +44,173 @@
         }
       }
     },
+    "/admin/api/guilds/{guildId}": {
+      "get": {
+        "tags": [
+          "AdminGuilds"
+        ],
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/leaderboards/keys": {
+      "get": {
+        "tags": [
+          "AdminLeaderboards"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/leaderboards/{metricKey}": {
+      "get": {
+        "tags": [
+          "AdminLeaderboards"
+        ],
+        "parameters": [
+          {
+            "name": "metricKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "realmId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "default"
+            }
+          },
+          {
+            "name": "side",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SideType"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/LeaderboardWindowType"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "bucketStartUtc",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/merchants": {
+      "get": {
+        "tags": [
+          "AdminMerchants"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/merchants/{npcId}": {
+      "get": {
+        "tags": [
+          "AdminMerchants"
+        ],
+        "parameters": [
+          {
+            "name": "npcId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/parties": {
+      "get": {
+        "tags": [
+          "AdminParties"
+        ],
+        "parameters": [
+          {
+            "name": "side",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/OwnerSide"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/auth/steam": {
       "post": {
         "tags": [
@@ -141,6 +308,26 @@
       }
     },
     "/admin/api/Bans": {
+      "get": {
+        "tags": [
+          "Bans"
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "default"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Bans"
@@ -164,6 +351,39 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Bans"
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "steamId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ipAddress",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -411,6 +631,134 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/Characters/{accountId}/{charId}": {
+      "get": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/Characters/{accountId}/{charId}/kick": {
+      "post": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminActionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminActionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/admin/api/Characters/{accountId}/{charId}/ban": {
+      "post": {
+        "tags": [
+          "Characters"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "charId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBanCharacterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBanCharacterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBanCharacterDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -909,6 +1257,76 @@
         }
       }
     },
+    "/api/v1/gameservers/register": {
+      "post": {
+        "tags": [
+          "GameServerRegistration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GameServerRegistrationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GameServerRegistrationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GameServerRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/gameservers/{id}": {
+      "get": {
+        "tags": [
+          "GameServerRegistration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerRegistration"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerRegistration"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerRegistration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/GameServers": {
       "get": {
         "tags": [
@@ -940,6 +1358,45 @@
                   "items": {
                     "$ref": "#/components/schemas/GameServerDto"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/GameServers/{id}": {
+      "get": {
+        "tags": [
+          "GameServers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameServerDto"
                 }
               }
             }
@@ -1115,6 +1572,18 @@
       "get": {
         "tags": [
           "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Helrift.Gate.Api"
         ],
         "responses": {
           "200": {
@@ -2214,6 +2683,170 @@
         }
       }
     },
+    "/api/v1/realm-events/publish": {
+      "post": {
+        "tags": [
+          "RealmEvents"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/realm-events/subscribe": {
+      "post": {
+        "tags": [
+          "RealmEvents"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/internal/realm-events/push/{subscriptionId}": {
+      "post": {
+        "tags": [
+          "RealmEvents"
+        ],
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventEnvelope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/realm-events/snapshot/{realmId}/{eventInstanceId}": {
+      "get": {
+        "tags": [
+          "RealmEvents"
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventInstanceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/v1/realm-events/recent/{realmId}": {
+      "get": {
+        "tags": [
+          "RealmEvents"
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/v1/route/character": {
       "post": {
         "tags": [
@@ -2309,6 +2942,51 @@
             "nullable": true
           },
           "friendName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdminActionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "initiatedBy": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdminBanCharacterDto": {
+        "type": "object",
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "steamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdBy": {
             "type": "string",
             "nullable": true
           }
@@ -2591,6 +3269,9 @@
           "tutorials": {
             "$ref": "#/components/schemas/CharacterTutorialData"
           },
+          "progression": {
+            "$ref": "#/components/schemas/CharacterProgressionData"
+          },
           "lastLoggedIn": {
             "type": "string",
             "format": "date-time",
@@ -2607,6 +3288,14 @@
             "type": "object",
             "additionalProperties": {
               "$ref": "#/components/schemas/FriendRequestEntry"
+            },
+            "nullable": true
+          },
+          "stats": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
             },
             "nullable": true
           }
@@ -2843,6 +3532,60 @@
             "$ref": "#/components/schemas/ItemStatType"
           },
           "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CharacterProgressionData": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "rebirths": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lifetimeXp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "masteryPoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "majesticPoints": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masteryUnlocks": {
+            "type": "string",
+            "nullable": true
+          },
+          "majesticUnlocks": {
+            "type": "string",
+            "nullable": true
+          },
+          "divineFavour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weeklyDivineFavourWeekId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weeklyCrusadeFavourEarned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weeklyEkFavourEarned": {
             "type": "integer",
             "format": "int32"
           }
@@ -3371,6 +4114,126 @@
           "state": {
             "type": "string",
             "nullable": true
+          },
+          "isConnected": {
+            "type": "boolean"
+          },
+          "buildVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "registeredAtUnixUtc": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "lastHeartbeatUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "mapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GameServerMapDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GameServerMapDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sceneName": {
+            "type": "string",
+            "nullable": true
+          },
+          "cellX": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cellY": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isSafeMap": {
+            "type": "boolean"
+          },
+          "isOutside": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GameServerRegistration": {
+        "type": "object",
+        "properties": {
+          "gameServerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "buildVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "registeredAtUnixUtc": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "realmConfig": {
+            "$ref": "#/components/schemas/RealmConfigDto"
+          },
+          "maps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapInfoDto"
+            },
+            "nullable": true
+          },
+          "lastHeartbeatUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GameServerRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "gameServerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "buildVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "registeredAtUnixUtc": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "realmConfig": {
+            "$ref": "#/components/schemas/RealmConfigDto"
+          },
+          "maps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapInfoDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3847,6 +4710,38 @@
         },
         "additionalProperties": false
       },
+      "MapInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sceneName": {
+            "type": "string",
+            "nullable": true
+          },
+          "cellX": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cellY": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isSafeMap": {
+            "type": "boolean"
+          },
+          "isOutside": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "MerchantItemRow": {
         "type": "object",
         "properties": {
@@ -4271,6 +5166,95 @@
         },
         "additionalProperties": false
       },
+      "RealmConfigDto": {
+        "type": "object",
+        "properties": {
+          "travellerMaxLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expMultiplier": {
+            "type": "number",
+            "format": "double"
+          },
+          "insightsMultiplier": {
+            "type": "number",
+            "format": "double"
+          },
+          "ekMultiplier": {
+            "type": "number",
+            "format": "double"
+          },
+          "travellersCanPvp": {
+            "type": "boolean"
+          },
+          "restrictPvpToZones": {
+            "type": "boolean"
+          },
+          "citizensCanEnterNeutralBuildings": {
+            "type": "boolean"
+          },
+          "citizensRecallToNeutralMap": {
+            "type": "boolean"
+          },
+          "allowMaxLevelCitizenship": {
+            "type": "boolean"
+          },
+          "freeRepairsEnabled": {
+            "type": "boolean"
+          },
+          "playersCanChangeCitizenship": {
+            "type": "boolean"
+          },
+          "maximumLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maximumCharacters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maximumPartyMembers": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RealmEventEnvelope": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventInstanceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payloadJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ScheduleRealmShutdownRequest": {
         "type": "object",
         "properties": {
@@ -4335,6 +5319,28 @@
           "max": {
             "type": "number",
             "format": "float"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "callbackUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "callbackAuthToken": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

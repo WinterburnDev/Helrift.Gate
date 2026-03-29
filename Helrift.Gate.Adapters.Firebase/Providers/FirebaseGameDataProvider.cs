@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Helrift.Gate.Adapters.Firebase.Mappers;
 using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Contracts;
 
@@ -601,8 +602,10 @@ public sealed class FirebaseGameDataProvider : IGameDataProvider
             Spells = c.Spells,
             Cosmetics = c.Cosmetics,
             Tutorials = c.Tutorials,
+            Progression = c.Progression,
             LastLoggedIn = c.LastLoggedIn,
-            Friends = c.Friends
+            Friends = c.Friends,
+            Stats = c.Stats,
         };
     }
 }

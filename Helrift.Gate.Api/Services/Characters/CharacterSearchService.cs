@@ -11,7 +11,7 @@ public sealed class CharacterSearchResult
     public string Name { get; set; } = string.Empty;
     public string Side { get; set; } = string.Empty;
     public int Level { get; set; }
-    public long LastSeenUnixUtc { get; set; }  // keep as long for consistency with your other models
+    public long LastSeenUnixUtc { get; set; }
 }
 
 public interface ICharacterSearchService
@@ -38,8 +38,6 @@ public sealed class CharacterSearchService : ICharacterSearchService
         using var scope = _scopeFactory.CreateScope();
         var data = scope.ServiceProvider.GetRequiredService<IGameDataProvider>();
 
-        // 1. This already does the character_names lookup and resolves accountId/characterId.
-        //    Pattern copied from FriendService.AddFriendAsync.
         var nameRecord = await data.GetCharacterByNameAsync(name, ct);
         if (nameRecord == null)
             return Array.Empty<CharacterSearchResult>();
@@ -48,23 +46,41 @@ public sealed class CharacterSearchService : ICharacterSearchService
         var characterId = nameRecord.CharacterId;
         var canonicalName = nameRecord.CharacterName;
 
-        // 2. Load the character document itself.
         var character = await data.GetCharacterAsync(accountId, characterId, ct);
         if (character == null)
             return Array.Empty<CharacterSearchResult>();
 
-        // NOTE: property names below are guesses – tweak to match your actual character model.
         var result = new CharacterSearchResult
         {
-            RealmId = "default",      // or nameRecord.RealmId, if present
+            RealmId = "default",
             AccountId = accountId,
             CharacterId = characterId,
             Name = canonicalName ?? character.CharacterName ?? string.Empty,
-            //Side = character.Side ?? string.Empty,         // e.g. "Aresden", "Elvine", "Traveller"
-            Level = character.Level,                       // adjust type/name if different
-            //LastSeenUnixUtc = character.LastSeenUnixUtc    // or map from DateTime -> ToUnixTimeSeconds()
+            Side = ResolveSideName(character.Side),
+            Level = character.Level,
+            LastSeenUnixUtc = ToUnixUtc(character.LastLoggedIn)
         };
 
         return new[] { result };
+    }
+
+    private static string ResolveSideName(int side) => side switch
+    {
+        1 => "Aresden",
+        2 => "Elvine",
+        3 => "Traveller",
+        _ => "Neutral"
+    };
+
+    private static long ToUnixUtc(DateTime? value)
+    {
+        if (!value.HasValue)
+            return 0;
+
+        var dt = value.Value;
+        if (dt.Kind == DateTimeKind.Unspecified)
+            dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+
+        return new DateTimeOffset(dt.ToUniversalTime()).ToUnixTimeSeconds();
     }
 }

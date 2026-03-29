@@ -26,13 +26,8 @@ public sealed class InMemoryLeaderboardRepository : ILeaderboardRepository
     }
 
     public Task<IReadOnlyList<(LeaderboardCounterKey Key, long Value)>> GetTopAsync(
-        string realmId,
-        SideType side,
-        string metricKey,
-        LeaderboardWindowType window,
-        DateTime bucketStartUtc,
-        int limit,
-        CancellationToken ct)
+        string realmId, SideType side, string metricKey, LeaderboardWindowType window,
+        DateTime bucketStartUtc, int limit, CancellationToken ct)
     {
         var rows = _counters
             .Where(kvp =>
@@ -48,4 +43,11 @@ public sealed class InMemoryLeaderboardRepository : ILeaderboardRepository
 
         return Task.FromResult<IReadOnlyList<(LeaderboardCounterKey, long)>>(rows);
     }
+
+    public IReadOnlyList<string> GetDistinctMetricKeys()
+        => _counters.Keys
+            .Select(k => k.MetricKey)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(k => k)
+            .ToList();
 }
