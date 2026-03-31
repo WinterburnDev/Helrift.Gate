@@ -8,7 +8,8 @@
         'realm-events': 'Realm Events', presence: 'Online Players', characters: 'Characters',
         character: 'Character Detail', accounts: 'Accounts', parties: 'Parties',
         guilds: 'Guilds', guild: 'Guild Detail', chat: 'Chat Broadcast', merchants: 'Merchants',
-        leaderboards: 'Leaderboards', bans: 'Bans', server: 'Game Server Detail'
+        leaderboards: 'Leaderboards', bans: 'Bans', server: 'Game Server Detail',
+        deliveries: 'Deliveries'
     };
 
     let currentPage = 'dashboard';

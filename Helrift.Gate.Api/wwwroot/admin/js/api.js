@@ -133,7 +133,7 @@ Admin.linkAccount = function (accountId) {
 
 Admin.linkCharByName = function (name) {
     if (!name) return '-';
-    return `${Admin.onlineBadge(name)} <a class="admin-link" onclick="Admin.goCharSearch('${Admin.esc(name)}')">${Admin.esc(name)}</a>`;
+    return `${Admin.onlineBadge(name)} <a class="admin-link" onclick="Admin.goCharDirectByName('${Admin.esc(name)}')">${Admin.esc(name)}</a>`;
 };
 
 Admin.linkCharDirect = function (accountId, charId, label) {
@@ -158,6 +158,41 @@ Admin.goCharSearch = function (name) {
 
 Admin.goGuildSearch = function (query) {
     Admin.switchPage('guilds', { searchQuery: query });
+};
+
+Admin.goCharDirectByName = async function (name) {
+    const n = (name || '').trim();
+    if (!n) return;
+
+    try {
+        const res = await Admin.api('/admin/api/characters/search?name=' + encodeURIComponent(n));
+        if (!res.ok) {
+            Admin.goCharSearch(n);
+            return;
+        }
+
+        const results = await res.json();
+        if (!Array.isArray(results) || results.length === 0) {
+            Admin.goCharSearch(n);
+            return;
+        }
+
+        const exact = results.filter(r => stringEqualsIgnoreCase(r.name, n));
+        const pick = exact.length === 1 ? exact[0] : (results.length === 1 ? results[0] : null);
+
+        if (pick && pick.accountId && pick.characterId) {
+            Admin.switchPage('character', { accountId: pick.accountId, charId: pick.characterId });
+            return;
+        }
+
+        Admin.goCharSearch(n);
+    } catch {
+        Admin.goCharSearch(n);
+    }
+
+    function stringEqualsIgnoreCase(a, b) {
+        return (a || '').localeCompare((b || ''), undefined, { sensitivity: 'accent' }) === 0;
+    }
 };
 
 // ---- Drawer ----
@@ -191,6 +226,17 @@ Admin.closeDrawer = function () {
     Admin._drawerCallback = null;
 };
 
-Admin._drawerConfirm = function () {
-    if (typeof Admin._drawerCallback === 'function') Admin._drawerCallback();
+Admin._drawerConfirm = async function () {
+    if (typeof Admin._drawerCallback !== 'function') return;
+
+    try {
+        const maybePromise = Admin._drawerCallback();
+        if (maybePromise && typeof maybePromise.then === 'function') {
+            await maybePromise;
+        }
+    } catch (err) {
+        console.error('Drawer confirm callback failed:', err);
+        const st = Admin.$('drawerStatus');
+        if (st) st.textContent = 'Unexpected error. See browser console.';
+    }
 };

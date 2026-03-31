@@ -58,6 +58,10 @@
         </ul>
         <!-- Add hidden nav item under Players/Social hidden-detail links (anywhere in sidebar list area is fine) -->
         <li class="nav-item"><a class="nav-link" data-page="server" style="display:none;"><span class="nav-icon material-symbols-outlined">dns</span> Game Server Detail</a></li>
+        <div class="nav-group-label">Deliveries</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="deliveries"><span class="nav-icon material-symbols-outlined">mail</span> Deliveries</a></li>
+        </ul>
     </aside>
 
     <div class="content">
@@ -317,6 +321,80 @@
                     <div id="serverDetailContent"><div class="empty-row">No game server loaded.</div></div>
                 </div>
             </div>
+
+            <!-- DELIVERIES -->
+            <div id="page-deliveries" class="page">
+                <div class="action-bar">
+                    <div class="field" style="min-width:140px;max-width:180px;">
+                        <label>Realm</label>
+                        <input id="delRealmId" type="text" value="default" />
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Recipient Character</label>
+                        <input id="delFilterRecipient" type="text" placeholder="characterId" />
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Sender</label>
+                        <input id="delFilterSender" type="text" placeholder="sender/source" />
+                    </div>
+                    <div class="field" style="min-width:150px;">
+                        <label>Type</label>
+                        <select id="delFilterType">
+                            <option value="">Any</option>
+                            <option value="PlayerMessage">PlayerMessage</option>
+                            <option value="Parcel">Parcel</option>
+                            <option value="GuildBroadcast">GuildBroadcast</option>
+                            <option value="SystemDelivery">SystemDelivery</option>
+                        </select>
+                    </div>
+                    <div class="field" style="min-width:160px;">
+                        <label>State</label>
+                        <select id="delFilterState">
+                            <option value="">Any</option>
+                            <option value="PendingValidation">PendingValidation</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Read">Read</option>
+                            <option value="ClaimedPartial">ClaimedPartial</option>
+                            <option value="ClaimedComplete">ClaimedComplete</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Returned">Returned</option>
+                            <option value="Failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>From (UTC)</label>
+                        <input id="delFromUtc" type="datetime-local" />
+                    </div>
+                    <div class="field">
+                        <label>To (UTC)</label>
+                        <input id="delToUtc" type="datetime-local" />
+                    </div>
+                    <div class="field" style="max-width:90px;">
+                        <label>Page</label>
+                        <input id="delPage" type="number" value="1" min="1" />
+                    </div>
+                    <div class="field" style="max-width:100px;">
+                        <label>Page Size</label>
+                        <input id="delPageSize" type="number" value="50" min="1" max="200" />
+                    </div>
+                    <button class="btn" onclick="refreshDeliveries()">Search</button>
+                    <button class="btn" onclick="clearDeliveriesFilters()">Clear</button>
+                    <div class="action-bar-spacer"></div>
+                    <button class="btn btn-primary" onclick="openDrawer_sendSystemDelivery()">
+                        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">send</span> Send Delivery
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-desc">Results: <strong id="deliveriesTotal">0</strong> <span class="status-msg" id="deliveriesStatus"></span></div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Delivery ID</th><th>Type</th><th>Channel</th><th>State</th><th>Sender</th><th>Recipient</th><th>Created (UTC)</th><th>Assets</th><th></th></tr></thead>
+                            <tbody id="deliveriesBody"><tr><td colspan="9" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>
@@ -356,6 +434,7 @@
 <script src="js/pages/leaderboards.js"></script>
 <script src="js/pages/bans.js"></script>
 <script src="js/pages/server.js"></script>
+<script src="js/pages/deliveries.js"></script>
 <script>Admin._boot();</script>
 </body>
 </html>

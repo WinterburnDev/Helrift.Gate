@@ -290,6 +290,9 @@
                     <button class="btn btn-danger" onclick="openDrawer_banCharacter()">
                         <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">gavel</span> Ban
                     </button>
+                    <button class="btn btn-primary" onclick="openDrawer_sendSystemDeliveryToCharacter('${esc(c.username || '')}','${esc(c.id || '')}','${esc(c.characterName || '')}')">
+                        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">send</span> Send Delivery
+                    </button>
                 </div>`;
 
             // ── Identity ──
@@ -380,6 +383,10 @@
                   (c.tutorials.completedIds?.length ? `<p style="font-size:11px; color:var(--dim);">Completed: ${c.tutorials.completedIds.map(t => esc(t)).join(', ')}</p>` : '')
                 : '<p style="color:var(--dim); font-size:12px;">No tutorial data.</p>', true);
 
+            // ── Deliveries ──
+            const recentDeliveries = await fetchRecentDeliveries(c.id);
+            html += section('Deliveries', renderRecentDeliveries(recentDeliveries, c.id), true);
+
             // ── Raw JSON ──
             html += section('Raw JSON', `<div class="json-box"><pre class="json-block">${esc(JSON.stringify(c, null, 2))}</pre></div>`, true);
 
@@ -391,6 +398,52 @@
             container.innerHTML = '<div class="empty-row">Network error.</div>';
             console.error(e);
         }
+    }
+
+    async function fetchRecentDeliveries(characterId) {
+        try {
+            const q = new URLSearchParams({
+                realmId: 'default',
+                characterId: characterId,
+                page: '1',
+                pageSize: '5'
+            });
+            const res = await api('/admin/api/deliveries/search?' + q.toString());
+            if (!res.ok) return [];
+            const data = await res.json();
+            return data.items || [];
+        } catch {
+            return [];
+        }
+    }
+
+    function renderRecentDeliveries(items, characterId) {
+        if (!items.length) {
+            return `<div class="action-bar">
+                <button class="btn" onclick="Admin.switchPage('deliveries',{recipientCharacterId:'${esc(characterId)}'})">Open Deliveries</button>
+                <button class="btn btn-primary" onclick="openDrawer_sendSystemDeliveryToCharacter('${esc(_currentAccountId || '')}','${esc(characterId)}','${esc(_currentCharName || '')}')">Send Delivery</button>
+            </div><p style="font-size:12px;color:var(--dim);">No recent deliveries for this character.</p>`;
+        }
+
+        return `<div class="action-bar">
+                <button class="btn" onclick="Admin.switchPage('deliveries',{recipientCharacterId:'${esc(characterId)}'})">Open Deliveries</button>
+                <button class="btn btn-primary" onclick="openDrawer_sendSystemDeliveryToCharacter('${esc(_currentAccountId || '')}','${esc(characterId)}','${esc(_currentCharName || '')}')">Send Delivery</button>
+            </div>
+            <div class="scroll-x"><table>
+                <thead><tr><th>ID</th><th>Type</th><th>State</th><th>Created</th><th>Escrow</th><th></th></tr></thead>
+                <tbody>
+                    ${items.map(d => `
+                        <tr>
+                            <td class="mono" style="font-size:11px;">${esc(d.id || '')}</td>
+                            <td>${esc(String(d.type))}</td>
+                            <td>${esc(String(d.state))}</td>
+                            <td>${d.createdUtc ? fmtDate(d.createdUtc) : '-'}</td>
+                            <td>${d.escrowContainerId ? '<span class="pill pill-green">Yes</span>' : '<span class="pill pill-neutral">No</span>'}</td>
+                            <td><button class="btn" onclick="openDrawer_deliveryDetailById('${esc(d.id || '')}','default')">View</button></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table></div>`;
     }
 
     Admin.registerPage('character', { onEnter: loadCharacter });

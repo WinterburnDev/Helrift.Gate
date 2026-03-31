@@ -121,6 +121,8 @@ builder.Services.AddSingleton<IBanService, BanService>();
 builder.Services.AddSingleton<IAdminService, AdminService>();
 
 builder.Services.AddLeaderboards();
+builder.Services.AddEscrow();
+builder.Services.AddDeliveries();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();

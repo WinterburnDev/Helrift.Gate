@@ -163,6 +163,181 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminDeliveriesController",
+    "Method": "Delete",
+    "RelativePath": "admin/api/deliveries/{deliveryId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "deliveryId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "cleanupEscrow",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "force",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminDeliveriesController",
+    "Method": "Detail",
+    "RelativePath": "admin/api/deliveries/detail/{deliveryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "deliveryId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryAdminDetail",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminDeliveriesController",
+    "Method": "CreateGuildBroadcast",
+    "RelativePath": "admin/api/deliveries/guild-broadcast",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreateGuildBroadcastRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.DeliveryRecord, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminDeliveriesController",
+    "Method": "Search",
+    "RelativePath": "admin/api/deliveries/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "characterId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sender",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "createdFromUtc",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "createdToUtc",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryAdminSearchResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.Admin.AdminDeliveriesController",
+    "Method": "CreateSystem",
+    "RelativePath": "admin/api/deliveries/system",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreateSystemDeliveryRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.DeliveryRecord, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.GameServersController",
     "Method": "Get",
     "RelativePath": "admin/api/GameServers",
@@ -993,6 +1168,306 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "CreateGuildBroadcast",
+    "RelativePath": "api/v1/deliveries/guild-broadcast",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreateGuildBroadcastRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.DeliveryRecord, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "GetInbox",
+    "RelativePath": "api/v1/deliveries/inbox/{recipientCharacterId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "recipientCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "includeArchived",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.DeliveryRecord, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "GetDetail",
+    "RelativePath": "api/v1/deliveries/inbox/{recipientCharacterId}/{deliveryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "recipientCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "deliveryId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryRecord",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "GetNotifications",
+    "RelativePath": "api/v1/deliveries/inbox/{recipientCharacterId}/notifications",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "recipientCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryNotificationSummary",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "GetSummary",
+    "RelativePath": "api/v1/deliveries/inbox/{recipientCharacterId}/summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "recipientCharacterId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "realmId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryInboxSummary",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "Claim",
+    "RelativePath": "api/v1/deliveries/inbox/claim",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.ClaimDeliveryAssetsRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryRecord",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "MarkRead",
+    "RelativePath": "api/v1/deliveries/inbox/read",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.MarkDeliveryReadRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryRecord",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "CreateParcel",
+    "RelativePath": "api/v1/deliveries/parcel",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreateParcelDeliveryRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryRecord",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "CreatePlayerMessage",
+    "RelativePath": "api/v1/deliveries/player-message",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreatePlayerMessageRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Helrift.Gate.Contracts.DeliveryRecord",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.DeliveriesController",
+    "Method": "CreateSystem",
+    "RelativePath": "api/v1/deliveries/system",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.CreateSystemDeliveryRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[Helrift.Gate.Contracts.DeliveryRecord, Helrift.Gate.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "Helrift.Gate.Api.Controllers.EntitlementsController",
     "Method": "GetUnlockablesById",
     "RelativePath": "api/v1/entitlements/{entitlementsId}/unlockables",
@@ -1057,6 +1532,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "Helrift.Gate.Api.Controllers.EscrowBridgeController",
+    "Method": "Complete",
+    "RelativePath": "api/v1/escrow/bridge/complete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Helrift.Gate.Contracts.GameServerEscrowOperationCompleteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "Helrift.Gate.Api.Controllers.GameServerRegistrationController",
