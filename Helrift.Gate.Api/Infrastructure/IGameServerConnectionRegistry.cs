@@ -10,4 +10,6 @@ public interface IGameServerConnectionRegistry
     void Remove(string serverId);
     WebSocket? Get(string serverId);
     IReadOnlyDictionary<string, WebSocket> GetAll();
+    IReadOnlyList<string> GetAllServerIds();
+    Task BroadcastAsync<T>(T message, CancellationToken ct = default);
 }

@@ -82,5 +82,4 @@ C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rjsmr
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\James\source\repos\Helrift.Gate\Helrift.Gate.Api\bin\Debug\net8.0\Helrift.Gate.Api.staticwebassets.runtime.json

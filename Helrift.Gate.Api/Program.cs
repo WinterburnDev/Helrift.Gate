@@ -9,7 +9,6 @@ using Helrift.Gate.Api.Services.GameServers;
 using Helrift.Gate.Api.Services.Routing;
 using Helrift.Gate.Api.Services.Steam;
 using Helrift.Gate.Api.Services.Tokens;
-using Helrift.Gate.App.Repositories;
 using Helrift.Gate.Infrastructure;
 using Helrift.Gate.Infrastructure.Parties;
 using Helrift.Gate.Services;
@@ -20,6 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Polly.Extensions.Http;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using Helrift.Gate.App.Repositories;
 
 // ----------------------
 // Host + Services
@@ -123,6 +124,7 @@ builder.Services.AddSingleton<IAdminService, AdminService>();
 builder.Services.AddLeaderboards();
 builder.Services.AddEscrow();
 builder.Services.AddDeliveries();
+builder.Services.AddTownProjects();
 
 // AUTH
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();

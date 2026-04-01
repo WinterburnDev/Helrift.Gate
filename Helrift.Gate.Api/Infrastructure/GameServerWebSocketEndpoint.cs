@@ -1,4 +1,5 @@
 ﻿// Infrastructure/GameServerWebSocketEndpoint.cs
+using Helrift.Gate.Api.Services.TownProjects;
 using Helrift.Gate.Contracts.Realm;
 using Helrift.Gate.Services;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +23,7 @@ public static class GameServerWebSocketEndpoint
                 var logger = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("GameServerWs");
                 var config = ctx.RequestServices.GetRequiredService<IConfiguration>();
                 var realmService = ctx.RequestServices.GetRequiredService<IRealmService>();
+                var townProjectConfig = ctx.RequestServices.GetRequiredService<ITownProjectConfigService>();
 
                 var ct = ctx.RequestAborted;
 
@@ -54,6 +56,9 @@ public static class GameServerWebSocketEndpoint
 
                 // Immediately push current realm state to the newly connected GS
                 await TryPushRealmSnapshotAsync(socket, serverId, realmService, logger, ct);
+
+                // Push Town Project config to the newly connected GS
+                await TryPushTownProjectConfigAsync(socket, serverId, townProjectConfig, logger, ct);
 
                 var buffer = new byte[1024];
 
@@ -168,6 +173,56 @@ public static class GameServerWebSocketEndpoint
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to push realm state snapshot to GS {ServerId}", serverId);
+        }
+    }
+
+    private static async Task TryPushTownProjectConfigAsync(
+        WebSocket socket,
+        string serverId,
+        ITownProjectConfigService configService,
+        ILogger logger,
+        CancellationToken ct)
+    {
+        try
+        {
+            var metadata = configService.GetConfigMetadata();
+            var definitions = configService.GetAllDefinitions();
+
+            var payload = new
+            {
+                version = metadata.Version,
+                updatedAt = metadata.UpdatedAt,
+                updatedBy = metadata.UpdatedBy,
+                definitionCount = metadata.DefinitionCount,
+                definitions = definitions.Values.ToArray()
+            };
+
+            var envelope = new
+            {
+                type = "townprojects.config.sync",
+                payload
+            };
+
+            var json = JsonConvert.SerializeObject(envelope);
+            var bytes = Encoding.UTF8.GetBytes(json);
+
+            if (socket.State == WebSocketState.Open)
+            {
+                await socket.SendAsync(bytes, WebSocketMessageType.Text, true, ct);
+                logger.LogInformation(
+                    "Pushed Town Project config to GS {ServerId}: Version={Version}, Definitions={Count}",
+                    serverId,
+                    metadata.Version,
+                    metadata.DefinitionCount);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // ignore
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to push Town Project config to GS {ServerId}", serverId);
         }
     }
 }

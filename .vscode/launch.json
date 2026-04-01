@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Helrift.Gate.Api/bin/Debug/net8.0/Helrift.Gate.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Helrift.Gate.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "pattern": "listening on:\\s+https?://[^:]+:([0-9]+)",
+                "uriFormat": "https://localhost:%s/admin/index.html",
+                "action": "openExternally"
+            }
+        }
+    ]
+}
