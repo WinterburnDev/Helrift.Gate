@@ -10,6 +10,8 @@ public sealed record TownProjectConfigRoot
     public string Version { get; init; } = string.Empty;
     public DateTime UpdatedAt { get; init; }
     public string UpdatedBy { get; init; } = string.Empty;
+    public DateTime? PublishedAt { get; init; }
+    public string? PublishedBy { get; init; }
     public Dictionary<string, TownProjectDefinition> Definitions { get; init; } = new();
 }
 
@@ -187,6 +189,8 @@ public sealed record TownProjectConfigMetadata
     public string Version { get; init; } = string.Empty;
     public DateTime UpdatedAt { get; init; }
     public string UpdatedBy { get; init; } = string.Empty;
+    public DateTime? PublishedAt { get; init; }
+    public string? PublishedBy { get; init; }
     public int DefinitionCount { get; init; }
     public DateTime LoadedAt { get; init; }
 }

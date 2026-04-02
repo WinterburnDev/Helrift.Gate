@@ -12,6 +12,7 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
     private readonly ITownProjectStateRepository _stateRepo;
     private readonly ITownProjectStateService _stateService;
     private readonly ITownProjectRewardService _rewardService;
+    private readonly ITownProjectConfigService _configService;
     private readonly IGuildDataProvider _guildDataProvider;
     private readonly string _realmId;
 
@@ -21,12 +22,14 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
         ITownProjectStateRepository stateRepo,
         ITownProjectStateService stateService,
         ITownProjectRewardService rewardService,
+        ITownProjectConfigService configService,
         IGuildDataProvider guildDataProvider)
     {
         _log = log;
         _stateRepo = stateRepo;
         _stateService = stateService;
         _rewardService = rewardService;
+        _configService = configService;
         _guildDataProvider = guildDataProvider;
         _realmId = configuration["RealmId"] ?? "default";
     }
@@ -60,8 +63,8 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
         // 1. Evaluate existing weekly projects
         var instances = await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
         var weeklyInstances = instances.Where(i =>
-            i.Status == TownProjectStatus.Active ||
-            i.Status == TownProjectStatus.CompletedPendingActivation).ToList();
+            IsCategory(i.DefinitionId, TownProjectCategory.WeeklyGeneral) &&
+            (i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation)).ToList();
 
         foreach (var instance in weeklyInstances)
         {
@@ -105,6 +108,7 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
         // 1. Evaluate existing crusade projects
         var instances = await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
         var crusadeInstances = instances.Where(i =>
+            IsCategory(i.DefinitionId, TownProjectCategory.CrusadePreparation) &&
             !string.IsNullOrEmpty(i.EventInstanceId) &&
             (i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation)).ToList();
 
@@ -130,5 +134,14 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
         await _stateService.InitializeCrusadeProjectsAsync(townId, eventInstanceId, ct);
 
         _log.LogInformation("Completed crusade startup for town {TownId}", townId);
+    }
+
+    private bool IsCategory(string definitionId, TownProjectCategory category)
+    {
+        var definition = _configService.GetDefinition(definitionId);
+        if (definition == null)
+            return false;
+
+        return definition.Category == category;
     }
 }

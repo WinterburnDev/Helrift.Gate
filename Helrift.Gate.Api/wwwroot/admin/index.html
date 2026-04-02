@@ -62,6 +62,11 @@
         <ul class="nav-list">
             <li class="nav-item"><a class="nav-link" data-page="deliveries"><span class="nav-icon material-symbols-outlined">mail</span> Deliveries</a></li>
         </ul>
+        <div class="nav-group-label">Configuration</div>
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" data-page="configs"><span class="nav-icon material-symbols-outlined">tune</span> Configs</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="town-project-configs" style="display:none;"><span class="nav-icon material-symbols-outlined">tune</span> Town Project Configs</a></li>
+        </ul>
     </aside>
 
     <div class="content">
@@ -395,6 +400,157 @@
                     </div>
                 </div>
             </div>
+
+            <!-- CONFIGS HUB -->
+            <div id="page-configs" class="page">
+                <div class="section">
+                    <h2>Config Domains</h2>
+                    <div class="section-desc">Central admin entry point for versioned config domains. Town Projects is live now; items, NPCs, mobs, and events can slot into this section later.</div>
+                    <div class="config-domain-grid">
+                        <button class="config-domain-card" onclick="Admin.switchPage('town-project-configs')">
+                            <div class="config-domain-icon material-symbols-outlined">foundation</div>
+                            <div class="config-domain-title">Town Projects</div>
+                            <div class="config-domain-copy">Inspect versions, compare changes, validate JSON, save drafts, and switch active realm versions safely.</div>
+                            <div class="config-domain-footer">Open Town Projects</div>
+                        </button>
+                        <div class="config-domain-card is-disabled" aria-disabled="true">
+                            <div class="config-domain-icon material-symbols-outlined">inventory_2</div>
+                            <div class="config-domain-title">Items</div>
+                            <div class="config-domain-copy">Reserved for future versioned item config management through the same platform.</div>
+                            <div class="config-domain-footer">Planned</div>
+                        </div>
+                        <div class="config-domain-card is-disabled" aria-disabled="true">
+                            <div class="config-domain-icon material-symbols-outlined">pets</div>
+                            <div class="config-domain-title">NPCs And Mobs</div>
+                            <div class="config-domain-copy">Future domain slot for versioned NPC, mob, and spawn config inspection and rollout.</div>
+                            <div class="config-domain-footer">Planned</div>
+                        </div>
+                        <div class="config-domain-card is-disabled" aria-disabled="true">
+                            <div class="config-domain-icon material-symbols-outlined">event</div>
+                            <div class="config-domain-title">Events</div>
+                            <div class="config-domain-copy">Future home for realm event and live-tunable event configuration domains.</div>
+                            <div class="config-domain-footer">Planned</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOWN PROJECT CONFIGS -->
+            <div id="page-town-project-configs" class="page">
+                <div class="action-bar">
+                    <button class="btn" onclick="Admin.switchPage('configs')">← Config Domains</button>
+                    <button class="btn" onclick="refreshTownProjectConfigsPage()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">refresh</span> Refresh</button>
+                    <button class="btn" onclick="tpCreateBlankEditor()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">note_stack_add</span> New Draft</button>
+                    <button class="btn btn-primary" onclick="tpLoadSelectedVersionIntoEditor()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">edit_document</span> Load Selected Into Editor</button>
+                    <div class="action-bar-spacer"></div>
+                    <span class="status-msg" id="tpPageStatus"></span>
+                </div>
+
+                <div class="inline-grid-2">
+                    <div class="section">
+                        <h2>Runtime Metadata</h2>
+                        <div class="section-desc">What this Gate process has currently loaded. Realm version switches are persisted only and take effect on restart or redeploy.</div>
+                        <div class="card">
+                            <table class="kv-table"><tbody id="tpRuntimeMetaBody"><tr><td>Loading…</td><td></td></tr></tbody></table>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Compare Versions</h2>
+                        <div class="section-desc">Basic version diff for admin review before switching realms.</div>
+                        <div class="card">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label>Left Version</label>
+                                    <select id="tpCompareLeft"></select>
+                                </div>
+                                <div class="field">
+                                    <label>Right Version</label>
+                                    <select id="tpCompareRight"></select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn" onclick="tpCompareVersions()">Compare</button>
+                                <span class="status-msg" id="tpCompareStatus"></span>
+                            </div>
+                            <div id="tpCompareResult" style="margin-top:12px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Version Catalog</h2>
+                    <div class="section-desc">Inspect saved Town Project config versions and load one into the editor.</div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Version</th><th>Updated At (UTC)</th><th>Updated By</th><th>Definitions</th><th></th><th></th></tr></thead>
+                            <tbody id="tpVersionsBody"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="inline-grid-2">
+                    <div class="section">
+                        <h2>Version Inspector</h2>
+                        <div class="section-desc">Browse one saved version with metadata and definitions.</div>
+                        <div class="card" style="margin-bottom:12px;">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label>Selected Version</label>
+                                    <select id="tpInspectVersion"></select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn" onclick="tpInspectSelectedVersion()">Inspect</button>
+                                <button class="btn" onclick="tpLoadSelectedVersionIntoEditor()">Load Into Editor</button>
+                                <span class="status-msg" id="tpInspectStatus"></span>
+                            </div>
+                        </div>
+                        <div id="tpInspectMeta"></div>
+                        <div class="scroll-x" style="margin-top:12px;">
+                            <table>
+                                <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Contribution</th><th>Reward</th><th>Enabled</th></tr></thead>
+                                <tbody id="tpInspectDefinitionsBody"><tr><td colspan="6" class="empty-row">Select a version and click Inspect.</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Realm Selection</h2>
+                        <div class="section-desc">Persist the active version per realm. Running servers are not auto-refreshed.</div>
+                        <div class="scroll-x">
+                            <table>
+                                <thead><tr><th>Realm</th><th>Current Version</th><th>Switch To</th><th></th></tr></thead>
+                                <tbody id="tpRealmsBody"><tr><td colspan="4" class="empty-row">Loading…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Config Editor</h2>
+                    <div class="section-desc">Lightweight visual management for validate and save workflows. This is intentionally JSON-first and does not hot reload live servers.</div>
+                    <div class="card">
+                        <div class="form-grid">
+                            <div class="field">
+                                <label>Version</label>
+                                <input id="tpEditorVersion" type="text" placeholder="e.g. v2026-04-02-a" />
+                            </div>
+                        </div>
+                        <div class="field" style="margin-top:12px;">
+                            <label>Config JSON</label>
+                            <textarea id="tpEditorJson" rows="22" class="mono"></textarea>
+                            <small>Expected payload shape is the TownProjectConfigRoot contract.</small>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn" onclick="tpValidateEditorConfig()">Validate</button>
+                            <button class="btn btn-success" onclick="tpSaveEditorConfig()">Save Version</button>
+                            <span class="status-msg" id="tpEditorStatus"></span>
+                        </div>
+                        <div id="tpValidationResult" style="margin-top:12px;"></div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>
@@ -435,6 +591,8 @@
 <script src="js/pages/bans.js"></script>
 <script src="js/pages/server.js"></script>
 <script src="js/pages/deliveries.js"></script>
+<script src="js/pages/configs.js"></script>
+<script src="js/pages/town-project-configs.js"></script>
 <script>Admin._boot();</script>
 </body>
 </html>

@@ -66,6 +66,27 @@ public sealed class TownProjectRewardService : ITownProjectRewardService
             return;
         }
 
+        var existingReward = (await _stateRepo.GetActiveRewardsAsync(_realmId, townId, ct))
+            .FirstOrDefault(r => r.IsActive && string.Equals(r.ProjectInstanceId, instance.Id, StringComparison.OrdinalIgnoreCase));
+
+        if (existingReward != null)
+        {
+            _log.LogInformation(
+                "Reward activation skipped: reward already active for instance {InstanceId} (RewardId={RewardId})",
+                instance.Id,
+                existingReward.Id);
+
+            if (instance.Status != TownProjectStatus.CompletedActivated)
+            {
+                instance.Status = TownProjectStatus.CompletedActivated;
+                instance.ActivatedAtUtc = existingReward.ActivatedAtUtc;
+                instance.Version++;
+                await _stateRepo.SaveInstanceAsync(instance, ct);
+            }
+
+            return;
+        }
+
         var now = DateTime.UtcNow;
         var expiresAt = definition.RewardDurationSeconds > 0
             ? now.AddSeconds(definition.RewardDurationSeconds)
@@ -113,8 +134,8 @@ public sealed class TownProjectRewardService : ITownProjectRewardService
         TownProjectDefinition definition,
         CancellationToken ct)
     {
-        // Only distribute if RewardScope is Individual or Town
-        if (definition.RewardScope == TownProjectRewardScope.Realm)
+        // Gate only fan-outs individual notifications for individual-scope rewards.
+        if (definition.RewardScope != TownProjectRewardScope.Individual)
             return;
 
         // V1: Only support AllCitizens mode
@@ -138,16 +159,6 @@ public sealed class TownProjectRewardService : ITownProjectRewardService
             "Distributing individual rewards to {Count} citizens of town {TownId}",
             guild.MemberCharacterIds.Count, townId);
 
-        // Parse reward value (format: "gold:500" or "item:item_id:quantity")
-        var rewardParts = definition.RewardValue.Split(':', StringSplitOptions.RemoveEmptyEntries);
-        if (rewardParts.Length == 0)
-        {
-            _log.LogWarning("Invalid reward value format: {RewardValue}", definition.RewardValue);
-            return;
-        }
-
-        var rewardType = rewardParts[0].ToLowerInvariant();
-
         // Idempotency key to prevent double-sends
         var baseIdempotencyKey = $"townproject_reward_{instance.Id}_{instance.ActivatedAtUtc:yyyyMMddHHmmss}";
 
@@ -157,52 +168,23 @@ public sealed class TownProjectRewardService : ITownProjectRewardService
             {
                 var idempotencyKey = $"{baseIdempotencyKey}_{citizenCharacterId}";
 
-                if (rewardType == "gold" && rewardParts.Length >= 2 && int.TryParse(rewardParts[1], out var goldAmount))
+                await _deliveryService.CreateSystemDeliveryAsync(new CreateSystemDeliveryRequest
                 {
-                    // Send gold via delivery system (placeholder - actual implementation would use escrow)
-                    await _deliveryService.CreateSystemDeliveryAsync(new CreateSystemDeliveryRequest
-                    {
-                        RealmId = _realmId,
-                        IdempotencyKey = idempotencyKey,
-                        SenderId = "system",
-                        SenderDisplayName = "Town Council",
-                        RecipientAccountId = string.Empty, // Will be resolved by delivery system
-                        RecipientCharacterId = citizenCharacterId,
-                        RecipientInventory = "inventory",
-                        Subject = $"Town Project Reward: {definition.Name}",
-                        Body = $"Your town has completed the project '{definition.Name}'! Here is your reward.",
-                        ReturnToSenderOnExpiry = false,
-                        ExpiresUtc = DateTime.UtcNow.AddDays(30),
-                        CreatedByActorType = "townproject",
-                        CreatedByActorId = instance.Id,
-                        Attachments = new List<ParcelItemAttachmentRequest>()
-                    }, ct);
-                }
-                else if (rewardType == "item" && rewardParts.Length >= 3)
-                {
-                    var itemId = rewardParts[1];
-                    var quantity = int.TryParse(rewardParts[2], out var qty) ? qty : 1;
-
-                    // Send item via delivery system (placeholder - would need item generation)
-                    await _deliveryService.CreateSystemDeliveryAsync(new CreateSystemDeliveryRequest
-                    {
-                        RealmId = _realmId,
-                        IdempotencyKey = idempotencyKey,
-                        SenderId = "system",
-                        SenderDisplayName = "Town Council",
-                        RecipientAccountId = string.Empty,
-                        RecipientCharacterId = citizenCharacterId,
-                        RecipientInventory = "inventory",
-                        Subject = $"Town Project Reward: {definition.Name}",
-                        Body = $"Your town has completed the project '{definition.Name}'! Here is your reward: {quantity}x {itemId}.",
-                        ReturnToSenderOnExpiry = false,
-                        ExpiresUtc = DateTime.UtcNow.AddDays(30),
-                        CreatedByActorType = "townproject",
-                        CreatedByActorId = instance.Id,
-                        Attachments = new List<ParcelItemAttachmentRequest>()
-                        // TODO: Generate actual items here
-                    }, ct);
-                }
+                    RealmId = _realmId,
+                    IdempotencyKey = idempotencyKey,
+                    SenderId = "system",
+                    SenderDisplayName = "Town Council",
+                    RecipientAccountId = string.Empty,
+                    RecipientCharacterId = citizenCharacterId,
+                    RecipientInventory = "inventory",
+                    Subject = $"Town Project Activated: {definition.Name}",
+                    Body = $"Project '{definition.Name}' is now active. Effect: {definition.RewardType} ({definition.RewardValue}).",
+                    ReturnToSenderOnExpiry = false,
+                    ExpiresUtc = DateTime.UtcNow.AddDays(30),
+                    CreatedByActorType = "townproject",
+                    CreatedByActorId = instance.Id,
+                    Attachments = new List<ParcelItemAttachmentRequest>()
+                }, ct);
 
                 _log.LogInformation(
                     "Distributed individual reward to citizen {CharacterId} for project {InstanceId}",

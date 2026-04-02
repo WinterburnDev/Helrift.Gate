@@ -45,6 +45,79 @@ public sealed class FirebaseTownProjectConfigRepository : ITownProjectConfigRepo
         return JsonSerializer.Deserialize<TownProjectConfigRoot>(json, Json);
     }
 
+    public async Task SaveRealmConfigRefAsync(string realmId, RealmProjectConfigRef realmRef, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/config.json";
+        var payload = JsonSerializer.Serialize(realmRef, Json);
+        using var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+
+        using var res = await _http.PutAsync(path, content, ct);
+        res.EnsureSuccessStatusCode();
+    }
+
+    public async Task SaveConfigVersionAsync(string version, TownProjectConfigRoot config, CancellationToken ct = default)
+    {
+        var path = $"config/projects/versions/{SafeKey(version)}.json";
+        var payload = JsonSerializer.Serialize(config, Json);
+        using var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+
+        using var res = await _http.PutAsync(path, content, ct);
+        res.EnsureSuccessStatusCode();
+    }
+
+    public async Task<IReadOnlyList<ConfigVersionRecord<TownProjectConfigRoot>>> ListConfigVersionsAsync(CancellationToken ct = default)
+    {
+        var path = "config/projects/versions.json";
+
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode) return Array.Empty<ConfigVersionRecord<TownProjectConfigRoot>>();
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return Array.Empty<ConfigVersionRecord<TownProjectConfigRoot>>();
+
+        var map = JsonSerializer.Deserialize<Dictionary<string, TownProjectConfigRoot>>(json, Json)
+            ?? new Dictionary<string, TownProjectConfigRoot>();
+
+        return map
+            .Where(kv => kv.Value != null)
+            .Select(kv => new ConfigVersionRecord<TownProjectConfigRoot>
+            {
+                StorageKey = kv.Key,
+                Config = kv.Value
+            })
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<RealmConfigRefRecord<RealmProjectConfigRef>>> ListRealmConfigRefsAsync(CancellationToken ct = default)
+    {
+        var path = "realms.json";
+
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode) return Array.Empty<RealmConfigRefRecord<RealmProjectConfigRef>>();
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return Array.Empty<RealmConfigRefRecord<RealmProjectConfigRef>>();
+
+        var realms = JsonSerializer.Deserialize<Dictionary<string, FirebaseRealmNode>>(json, Json)
+            ?? new Dictionary<string, FirebaseRealmNode>();
+
+        return realms
+            .Where(kv => kv.Value?.Config != null)
+            .Select(kv => new RealmConfigRefRecord<RealmProjectConfigRef>
+            {
+                RealmId = kv.Key,
+                ConfigRef = kv.Value!.Config!
+            })
+            .ToList();
+    }
+
+    private sealed class FirebaseRealmNode
+    {
+        public RealmProjectConfigRef? Config { get; set; }
+    }
+
     private static string SafeKey(string key)
         => key.Replace(".", "_").Replace("$", "_").Replace("#", "_")
                .Replace("[", "_").Replace("]", "_").Replace("/", "_");

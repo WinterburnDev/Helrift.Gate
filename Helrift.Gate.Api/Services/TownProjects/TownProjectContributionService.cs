@@ -38,6 +38,12 @@ public sealed class TownProjectContributionService : ITownProjectContributionSer
         int contributionUnits,
         CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(contributorCharacterId))
+            throw new ArgumentException("Contributor character ID is required", nameof(contributorCharacterId));
+
+        if (string.IsNullOrWhiteSpace(contributorAccountId))
+            throw new ArgumentException("Contributor account ID is required", nameof(contributorAccountId));
+
         if (contributionUnits <= 0)
             throw new ArgumentException("Contribution units must be positive", nameof(contributionUnits));
 

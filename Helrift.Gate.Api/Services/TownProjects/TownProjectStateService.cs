@@ -27,7 +27,13 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
     public async Task<IReadOnlyList<TownProjectInstance>> GetActiveProjectsAsync(string townId, CancellationToken ct = default)
     {
-        return await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
+        var all = await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
+        var now = DateTime.UtcNow;
+
+        return all
+            .Where(i => i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation)
+            .Where(i => !i.ExpiresAtUtc.HasValue || i.ExpiresAtUtc.Value > now)
+            .ToList();
     }
 
     public async Task<TownProjectInstance?> GetProjectInstanceAsync(string townId, string instanceId, CancellationToken ct = default)
@@ -37,12 +43,25 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
     public async Task<IReadOnlyList<TownProjectRewardState>> GetActiveRewardsAsync(string townId, CancellationToken ct = default)
     {
-        return await _stateRepo.GetActiveRewardsAsync(_realmId, townId, ct);
+        var all = await _stateRepo.GetActiveRewardsAsync(_realmId, townId, ct);
+        var now = DateTime.UtcNow;
+
+        return all
+            .Where(r => r.IsActive)
+            .Where(r => r.ExpiresAtUtc > now)
+            .ToList();
     }
 
     public async Task InitializeWeeklyProjectsAsync(string townId, CancellationToken ct = default)
     {
         _log.LogInformation("Initializing weekly projects for town {TownId}", townId);
+
+        var existing = await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
+        var existingWeeklyDefinitionIds = new HashSet<string>(
+            existing
+                .Where(i => i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation)
+                .Select(i => i.DefinitionId),
+            StringComparer.OrdinalIgnoreCase);
 
         var definitions = _configService.GetAllDefinitions();
         var weeklyDefs = definitions.Values
@@ -55,9 +74,19 @@ public sealed class TownProjectStateService : ITownProjectStateService
             return;
         }
 
-        // Roll 5 random weekly projects (or all if fewer than 5)
+        // Roll up to 5 random weekly projects (or fewer if already active).
         var random = new Random();
-        var selected = weeklyDefs.OrderBy(_ => random.Next()).Take(5).ToList();
+        var selected = weeklyDefs
+            .Where(d => !existingWeeklyDefinitionIds.Contains(d.Id))
+            .OrderBy(_ => random.Next())
+            .Take(5)
+            .ToList();
+
+        if (selected.Count == 0)
+        {
+            _log.LogInformation("Weekly initialization skipped for town {TownId}: active definitions already present", townId);
+            return;
+        }
 
         var now = DateTime.UtcNow;
         var expiresAt = now.AddDays(7); // Weekly projects expire in 7 days
@@ -89,6 +118,14 @@ public sealed class TownProjectStateService : ITownProjectStateService
     {
         _log.LogInformation("Initializing crusade projects for town {TownId}, event {EventInstanceId}", townId, eventInstanceId);
 
+        var existing = await _stateRepo.GetActiveInstancesAsync(_realmId, townId, ct);
+        var existingCrusadeDefinitionIds = new HashSet<string>(
+            existing
+                .Where(i => i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation)
+                .Where(i => string.Equals(i.EventInstanceId, eventInstanceId, StringComparison.OrdinalIgnoreCase))
+                .Select(i => i.DefinitionId),
+            StringComparer.OrdinalIgnoreCase);
+
         var definitions = _configService.GetAllDefinitions();
         var crusadeDefs = definitions.Values
             .Where(d => d.Category == TownProjectCategory.CrusadePreparation && d.IsEnabled)
@@ -100,10 +137,10 @@ public sealed class TownProjectStateService : ITownProjectStateService
             return;
         }
 
-        // Use all crusade projects
+        // Use all crusade projects not already active for this event.
         var now = DateTime.UtcNow;
 
-        foreach (var def in crusadeDefs)
+        foreach (var def in crusadeDefs.Where(d => !existingCrusadeDefinitionIds.Contains(d.Id)))
         {
             var instance = new TownProjectInstance
             {
@@ -123,6 +160,15 @@ public sealed class TownProjectStateService : ITownProjectStateService
             _log.LogInformation(
                 "Created crusade project instance {InstanceId} for town {TownId}: {DefinitionId}",
                 instance.Id, townId, def.Id);
+        }
+
+        if (existingCrusadeDefinitionIds.Count > 0)
+        {
+            _log.LogInformation(
+                "Crusade initialization for town {TownId}, event {EventInstanceId} skipped {SkippedCount} existing definitions",
+                townId,
+                eventInstanceId,
+                existingCrusadeDefinitionIds.Count);
         }
     }
 }
