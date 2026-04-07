@@ -119,7 +119,7 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
             _log.LogInformation(
                 "Created weekly project instance {InstanceId} for town {TownId}: {DefinitionId}, EntryId={EntryId}",
-                instance.Id, townId, def.Id, entryId ?? "<legacy>");
+                instance.Id, townId, def.Id, (entryId ?? "<legacy>").Replace('\n', '_').Replace('\r', '_'));
         }
     }
 
@@ -177,7 +177,7 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
             _log.LogInformation(
                 "Created crusade project instance {InstanceId} for town {TownId}: {DefinitionId}, EntryId={EntryId}",
-                instance.Id, townId, def.Id, entryId ?? "<legacy>");
+                instance.Id, townId, def.Id, (entryId ?? "<legacy>").Replace('\n', '_').Replace('\r', '_'));
         }
 
         if (existingCrusadeDefinitionIds.Count > 0)
@@ -252,7 +252,7 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
         _log.LogDebug(
             "Rolled requirement entry '{EntryId}' from pool '{PoolId}' for definition '{DefinitionId}' (town={TownId})",
-            chosen.Id, pool.Id, def.Id, townId);
+            chosen.Id, pool.Id, def.Id, townId.Replace('\n', '_').Replace('\r', '_'));
 
         return (chosen.Id, chosen);
     }
