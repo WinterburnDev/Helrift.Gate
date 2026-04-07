@@ -39,8 +39,21 @@ public class GameServersController : ControllerBase
         public string BuildVersion { get; set; } = "";
         public long? RegisteredAtUnixUtc { get; set; }
         public DateTime? LastHeartbeatUtc { get; set; }
+        public GameServerWeatherDto? Weather { get; set; }
         public int MapCount { get; set; }
         public IReadOnlyList<GameServerMapDto> Maps { get; set; } = Array.Empty<GameServerMapDto>();
+    }
+
+    public sealed class GameServerWeatherDto
+    {
+        public string WeatherKind { get; set; } = "";
+        public double Intensity01 { get; set; }
+        public bool HasPrecipitation { get; set; }
+        public double WindIntensity01 { get; set; }
+        public double FogDensity01 { get; set; }
+        public long ObservedAtUnixUtc { get; set; }
+        public string SourceMapId { get; set; } = "";
+        public string SourceMapName { get; set; } = "";
     }
 
     [HttpGet]
@@ -110,6 +123,19 @@ public class GameServersController : ControllerBase
             BuildVersion = registration?.BuildVersion ?? "",
             RegisteredAtUnixUtc = registration?.RegisteredAtUnixUtc,
             LastHeartbeatUtc = registration?.LastHeartbeatUtc,
+            Weather = registration?.WeatherState == null
+                ? null
+                : new GameServerWeatherDto
+                {
+                    WeatherKind = registration.WeatherState.weatherKind ?? "",
+                    Intensity01 = registration.WeatherState.intensity01,
+                    HasPrecipitation = registration.WeatherState.hasPrecipitation,
+                    WindIntensity01 = registration.WeatherState.windIntensity01,
+                    FogDensity01 = registration.WeatherState.fogDensity01,
+                    ObservedAtUnixUtc = registration.WeatherState.observedAtUnixUtc,
+                    SourceMapId = registration.WeatherState.sourceMapId ?? "",
+                    SourceMapName = registration.WeatherState.sourceMapName ?? ""
+                },
             MapCount = maps.Count,
             Maps = maps
         };

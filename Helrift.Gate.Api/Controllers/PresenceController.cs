@@ -16,7 +16,7 @@ public sealed class PresenceController(IPresenceService presence) : ControllerBa
         if (string.IsNullOrWhiteSpace(dto.CharacterName)) return BadRequest("CharacterName required");
 
         presence.RegisterGameServer(dto.GameServerId);
-        presence.AddOrUpdatePlayer(dto.GameServerId, dto.CharacterId, dto.CharacterName, dto.Side);
+        presence.AddOrUpdatePlayer(dto.GameServerId, dto.CharacterId, dto.CharacterName, dto.Side, dto.MapId, dto.MapName);
         return Ok();
     }
 

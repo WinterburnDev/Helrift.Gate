@@ -9,6 +9,20 @@ namespace Helrift.Gate.Contracts
         public long registeredAtUnixUtc { get; set; }
         public RealmConfigDto realmConfig { get; set; }
         public List<MapInfoDto> maps { get; set; } = new();
+        public GameServerWeatherStateDto? weatherState { get; set; }
+    }
+
+    public sealed class GameServerWeatherStateDto
+    {
+        public string gameServerId { get; set; } = "";
+        public string weatherKind { get; set; } = "";
+        public double intensity01 { get; set; }
+        public bool hasPrecipitation { get; set; }
+        public double windIntensity01 { get; set; }
+        public double fogDensity01 { get; set; }
+        public long observedAtUnixUtc { get; set; }
+        public string sourceMapId { get; set; } = "";
+        public string sourceMapName { get; set; } = "";
     }
 
     public sealed class RealmConfigDto

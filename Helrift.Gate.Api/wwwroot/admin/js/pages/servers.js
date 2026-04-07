@@ -1,6 +1,15 @@
 ﻿(function () {
     const { $, esc, pillState, fmtUnix, fmtDate, fetchServers } = Admin;
 
+    function weatherSummary(weather) {
+        if (!weather || !weather.weatherKind) {
+            return '<span class="pill pill-neutral">Unknown</span>';
+        }
+
+        const pct = Math.max(0, Math.min(100, (weather.intensity01 || 0) * 100));
+        return `<span class="pill pill-blue">${esc(weather.weatherKind)}</span> <span class="mono">${pct.toFixed(0)}%</span>`;
+    }
+
     window.viewGameServer = function (id) {
         Admin.switchPage('server', { id: id });
     };
@@ -9,7 +18,7 @@
         const tb = $('serversBody');
 
         if (!servers.length) {
-            tb.innerHTML = `<tr><td colspan="7" class="empty-row">No game servers found</td></tr>`;
+            tb.innerHTML = `<tr><td colspan="8" class="empty-row">No game servers found</td></tr>`;
             return;
         }
 
@@ -19,6 +28,7 @@
             <tr>
                 <td class="mono">${esc(s.id || '')}</td>
                 <td>${pillState(s.state)}</td>
+                <td>${weatherSummary(s.weather)}</td>
                 <td class="mono">${esc(s.buildVersion || '-')}</td>
                 <td>${s.mapCount ?? 0}</td>
                 <td>${s.registeredAtUnixUtc ? fmtUnix(s.registeredAtUnixUtc) : '-'}</td>

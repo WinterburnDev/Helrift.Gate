@@ -12,6 +12,8 @@ namespace Helrift.Gate.App.Domain
         public string CharacterName { get; set; }
         public string GameServerId { get; set; }
         public string Side { get; set; }
+        public string MapId { get; set; }
+        public string MapName { get; set; }
         public DateTime LastSeenUtc { get; set; }
     }
 }

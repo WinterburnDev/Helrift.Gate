@@ -11,6 +11,7 @@ namespace Helrift.Gate.Api.Services.GameServers.Models
         public long RegisteredAtUnixUtc { get; set; }
         public RealmConfigDto RealmConfig { get; set; } = new();
         public IReadOnlyList<MapInfoDto> Maps { get; set; } = Array.Empty<MapInfoDto>();
+        public GameServerWeatherStateDto? WeatherState { get; set; }
         public DateTime LastHeartbeatUtc { get; set; }
     }
 }

@@ -7,7 +7,7 @@ public interface IPresenceService
     void UnregisterGameServer(string gameServerId);
 
     // player level
-    void AddOrUpdatePlayer(string gameServerId, string characterId, string characterName, string side);
+    void AddOrUpdatePlayer(string gameServerId, string characterId, string characterName, string side, string mapId, string mapName);
     void RemovePlayer(string gameServerId, string characterId, string characterName);
 
     // bulk (for fullsync)

@@ -1,6 +1,14 @@
 ﻿(function () {
     const { $, esc, pillState, fmtUnix, fmtDate, api } = Admin;
 
+    function weatherLabel(weather) {
+        if (!weather || !weather.weatherKind) {
+            return '<span class="pill pill-neutral">Unknown</span>';
+        }
+
+        return `<span class="pill pill-blue">${esc(weather.weatherKind)}</span>`;
+    }
+
     function kv(label, value) {
         return `<tr><td>${esc(label)}</td><td>${value === null || value === undefined || value === '' ? '-' : esc(String(value))}</td></tr>`;
     }
@@ -65,6 +73,22 @@
             ${kv('Registered At (UTC)', s.registeredAtUnixUtc ? fmtUnix(s.registeredAtUnixUtc) : '-')}
             ${kv('Last Heartbeat (UTC)', s.lastHeartbeatUtc ? fmtDate(s.lastHeartbeatUtc) : '-')}
             ${kv('Map Count', s.mapCount ?? 0)}
+        </tbody></table>`);
+
+        const weather = s.weather || null;
+        const weatherIntensityPct = weather ? Math.max(0, Math.min(100, (weather.intensity01 || 0) * 100)) : 0;
+        const windIntensityPct = weather ? Math.max(0, Math.min(100, (weather.windIntensity01 || 0) * 100)) : 0;
+        const fogDensityPct = weather ? Math.max(0, Math.min(100, (weather.fogDensity01 || 0) * 100)) : 0;
+
+        html += section('Weather', `<table class="kv-table"><tbody>
+            ${kvHtml('Weather Kind', weatherLabel(weather))}
+            ${kv('Observed At (UTC)', weather?.observedAtUnixUtc ? fmtUnix(weather.observedAtUnixUtc) : '-')}
+            ${kv('Intensity', weather ? `${weatherIntensityPct.toFixed(0)}%` : '-')}
+            ${kv('Has Precipitation', weather ? (weather.hasPrecipitation ? 'Yes' : 'No') : '-')}
+            ${kv('Wind Intensity', weather ? `${windIntensityPct.toFixed(0)}%` : '-')}
+            ${kv('Fog Density', weather ? `${fogDensityPct.toFixed(0)}%` : '-')}
+            ${kv('Source Map ID', weather?.sourceMapId || '-')}
+            ${kv('Source Map Name', weather?.sourceMapName || '-')}
         </tbody></table>`);
 
         html += section(`Maps (${s.mapCount ?? 0})`, renderMapTable(s.maps), false);

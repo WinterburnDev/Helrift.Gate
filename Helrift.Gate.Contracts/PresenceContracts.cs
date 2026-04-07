@@ -3,6 +3,8 @@
     public string CharacterId { get; set; }
     public string CharacterName { get; set; }
     public string Side { get; set; }
+    public string MapId { get; set; }
+    public string MapName { get; set; }
 }
 
 public sealed class PresenceRegisterDto
@@ -11,6 +13,8 @@ public sealed class PresenceRegisterDto
     public string CharacterId { get; set; }
     public string CharacterName { get; set; }
     public string Side { get; set; }
+    public string MapId { get; set; }
+    public string MapName { get; set; }
 }
 
 public sealed class PresenceUnregisterDto

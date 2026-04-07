@@ -65,7 +65,7 @@ public sealed class PresenceService : IPresenceService
         }
     }
 
-    public void AddOrUpdatePlayer(string gameServerId, string characterId, string characterName, string side)
+    public void AddOrUpdatePlayer(string gameServerId, string characterId, string characterName, string side, string mapId, string mapName)
     {
         if (string.IsNullOrWhiteSpace(gameServerId) || string.IsNullOrWhiteSpace(characterName))
             return;
@@ -90,6 +90,8 @@ public sealed class PresenceService : IPresenceService
                 CharacterName = characterName,
                 GameServerId = gameServerId,
                 Side = side,
+                MapId = mapId,
+                MapName = mapName,
                 LastSeenUtc = DateTime.UtcNow
             };
 
@@ -163,6 +165,8 @@ public sealed class PresenceService : IPresenceService
                     CharacterName = pl.CharacterName,
                     GameServerId = gameServerId,
                     Side = pl.Side,
+                    MapId = pl.MapId,
+                    MapName = pl.MapName,
                     LastSeenUtc = DateTime.UtcNow
                 };
 

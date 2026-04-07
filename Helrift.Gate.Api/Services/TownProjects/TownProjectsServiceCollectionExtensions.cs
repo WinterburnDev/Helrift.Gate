@@ -20,6 +20,7 @@ public static class TownProjectsServiceCollectionExtensions
         services.AddSingleton<ITownProjectContributionService, TownProjectContributionService>();
         services.AddScoped<ITownProjectRewardService, TownProjectRewardService>();
         services.AddScoped<ITownProjectRotationService, TownProjectRotationService>();
+        services.AddHostedService<TownProjectRotationHostedService>();
 
         return services;
     }

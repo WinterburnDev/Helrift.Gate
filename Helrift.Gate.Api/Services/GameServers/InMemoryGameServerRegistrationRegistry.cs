@@ -24,10 +24,33 @@ namespace Helrift.Gate.Api.Services.GameServers
                 RegisteredAtUnixUtc = dto.registeredAtUnixUtc,
                 RealmConfig = realmConfig,
                 Maps = maps,
+                WeatherState = dto.weatherState,
                 LastHeartbeatUtc = DateTime.UtcNow
             };
 
             _registrations[registration.GameServerId] = registration;
+            return registration;
+        }
+
+        public GameServerRegistration UpsertWeatherState(GameServerWeatherStateDto dto)
+        {
+            var gameServerId = dto.gameServerId ?? string.Empty;
+
+            var registration = _registrations.AddOrUpdate(
+                gameServerId,
+                _ => new GameServerRegistration
+                {
+                    GameServerId = gameServerId,
+                    WeatherState = dto,
+                    LastHeartbeatUtc = DateTime.UtcNow
+                },
+                (_, existing) =>
+                {
+                    existing.WeatherState = dto;
+                    existing.LastHeartbeatUtc = DateTime.UtcNow;
+                    return existing;
+                });
+
             return registration;
         }
 

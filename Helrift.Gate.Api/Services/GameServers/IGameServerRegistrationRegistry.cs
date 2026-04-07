@@ -6,6 +6,7 @@ namespace Helrift.Gate.Api.Services.GameServers
     public interface IGameServerRegistrationRegistry
     {
         GameServerRegistration Upsert(GameServerRegistrationDto dto);
+        GameServerRegistration UpsertWeatherState(GameServerWeatherStateDto dto);
         GameServerRegistration? Get(string gameServerId);
         IReadOnlyCollection<GameServerRegistration> GetAll();
     }

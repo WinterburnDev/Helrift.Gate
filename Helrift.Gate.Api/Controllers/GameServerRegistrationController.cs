@@ -33,6 +33,34 @@ namespace Helrift.Gate.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("weather")]
+        public IActionResult UpdateWeather([FromBody] GameServerWeatherStateDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Body required.");
+
+            if (string.IsNullOrWhiteSpace(dto.gameServerId))
+                return BadRequest("gameServerId required.");
+
+            if (string.IsNullOrWhiteSpace(dto.weatherKind))
+                return BadRequest("weatherKind required.");
+
+            var registration = registry.UpsertWeatherState(dto);
+
+            logger.LogInformation(
+                "Game server weather update received: {GameServerId}, weather {WeatherKind}, observed {ObservedAtUnixUtc}",
+                registration.GameServerId,
+                dto.weatherKind,
+                dto.observedAtUnixUtc);
+
+            return Ok(new
+            {
+                status = "accepted",
+                gameServerId = registration.GameServerId,
+                observedAtUnixUtc = dto.observedAtUnixUtc
+            });
+        }
+
         [HttpGet("{id}")]
         public ActionResult<GameServerRegistration> Get([FromRoute] string id)
         {

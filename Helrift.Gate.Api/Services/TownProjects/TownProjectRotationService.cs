@@ -13,7 +13,7 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
     private readonly ITownProjectStateService _stateService;
     private readonly ITownProjectRewardService _rewardService;
     private readonly ITownProjectConfigService _configService;
-    private readonly IGuildDataProvider _guildDataProvider;
+    private readonly IReadOnlyList<string> _towns;
     private readonly string _realmId;
 
     public TownProjectRotationService(
@@ -22,38 +22,35 @@ public sealed class TownProjectRotationService : ITownProjectRotationService
         ITownProjectStateRepository stateRepo,
         ITownProjectStateService stateService,
         ITownProjectRewardService rewardService,
-        ITownProjectConfigService configService,
-        IGuildDataProvider guildDataProvider)
+        ITownProjectConfigService configService)
     {
         _log = log;
         _stateRepo = stateRepo;
         _stateService = stateService;
         _rewardService = rewardService;
         _configService = configService;
-        _guildDataProvider = guildDataProvider;
         _realmId = configuration["RealmId"] ?? "default";
+        _towns = configuration.GetSection("TownProjects:Towns").Get<string[]>()
+            ?? ["aresden", "elvine"];
     }
 
     public async Task ExecuteWeeklyResetAsync(CancellationToken ct = default)
     {
-        _log.LogInformation("Starting weekly reset for all towns");
+        _log.LogInformation("Starting weekly reset for {Count} configured towns", _towns.Count);
 
-        // Query all guilds to find all towns
-        var guilds = await _guildDataProvider.QueryAsync(null, null, ct);
-
-        foreach (var guild in guilds)
+        foreach (var townId in _towns)
         {
             try
             {
-                await ExecuteWeeklyResetForTownAsync(guild.GuildId, ct);
+                await ExecuteWeeklyResetForTownAsync(townId, ct);
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Failed weekly reset for town {TownId}", guild.GuildId);
+                _log.LogError(ex, "Failed weekly reset for town {TownId}", townId);
             }
         }
 
-        _log.LogInformation("Completed weekly reset for {Count} towns", guilds.Count);
+        _log.LogInformation("Completed weekly reset for {Count} towns", _towns.Count);
     }
 
     public async Task ExecuteWeeklyResetForTownAsync(string townId, CancellationToken ct = default)
