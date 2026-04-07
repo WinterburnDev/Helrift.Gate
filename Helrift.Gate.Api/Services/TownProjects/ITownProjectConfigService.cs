@@ -21,6 +21,16 @@ public interface ITownProjectConfigService
     TownProjectDefinition? GetDefinition(string definitionId);
 
     /// <summary>
+    /// Get a requirement pool by ID.
+    /// </summary>
+    TownProjectRequirementPool? GetRequirementPool(string poolId);
+
+    /// <summary>
+    /// Get a curated item group by ID.
+    /// </summary>
+    TownProjectItemGroup? GetItemGroup(string groupId);
+
+    /// <summary>
     /// Get the current config version string.
     /// </summary>
     string GetConfigVersion();

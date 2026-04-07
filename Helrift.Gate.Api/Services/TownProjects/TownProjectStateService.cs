@@ -93,6 +93,9 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
         foreach (var def in selected)
         {
+            var (entryId, resolvedEntry) = await RollRequirementEntryAsync(def, townId, ct);
+            var targetProgress = resolvedEntry?.TargetQuantity ?? def.TargetProgress;
+
             var instance = new TownProjectInstance
             {
                 Id = $"weekly_{Guid.NewGuid():N}",
@@ -101,16 +104,22 @@ public sealed class TownProjectStateService : ITownProjectStateService
                 RealmId = _realmId,
                 Status = TownProjectStatus.Active,
                 CurrentProgress = 0,
-                TargetProgress = def.TargetProgress,
+                TargetProgress = targetProgress,
                 StartedAtUtc = now,
                 ExpiresAtUtc = expiresAt,
+                RequirementEntryId = entryId,
+                ResolvedRequirement = resolvedEntry,
                 Version = 1
             };
 
             await _stateRepo.SaveInstanceAsync(instance, ct);
+
+            if (entryId != null)
+                await _stateRepo.SaveLastRequirementEntryAsync(_realmId, townId, def.Id, entryId, ct);
+
             _log.LogInformation(
-                "Created weekly project instance {InstanceId} for town {TownId}: {DefinitionId}",
-                instance.Id, townId, def.Id);
+                "Created weekly project instance {InstanceId} for town {TownId}: {DefinitionId}, EntryId={EntryId}",
+                instance.Id, townId, def.Id, entryId ?? "<legacy>");
         }
     }
 
@@ -142,6 +151,9 @@ public sealed class TownProjectStateService : ITownProjectStateService
 
         foreach (var def in crusadeDefs.Where(d => !existingCrusadeDefinitionIds.Contains(d.Id)))
         {
+            var (entryId, resolvedEntry) = await RollRequirementEntryAsync(def, townId, ct);
+            var targetProgress = resolvedEntry?.TargetQuantity ?? def.TargetProgress;
+
             var instance = new TownProjectInstance
             {
                 Id = $"crusade_{Guid.NewGuid():N}",
@@ -150,16 +162,22 @@ public sealed class TownProjectStateService : ITownProjectStateService
                 RealmId = _realmId,
                 Status = TownProjectStatus.Active,
                 CurrentProgress = 0,
-                TargetProgress = def.TargetProgress,
+                TargetProgress = targetProgress,
                 StartedAtUtc = now,
                 EventInstanceId = eventInstanceId,
+                RequirementEntryId = entryId,
+                ResolvedRequirement = resolvedEntry,
                 Version = 1
             };
 
             await _stateRepo.SaveInstanceAsync(instance, ct);
+
+            if (entryId != null)
+                await _stateRepo.SaveLastRequirementEntryAsync(_realmId, townId, def.Id, entryId, ct);
+
             _log.LogInformation(
-                "Created crusade project instance {InstanceId} for town {TownId}: {DefinitionId}",
-                instance.Id, townId, def.Id);
+                "Created crusade project instance {InstanceId} for town {TownId}: {DefinitionId}, EntryId={EntryId}",
+                instance.Id, townId, def.Id, entryId ?? "<legacy>");
         }
 
         if (existingCrusadeDefinitionIds.Count > 0)
@@ -170,5 +188,89 @@ public sealed class TownProjectStateService : ITownProjectStateService
                 eventInstanceId,
                 existingCrusadeDefinitionIds.Count);
         }
+    }
+
+    /// <summary>
+    /// Selects a requirement entry from the definition's pool using the configured selection
+    /// mode and anti-repetition rules. Returns (null, null) for legacy pool-less definitions.
+    /// </summary>
+    private async Task<(string? EntryId, TownProjectRequirementEntry? Entry)> RollRequirementEntryAsync(
+        TownProjectDefinition def,
+        string townId,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(def.RequirementPoolId))
+            return (null, null);
+
+        var pool = _configService.GetRequirementPool(def.RequirementPoolId);
+        if (pool == null || pool.Entries.Count == 0)
+        {
+            _log.LogWarning(
+                "RequirementPoolId '{PoolId}' for definition '{DefinitionId}' references a missing or empty pool. Falling back to legacy fields.",
+                def.RequirementPoolId, def.Id);
+            return (null, null);
+        }
+
+        var candidates = pool.Entries.Where(e => e != null && e.Weight >= 1).ToList();
+
+        if (candidates.Count == 0)
+        {
+            _log.LogWarning("Pool '{PoolId}' has no valid (weight >= 1) entries.", pool.Id);
+            return (null, null);
+        }
+
+        // Apply anti-repetition: exclude the last-used entry if there is a valid alternative
+        if (pool.PreventImmediateRepeat && candidates.Count > 1)
+        {
+            var lastEntryId = await _stateRepo.GetLastRequirementEntryAsync(_realmId, townId, def.Id, ct);
+
+            if (!string.IsNullOrWhiteSpace(lastEntryId))
+            {
+                var filtered = candidates
+                    .Where(e => !string.Equals(e.Id, lastEntryId, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (filtered.Count > 0)
+                    candidates = filtered;
+                // else: only one entry or all excluded – allow repetition rather than failing
+            }
+        }
+
+        TownProjectRequirementEntry chosen;
+
+        if (pool.SelectionMode == RequirementPoolSelectionMode.Sequential)
+        {
+            // Sequential: pick the first candidate (candidates already excludes the last-used entry
+            // when PreventImmediateRepeat is active, so this naturally advances the rotation).
+            chosen = candidates[0];
+        }
+        else
+        {
+            // WeightedRandom (default)
+            chosen = PickWeightedRandom(candidates);
+        }
+
+        _log.LogDebug(
+            "Rolled requirement entry '{EntryId}' from pool '{PoolId}' for definition '{DefinitionId}' (town={TownId})",
+            chosen.Id, pool.Id, def.Id, townId);
+
+        return (chosen.Id, chosen);
+    }
+
+    private static TownProjectRequirementEntry PickWeightedRandom(IReadOnlyList<TownProjectRequirementEntry> entries)
+    {
+        var totalWeight = entries.Sum(e => e.Weight);
+        var roll = Random.Shared.Next(totalWeight);
+        var cumulative = 0;
+
+        foreach (var entry in entries)
+        {
+            cumulative += entry.Weight;
+            if (roll < cumulative)
+                return entry;
+        }
+
+        // Fallback – should never reach here if weights are valid
+        return entries[^1];
     }
 }

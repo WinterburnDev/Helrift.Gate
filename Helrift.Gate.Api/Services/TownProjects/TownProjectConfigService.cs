@@ -93,9 +93,11 @@ public sealed class TownProjectConfigService :
             };
 
             _log.LogInformation(
-                "Town Project config loaded successfully: Version={Version}, Definitions={Count}, UpdatedBy={UpdatedBy}, UpdatedAt={UpdatedAt}",
+                "Town Project config loaded successfully: Version={Version}, Definitions={Count}, Pools={Pools}, Groups={Groups}, UpdatedBy={UpdatedBy}, UpdatedAt={UpdatedAt}",
                 _metadata.Version,
                 _metadata.DefinitionCount,
+                _config.RequirementPools.Count,
+                _config.ItemGroups.Count,
                 _metadata.UpdatedBy,
                 _metadata.UpdatedAt);
         }
@@ -111,6 +113,12 @@ public sealed class TownProjectConfigService :
 
     public TownProjectDefinition? GetDefinition(string definitionId)
         => _config.Definitions.TryGetValue(definitionId, out var def) ? def : null;
+
+    public TownProjectRequirementPool? GetRequirementPool(string poolId)
+        => _config.RequirementPools.TryGetValue(poolId, out var pool) ? pool : null;
+
+    public TownProjectItemGroup? GetItemGroup(string groupId)
+        => _config.ItemGroups.TryGetValue(groupId, out var group) ? group : null;
 
     public string GetConfigVersion()
         => _config.Version;
@@ -169,6 +177,133 @@ public sealed class TownProjectConfigService :
             AddWarning("metadata.updatedBy.missing", "UpdatedBy is empty.");
 
         var definitions = config.Definitions ?? new Dictionary<string, TownProjectDefinition>();
+        var pools = config.RequirementPools ?? new Dictionary<string, TownProjectRequirementPool>();
+        var groups = config.ItemGroups ?? new Dictionary<string, TownProjectItemGroup>();
+
+        // ---- Validate item groups ----
+
+        var seenGroupIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (groupKey, group) in groups)
+        {
+            var gPrefix = $"ItemGroup '{groupKey}'";
+
+            if (group == null)
+            {
+                AddError("itemGroup.null", $"{gPrefix}: Group payload is null.");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(group.Id))
+                AddError("itemGroup.id.missing", $"{gPrefix}: Id is empty.");
+            else if (!seenGroupIds.Add(group.Id))
+                AddError("itemGroup.id.duplicate", $"{gPrefix}: Duplicate group ID '{group.Id}'.");
+
+            if (!string.IsNullOrEmpty(group.Id) && !string.Equals(groupKey, group.Id, StringComparison.OrdinalIgnoreCase))
+                AddError("itemGroup.id.key_mismatch", $"{gPrefix}: Key '{groupKey}' does not match group Id '{group.Id}'.");
+
+            if (string.IsNullOrWhiteSpace(group.Name))
+                AddWarning("itemGroup.name.missing", $"{gPrefix}: Name is empty.");
+
+            if (group.ItemIds == null || group.ItemIds.Count == 0)
+                AddError("itemGroup.itemIds.empty", $"{gPrefix}: ItemIds list is empty or null.");
+        }
+
+        // ---- Validate requirement pools ----
+
+        var seenPoolIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (poolKey, pool) in pools)
+        {
+            var pPrefix = $"RequirementPool '{poolKey}'";
+
+            if (pool == null)
+            {
+                AddError("pool.null", $"{pPrefix}: Pool payload is null.");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(pool.Id))
+                AddError("pool.id.missing", $"{pPrefix}: Id is empty.");
+            else if (!seenPoolIds.Add(pool.Id))
+                AddError("pool.id.duplicate", $"{pPrefix}: Duplicate pool ID '{pool.Id}'.");
+
+            if (!string.IsNullOrEmpty(pool.Id) && !string.Equals(poolKey, pool.Id, StringComparison.OrdinalIgnoreCase))
+                AddError("pool.id.key_mismatch", $"{pPrefix}: Key '{poolKey}' does not match pool Id '{pool.Id}'.");
+
+            if (pool.Entries == null || pool.Entries.Count == 0)
+            {
+                AddError("pool.entries.empty", $"{pPrefix}: Pool has no entries. At least one entry is required.");
+                continue;
+            }
+
+            var seenEntryIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var entry in pool.Entries)
+            {
+                var ePrefix = $"{pPrefix}, Entry '{entry?.Id ?? "<null>"}'";
+
+                if (entry == null)
+                {
+                    AddError("pool.entry.null", $"{pPrefix}: An entry in the pool is null.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(entry.Id))
+                    AddError("pool.entry.id.missing", $"{ePrefix}: Entry Id is empty.");
+                else if (!seenEntryIds.Add(entry.Id))
+                    AddError("pool.entry.id.duplicate", $"{ePrefix}: Duplicate entry ID '{entry.Id}' within pool '{pool.Id}'.");
+
+                if (entry.Weight < 1)
+                    AddError("pool.entry.weight.invalid", $"{ePrefix}: Weight must be >= 1 (got {entry.Weight}).");
+
+                if (entry.ContributionType == TownProjectContributionType.Unknown)
+                    AddError("pool.entry.contributionType.unknown", $"{ePrefix}: ContributionType is Unknown.");
+
+                if (entry.TargetQuantity <= 0)
+                    AddError("pool.entry.targetQuantity.invalid", $"{ePrefix}: TargetQuantity must be > 0.");
+
+                if (entry.ProgressPerUnit <= 0)
+                    AddError("pool.entry.progressPerUnit.invalid", $"{ePrefix}: ProgressPerUnit must be > 0.");
+
+                if (entry.ReputationPerUnit < 0)
+                    AddError("pool.entry.reputationPerUnit.invalid", $"{ePrefix}: ReputationPerUnit must be >= 0.");
+
+                if (entry.ContributionType == TownProjectContributionType.ItemDelivery)
+                {
+                    var hasItemIds = entry.AllowedItemIds != null && entry.AllowedItemIds.Count > 0;
+                    var hasGroupId = !string.IsNullOrWhiteSpace(entry.AllowedItemGroupId);
+
+                    if (!hasItemIds && !hasGroupId)
+                        AddError("pool.entry.items.missing",
+                            $"{ePrefix}: ItemDelivery entry must specify AllowedItemIds or AllowedItemGroupId.");
+
+                    if (hasItemIds && hasGroupId)
+                        AddError("pool.entry.items.conflict",
+                            $"{ePrefix}: AllowedItemIds and AllowedItemGroupId are mutually exclusive; set only one.");
+
+                    if (hasGroupId && !groups.ContainsKey(entry.AllowedItemGroupId!))
+                        AddError("pool.entry.groupId.notFound",
+                            $"{ePrefix}: AllowedItemGroupId '{entry.AllowedItemGroupId}' references an unknown item group.");
+
+                    ValidateQualityRule(entry.QualityRule, ePrefix, AddError);
+                    ValidateConditionRule(entry.ConditionRule, ePrefix, AddError);
+                }
+
+                if (entry.ContributionType != TownProjectContributionType.ItemDelivery)
+                {
+                    if (entry.AllowedItemIds != null && entry.AllowedItemIds.Count > 0)
+                        AddWarning("pool.entry.items.unexpected",
+                            $"{ePrefix}: AllowedItemIds is set but ContributionType is not ItemDelivery.");
+
+                    if (!string.IsNullOrWhiteSpace(entry.AllowedItemGroupId))
+                        AddWarning("pool.entry.groupId.unexpected",
+                            $"{ePrefix}: AllowedItemGroupId is set but ContributionType is not ItemDelivery.");
+                }
+            }
+        }
+
+        // ---- Validate definitions ----
 
         if (definitions.Count == 0)
             AddError("definitions.empty", "Config has no definitions.");
@@ -202,21 +337,35 @@ public sealed class TownProjectConfigService :
             if (def.Category == TownProjectCategory.Unknown)
                 AddError("definition.category.unknown", $"{prefix}: Category is Unknown.");
 
-            if (def.ContributionType == TownProjectContributionType.Unknown)
-                AddError("definition.contributionType.unknown", $"{prefix}: ContributionType is Unknown.");
+            var usesPool = !string.IsNullOrWhiteSpace(def.RequirementPoolId);
 
-            if (def.ContributionType == TownProjectContributionType.ItemDelivery &&
-                string.IsNullOrWhiteSpace(def.RequiredItemId))
-                AddError("definition.requiredItemId.missing", $"{prefix}: ContributionType is ItemDelivery but RequiredItemId is empty.");
+            if (usesPool)
+            {
+                // Pool-based definition: validate the referenced pool exists
+                if (!pools.ContainsKey(def.RequirementPoolId!))
+                    AddError("definition.requirementPoolId.notFound",
+                        $"{prefix}: RequirementPoolId '{def.RequirementPoolId}' references an unknown pool.");
+            }
+            else
+            {
+                // Legacy flat definition: validate the legacy fields
+                if (def.ContributionType == TownProjectContributionType.Unknown)
+                    AddError("definition.contributionType.unknown", $"{prefix}: ContributionType is Unknown.");
 
-            if (def.TargetProgress <= 0)
-                AddError("definition.targetProgress.invalid", $"{prefix}: TargetProgress must be > 0.");
+                if (def.ContributionType == TownProjectContributionType.ItemDelivery &&
+                    string.IsNullOrWhiteSpace(def.RequiredItemId))
+                    AddError("definition.requiredItemId.missing",
+                        $"{prefix}: ContributionType is ItemDelivery but RequiredItemId is empty (and no RequirementPoolId is set).");
 
-            if (def.ProgressPerContributionUnit <= 0)
-                AddError("definition.progressPerUnit.invalid", $"{prefix}: ProgressPerContributionUnit must be > 0.");
+                if (def.TargetProgress <= 0)
+                    AddError("definition.targetProgress.invalid", $"{prefix}: TargetProgress must be > 0.");
 
-            if (def.ReputationPerContributionUnit < 0)
-                AddError("definition.reputation.invalid", $"{prefix}: ReputationPerContributionUnit must be >= 0.");
+                if (def.ProgressPerContributionUnit <= 0)
+                    AddError("definition.progressPerUnit.invalid", $"{prefix}: ProgressPerContributionUnit must be > 0.");
+
+                if (def.ReputationPerContributionUnit < 0)
+                    AddError("definition.reputation.invalid", $"{prefix}: ReputationPerContributionUnit must be >= 0.");
+            }
 
             if (def.RewardType == TownProjectRewardType.Unknown)
                 AddError("definition.rewardType.unknown", $"{prefix}: RewardType is Unknown.");
@@ -238,6 +387,29 @@ public sealed class TownProjectConfigService :
         }
 
         return result;
+    }
+
+    private static void ValidateQualityRule(ItemQualityRule? rule, string entryPrefix, Action<string, string> addError)
+    {
+        if (rule == null || rule.Mode == ItemQualityRuleMode.None)
+            return;
+
+        if (string.IsNullOrWhiteSpace(rule.QualityValue))
+            addError("pool.entry.qualityRule.value.missing",
+                $"{entryPrefix}: QualityRule Mode is {rule.Mode} but QualityValue is empty.");
+    }
+
+    private static void ValidateConditionRule(ItemConditionRule? rule, string entryPrefix, Action<string, string> addError)
+    {
+        if (rule == null || rule.Mode == ItemConditionRuleMode.Any)
+            return;
+
+        if (rule.Threshold == null)
+            addError("pool.entry.conditionRule.threshold.missing",
+                $"{entryPrefix}: ConditionRule Mode is {rule.Mode} but Threshold is null.");
+        else if (rule.Threshold < 0f || rule.Threshold > 1f)
+            addError("pool.entry.conditionRule.threshold.range",
+                $"{entryPrefix}: ConditionRule Threshold must be in [0.0, 1.0] (got {rule.Threshold}).");
     }
 
     private TownProjectConfigRoot BootstrapDefaults(ITownProjectConfigRepository repository, string realmId)
@@ -274,6 +446,52 @@ public sealed class TownProjectConfigService :
 
     private static TownProjectConfigRoot BuildDefaultConfig(string version, DateTime now)
     {
+        // ---- Item groups ----
+        var itemGroups = new Dictionary<string, TownProjectItemGroup>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["common_herbs"] = new TownProjectItemGroup
+            {
+                Id = "common_herbs",
+                Name = "Common Herbs",
+                ItemIds = new List<string> { "briar_flower", "mushroom", "flax" }
+            }
+        };
+
+        // ---- Requirement pools ----
+        var requirementPools = new Dictionary<string, TownProjectRequirementPool>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["crusade-prep-pool"] = new TownProjectRequirementPool
+            {
+                Id = "crusade-prep-pool",
+                SelectionMode = RequirementPoolSelectionMode.WeightedRandom,
+                PreventImmediateRepeat = true,
+                Entries = new List<TownProjectRequirementEntry>
+                {
+                    new()
+                    {
+                        Id = "crusade-prep-mana-shard",
+                        Weight = 1,
+                        ContributionType = TownProjectContributionType.ItemDelivery,
+                        TargetQuantity = 200,
+                        ProgressPerUnit = 1,
+                        ReputationPerUnit = 2,
+                        AllowedItemIds = new List<string> { "mana-shard" }
+                    },
+                    new()
+                    {
+                        Id = "crusade-prep-herbs",
+                        Weight = 1,
+                        ContributionType = TownProjectContributionType.ItemDelivery,
+                        TargetQuantity = 300,
+                        ProgressPerUnit = 1,
+                        ReputationPerUnit = 1,
+                        AllowedItemGroupId = "common_herbs"
+                    }
+                }
+            }
+        };
+
+        // ---- Definitions ----
         var definitions = new Dictionary<string, TownProjectDefinition>(StringComparer.OrdinalIgnoreCase)
         {
             ["weekly-hunt-basic"] = new TownProjectDefinition
@@ -301,11 +519,7 @@ public sealed class TownProjectConfigService :
                 Name = "Crusade Preparation",
                 Description = "Deliver supplies before crusade to strengthen fortifications.",
                 Category = TownProjectCategory.CrusadePreparation,
-                ContributionType = TownProjectContributionType.ItemDelivery,
-                RequiredItemId = "mana-shard",
-                TargetProgress = 200,
-                ProgressPerContributionUnit = 1,
-                ReputationPerContributionUnit = 2,
+                RequirementPoolId = "crusade-prep-pool",
                 RewardType = TownProjectRewardType.Buff,
                 RewardScope = TownProjectRewardScope.Town,
                 RewardValue = "crusade.mana.shield.count.flat=1;crusade.construction.points.flat=2",
@@ -323,7 +537,9 @@ public sealed class TownProjectConfigService :
             UpdatedBy = "system-bootstrap",
             PublishedAt = null,
             PublishedBy = null,
-            Definitions = definitions
+            Definitions = definitions,
+            RequirementPools = requirementPools,
+            ItemGroups = itemGroups
         };
     }
 }

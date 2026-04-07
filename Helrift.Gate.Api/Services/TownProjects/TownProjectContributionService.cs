@@ -59,8 +59,15 @@ public sealed class TownProjectContributionService : ITownProjectContributionSer
             throw new InvalidOperationException($"Project definition {instance.DefinitionId} not found");
 
         // Calculate progress and reputation
-        var progressContributed = contributionUnits * definition.ProgressPerContributionUnit;
-        var reputationEarned = contributionUnits * definition.ReputationPerContributionUnit;
+        // Prefer per-unit values from the resolved requirement entry; fall back to definition-level fields
+        // for legacy instances created before pool support was added.
+        var progressPerUnit = instance.ResolvedRequirement?.ProgressPerUnit
+            ?? definition.ProgressPerContributionUnit;
+        var reputationPerUnit = instance.ResolvedRequirement?.ReputationPerUnit
+            ?? definition.ReputationPerContributionUnit;
+
+        var progressContributed = contributionUnits * progressPerUnit;
+        var reputationEarned = contributionUnits * reputationPerUnit;
 
         // Cap progress at target
         var remainingProgress = instance.TargetProgress - instance.CurrentProgress;

@@ -111,4 +111,28 @@ public sealed class FirebaseTownProjectStateRepository : ITownProjectStateReposi
     private static string SafeKey(string key)
         => key.Replace(".", "_").Replace("$", "_").Replace("#", "_")
                .Replace("[", "_").Replace("]", "_").Replace("/", "_");
+
+    // ========== REQUIREMENT HISTORY ==========
+
+    public async Task<string?> GetLastRequirementEntryAsync(string realmId, string townId, string definitionId, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/requirementHistory/{SafeKey(townId)}/{SafeKey(definitionId)}/lastEntryId.json";
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode) return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
+
+        // Firebase returns string values with surrounding quotes when fetched as a leaf
+        return json.Trim('"');
+    }
+
+    public async Task SaveLastRequirementEntryAsync(string realmId, string townId, string definitionId, string entryId, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/requirementHistory/{SafeKey(townId)}/{SafeKey(definitionId)}/lastEntryId.json";
+        var json = $"\"{entryId}\"";
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        using var res = await _http.PutAsync(path, content, ct);
+        res.EnsureSuccessStatusCode();
+    }
 }
