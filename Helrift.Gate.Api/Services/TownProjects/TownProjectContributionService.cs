@@ -36,6 +36,10 @@ public sealed class TownProjectContributionService : ITownProjectContributionSer
         string contributorCharacterId,
         string contributorAccountId,
         int contributionUnits,
+        string? deliveredItemId = null,
+        TownProjectItemQuality? deliveredItemQuality = null,
+        int? deliveredItemEndurance = null,
+        int? deliveredItemMaxEndurance = null,
         CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(contributorCharacterId))
@@ -58,9 +62,19 @@ public sealed class TownProjectContributionService : ITownProjectContributionSer
         if (definition == null)
             throw new InvalidOperationException($"Project definition {instance.DefinitionId} not found");
 
+        var requirement = instance.ResolvedRequirement ?? BuildLegacyRequirement(definition);
+
+        ValidateContributionInput(
+            requirement,
+            deliveredItemId,
+            deliveredItemQuality,
+            deliveredItemEndurance,
+            deliveredItemMaxEndurance,
+            instanceId);
+
         // Calculate progress and reputation
-        var progressContributed = contributionUnits * definition.ProgressPerContributionUnit;
-        var reputationEarned = contributionUnits * definition.ReputationPerContributionUnit;
+        var progressContributed = contributionUnits * requirement.ProgressPerUnit;
+        var reputationEarned = contributionUnits * requirement.ReputationPerUnit;
 
         // Cap progress at target
         var remainingProgress = instance.TargetProgress - instance.CurrentProgress;
@@ -111,6 +125,96 @@ public sealed class TownProjectContributionService : ITownProjectContributionSer
         await BroadcastProjectUpdateAsync(instance, ct);
 
         return instance;
+    }
+
+    private static TownProjectResolvedRequirement BuildLegacyRequirement(TownProjectDefinition definition)
+    {
+        return new TownProjectResolvedRequirement
+        {
+            EntryId = string.IsNullOrWhiteSpace(definition.RequirementPoolId)
+                ? $"legacy_{definition.Id}"
+                : definition.RequirementPoolId,
+            ContributionType = definition.ContributionType,
+            TargetQuantity = definition.TargetProgress,
+            ProgressPerUnit = definition.ProgressPerContributionUnit,
+            ReputationPerUnit = definition.ReputationPerContributionUnit,
+            AllowedItemIds = string.IsNullOrWhiteSpace(definition.RequiredItemId)
+                ? []
+                : [definition.RequiredItemId]
+        };
+    }
+
+    private static void ValidateContributionInput(
+        TownProjectResolvedRequirement requirement,
+        string? deliveredItemId,
+        TownProjectItemQuality? deliveredItemQuality,
+        int? deliveredItemEndurance,
+        int? deliveredItemMaxEndurance,
+        string instanceId)
+    {
+        if (requirement.ContributionType != TownProjectContributionType.ItemDelivery)
+            return;
+
+        if (string.IsNullOrWhiteSpace(deliveredItemId))
+            throw new InvalidOperationException($"Project {instanceId} expects item delivery with item metadata.");
+
+        if (requirement.AllowedItemIds.Count > 0 &&
+            !requirement.AllowedItemIds.Contains(deliveredItemId, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"Item '{deliveredItemId}' does not match the active requirement.");
+        }
+
+        ValidateQuality(requirement.QualityRule, deliveredItemQuality, deliveredItemId);
+        ValidateCondition(requirement.ConditionRule, deliveredItemEndurance, deliveredItemMaxEndurance, deliveredItemId);
+    }
+
+    private static void ValidateQuality(ItemQualityRule? rule, TownProjectItemQuality? deliveredQuality, string deliveredItemId)
+    {
+        if (rule == null || rule.Mode == ItemQualityRuleMode.None)
+            return;
+
+        var effective = deliveredQuality ?? TownProjectItemQuality.Unknown;
+        if (effective == TownProjectItemQuality.Unknown)
+            throw new InvalidOperationException($"Item '{deliveredItemId}' is missing quality metadata required by the active project.");
+
+        if (rule.Mode == ItemQualityRuleMode.Exact && effective != rule.Quality)
+            throw new InvalidOperationException($"Item '{deliveredItemId}' must be exactly quality '{rule.Quality}'.");
+
+        if (rule.Mode == ItemQualityRuleMode.Minimum && effective < rule.Quality)
+            throw new InvalidOperationException($"Item '{deliveredItemId}' must be quality '{rule.Quality}' or higher.");
+    }
+
+    private static void ValidateCondition(ItemConditionRule? rule, int? endurance, int? maxEndurance, string deliveredItemId)
+    {
+        if (rule == null || rule.Mode == ItemConditionRuleMode.Any)
+            return;
+
+        var current = endurance ?? -1;
+        var max = maxEndurance ?? -1;
+
+        switch (rule.Mode)
+        {
+            case ItemConditionRuleMode.PristineOnly:
+                if (current < 0 || max <= 0 || current < max)
+                    throw new InvalidOperationException($"Item '{deliveredItemId}' must be pristine.");
+                return;
+            case ItemConditionRuleMode.ExactEndurance:
+                if (current != rule.ExactEndurance)
+                    throw new InvalidOperationException($"Item '{deliveredItemId}' must have exact endurance {rule.ExactEndurance}.");
+                return;
+            case ItemConditionRuleMode.MinimumEndurance:
+                if (current < rule.MinimumEndurance)
+                    throw new InvalidOperationException($"Item '{deliveredItemId}' must have endurance >= {rule.MinimumEndurance}.");
+                return;
+            case ItemConditionRuleMode.MinimumEndurancePercent:
+                if (current < 0 || max <= 0)
+                    throw new InvalidOperationException($"Item '{deliveredItemId}' is missing endurance metadata required by the active project.");
+
+                var pct = (int)Math.Floor((double)current * 100d / max);
+                if (pct < rule.MinimumEndurancePercent)
+                    throw new InvalidOperationException($"Item '{deliveredItemId}' must have endurance >= {rule.MinimumEndurancePercent}%.");
+                return;
+        }
     }
 
     private async Task BroadcastProjectUpdateAsync(TownProjectInstance instance, CancellationToken ct)

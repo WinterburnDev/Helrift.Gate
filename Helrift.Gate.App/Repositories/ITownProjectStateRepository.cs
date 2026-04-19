@@ -19,4 +19,14 @@ public interface ITownProjectStateRepository
     Task<IReadOnlyList<TownProjectRewardState>> GetActiveRewardsAsync(string realmId, string townId, CancellationToken ct = default);
     Task<bool> SaveRewardAsync(TownProjectRewardState reward, CancellationToken ct = default);
     Task<bool> DeleteRewardAsync(string realmId, string townId, string rewardId, CancellationToken ct = default);
+
+    // Requirement selection history
+    Task<TownProjectRequirementSelectionHistory?> GetSelectionHistoryAsync(string realmId, string townId, string definitionId, CancellationToken ct = default);
+    Task<bool> SaveSelectionHistoryAsync(TownProjectRequirementSelectionHistory history, CancellationToken ct = default);
+
+    // Rotation metadata
+    Task<DateTime?> GetLastWeeklyResetSlotUtcAsync(string realmId, CancellationToken ct = default);
+    Task<bool> SaveLastWeeklyResetSlotUtcAsync(string realmId, DateTime slotUtc, CancellationToken ct = default);
+    Task<bool> TryAcquireWeeklyResetLeaseAsync(string realmId, string ownerId, DateTime nowUtc, TimeSpan leaseDuration, CancellationToken ct = default);
+    Task<bool> ReleaseWeeklyResetLeaseAsync(string realmId, string ownerId, CancellationToken ct = default);
 }

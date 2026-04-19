@@ -82,6 +82,10 @@ namespace Helrift.Gate.Contracts
         // Gate is responsible for persistence only — no aggregation or analytics.
         // Defaults to an empty dictionary so older records without this field deserialise safely.
         public Dictionary<string, long> Stats { get; set; } = new();
+
+        // Timed buffs granted by in-world interactions (prayers, etc.).
+        // Persisted by Gate; game server is authoritative over activation.
+        public CharacterActiveBuffsData ActiveBuffs { get; set; }
     }
 
     [Serializable]
@@ -335,6 +339,21 @@ namespace Helrift.Gate.Contracts
         public int weeklyDivineFavourWeekId { get; set; }
         public int weeklyCrusadeFavourEarned { get; set; }
         public int weeklyEkFavourEarned { get; set; }
+    }
+
+    public class CharacterActiveBuffsData
+    {
+        /// <summary>The character's currently active personal prayer buff, if any.</summary>
+        public CharacterBuffEntry PersonalPrayer { get; set; }
+    }
+
+    public class CharacterBuffEntry
+    {
+        /// <summary>Stable identifier for the buff, e.g. "prayer_enlightenment".</summary>
+        public string BuffId { get; set; }
+
+        /// <summary>UTC Unix timestamp (seconds) at which this buff expires.</summary>
+        public long ExpiresAtUtcUnix { get; set; }
     }
 
     public enum CharacterDeletionState

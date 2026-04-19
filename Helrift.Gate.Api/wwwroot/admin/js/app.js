@@ -9,7 +9,7 @@
         character: 'Character Detail', accounts: 'Accounts', parties: 'Parties',
         guilds: 'Guilds', guild: 'Guild Detail', chat: 'Chat Broadcast', merchants: 'Merchants',
         leaderboards: 'Leaderboards', bans: 'Bans', server: 'Game Server Detail',
-        deliveries: 'Deliveries', configs: 'Configs', 'town-project-configs': 'Town Project Configs'
+        deliveries: 'Deliveries', marketplace: 'Marketplace', bounties: 'Bounties', configs: 'Configs', 'town-project-configs': 'Town Project Configs'
     };
 
     let currentPage = 'dashboard';

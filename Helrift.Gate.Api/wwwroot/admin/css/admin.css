@@ -758,3 +758,46 @@ a.admin-link:hover {
 
 /* ── Scrollable table wrapper ────────────────────────────── */
 .scroll-x { overflow-x: auto; }
+
+/* ── Tab Navigation ──────────────────────────────────────── */
+.tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+
+.tab-btn:hover {
+    color: var(--text);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-content {
+    animation: fadeIn .15s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: 12px;
+}

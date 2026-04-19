@@ -187,6 +187,8 @@ public static class GameServerWebSocketEndpoint
         {
             var metadata = configService.GetConfigMetadata();
             var definitions = configService.GetAllDefinitions();
+            var requirementPools = configService.GetAllRequirementPools();
+            var itemGroups = configService.GetAllItemGroups();
 
             var payload = new
             {
@@ -194,7 +196,9 @@ public static class GameServerWebSocketEndpoint
                 updatedAt = metadata.UpdatedAt,
                 updatedBy = metadata.UpdatedBy,
                 definitionCount = metadata.DefinitionCount,
-                definitions = definitions.Values.ToArray()
+                definitions = definitions.Values.ToArray(),
+                requirementPools = requirementPools.Values.ToArray(),
+                itemGroups = itemGroups.Values.ToArray()
             };
 
             var envelope = new

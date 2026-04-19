@@ -54,6 +54,7 @@ internal static class FirebaseCharacterMapper
             FriendRequests = ReadFriendRequests(el, "friend_requests"),
             // Absent on older records → defaults to empty dictionary (see CharacterData).
             Stats = ReadCharacterStats(el, "stats"),
+            ActiveBuffs = ReadActiveBuffs(el, "active_buffs"),
         };
         return c;
     }
@@ -103,6 +104,7 @@ internal static class FirebaseCharacterMapper
             ["friend_requests"] = Obj(c.FriendRequests, FriendRequestObj),
             // Persist stats as-is; empty dict writes an empty object to Firebase.
             ["stats"] = c.Stats ?? new Dictionary<string, long>(),
+            ["active_buffs"] = Obj(c.ActiveBuffs),
         };
 
         if (c.LastLoggedIn.HasValue)
@@ -626,6 +628,28 @@ internal static class FirebaseCharacterMapper
         };
     }
 
+    private static CharacterActiveBuffsData ReadActiveBuffs(JsonElement root, string key)
+    {
+        if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return null;
+
+        CharacterBuffEntry ReadEntry(JsonElement parent, string entryKey)
+        {
+            if (!parent.TryGetProperty(entryKey, out var e) || e.ValueKind != JsonValueKind.Object) return null;
+            var buffId = J.Str(e, "buff_id", "buffId");
+            if (string.IsNullOrEmpty(buffId)) return null;
+            return new CharacterBuffEntry
+            {
+                BuffId = buffId,
+                ExpiresAtUtcUnix = J.Long(e, "expires_at_utc_unix", "expiresAtUtcUnix")
+            };
+        }
+
+        return new CharacterActiveBuffsData
+        {
+            PersonalPrayer = ReadEntry(el, "personal_prayer")
+        };
+    }
+
     private static CharacterProgressionData ReadProgression(JsonElement root, string key)
     {
         if (!root.TryGetProperty(key, out var el) || el.ValueKind != JsonValueKind.Object) return null;
@@ -831,6 +855,21 @@ internal static class FirebaseCharacterMapper
             ["tutorials_disabled"] = c.tutorialsDisabled,
             ["completed_ids"] = c.completedIds ?? Array.Empty<string>().ToList()
         };
+
+    private static object Obj(CharacterActiveBuffsData b)
+    {
+        if (b == null) return null;
+        object EntryObj(CharacterBuffEntry e) =>
+            e == null ? null : (object)new Dictionary<string, object>
+            {
+                ["buff_id"] = e.BuffId ?? "",
+                ["expires_at_utc_unix"] = e.ExpiresAtUtcUnix
+            };
+        return new Dictionary<string, object>
+        {
+            ["personal_prayer"] = EntryObj(b.PersonalPrayer)
+        };
+    }
 
     private static object Obj(CharacterProgressionData c)
         => c == null ? null : new Dictionary<string, object>

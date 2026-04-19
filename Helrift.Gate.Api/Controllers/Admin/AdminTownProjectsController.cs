@@ -42,7 +42,9 @@ public sealed class AdminTownProjectsController(
                 Category = i.Status == TownProjectStatus.Active || i.Status == TownProjectStatus.CompletedPendingActivation
                     ? (def?.Category ?? TownProjectCategory.Unknown)
                     : TownProjectCategory.Unknown,
-                ContributionType = def?.ContributionType ?? TownProjectContributionType.Unknown,
+                ContributionType = i.ResolvedRequirement?.ContributionType
+                    ?? def?.ContributionType
+                    ?? TownProjectContributionType.Unknown,
                 Status = i.Status,
                 CurrentProgress = i.CurrentProgress,
                 TargetProgress = i.TargetProgress,

@@ -15,6 +15,13 @@ public sealed class FirebaseTownProjectStateRepository : ITownProjectStateReposi
         WriteIndented = false
     };
 
+    private sealed class WeeklyResetLease
+    {
+        public string OwnerId { get; set; } = string.Empty;
+        public DateTime AcquiredAtUtc { get; set; }
+        public DateTime ExpiresAtUtc { get; set; }
+    }
+
     public FirebaseTownProjectStateRepository(IHttpClientFactory httpFactory)
     {
         _http = httpFactory.CreateClient("firebase-admin");
@@ -105,6 +112,143 @@ public sealed class FirebaseTownProjectStateRepository : ITownProjectStateReposi
     {
         var path = $"realms/{SafeKey(realmId)}/townProjects/rewards/{SafeKey(townId)}/{SafeKey(rewardId)}.json";
         using var res = await _http.DeleteAsync(path, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<TownProjectRequirementSelectionHistory?> GetSelectionHistoryAsync(
+        string realmId,
+        string townId,
+        string definitionId,
+        CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/selectionHistory/{SafeKey(townId)}/{SafeKey(definitionId)}.json";
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        return JsonSerializer.Deserialize<TownProjectRequirementSelectionHistory>(json, Json);
+    }
+
+    public async Task<bool> SaveSelectionHistoryAsync(TownProjectRequirementSelectionHistory history, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(history.RealmId)}/townProjects/selectionHistory/{SafeKey(history.TownId)}/{SafeKey(history.DefinitionId)}.json";
+        var json = JsonSerializer.Serialize(history, Json);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        using var res = await _http.PutAsync(path, content, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<DateTime?> GetLastWeeklyResetSlotUtcAsync(string realmId, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/metadata/lastWeeklyResetSlotUtc.json";
+        using var res = await _http.GetAsync(path, ct);
+        if (!res.IsSuccessStatusCode)
+            return null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return null;
+
+        return JsonSerializer.Deserialize<DateTime>(json, Json);
+    }
+
+    public async Task<bool> SaveLastWeeklyResetSlotUtcAsync(string realmId, DateTime slotUtc, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/metadata/lastWeeklyResetSlotUtc.json";
+        var json = JsonSerializer.Serialize(slotUtc, Json);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        using var res = await _http.PutAsync(path, content, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> TryAcquireWeeklyResetLeaseAsync(
+        string realmId,
+        string ownerId,
+        DateTime nowUtc,
+        TimeSpan leaseDuration,
+        CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/metadata/weeklyResetLease.json";
+
+        var (current, etag) = await GetWeeklyResetLeaseWithEtagAsync(path, ct);
+        if (etag is null)
+            return false;
+
+        if (current is not null &&
+            !string.Equals(current.OwnerId, ownerId, StringComparison.Ordinal) &&
+            current.ExpiresAtUtc > nowUtc)
+        {
+            return false;
+        }
+
+        var next = new WeeklyResetLease
+        {
+            OwnerId = ownerId,
+            AcquiredAtUtc = nowUtc,
+            ExpiresAtUtc = nowUtc.Add(leaseDuration)
+        };
+
+        return await PutWithIfMatchAsync(path, etag, next, ct);
+    }
+
+    public async Task<bool> ReleaseWeeklyResetLeaseAsync(string realmId, string ownerId, CancellationToken ct = default)
+    {
+        var path = $"realms/{SafeKey(realmId)}/townProjects/metadata/weeklyResetLease.json";
+
+        var (current, etag) = await GetWeeklyResetLeaseWithEtagAsync(path, ct);
+        if (etag is null || current is null)
+            return true;
+
+        if (!string.Equals(current.OwnerId, ownerId, StringComparison.Ordinal))
+            return true;
+
+        using var req = new HttpRequestMessage(HttpMethod.Put, path)
+        {
+            Content = new StringContent("null", Encoding.UTF8, "application/json")
+        };
+        req.Headers.TryAddWithoutValidation("if-match", etag);
+
+        using var res = await _http.SendAsync(req, ct);
+        return res.IsSuccessStatusCode || (int)res.StatusCode == 412;
+    }
+
+    private async Task<(WeeklyResetLease? Lease, string? Etag)> GetWeeklyResetLeaseWithEtagAsync(string path, CancellationToken ct)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, path);
+        req.Headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
+
+        using var res = await _http.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode)
+            return (null, null);
+
+        var etag = res.Headers.TryGetValues("ETag", out var values)
+            ? values.FirstOrDefault()
+            : null;
+
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+            return (null, etag ?? "null");
+
+        var lease = JsonSerializer.Deserialize<WeeklyResetLease>(json, Json);
+        return (lease, etag);
+    }
+
+    private async Task<bool> PutWithIfMatchAsync(string path, string etag, object payload, CancellationToken ct)
+    {
+        var json = JsonSerializer.Serialize(payload, Json);
+        using var req = new HttpRequestMessage(HttpMethod.Put, path)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        req.Headers.TryAddWithoutValidation("if-match", etag);
+
+        using var res = await _http.SendAsync(req, ct);
         return res.IsSuccessStatusCode;
     }
 

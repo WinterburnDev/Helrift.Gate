@@ -61,6 +61,8 @@
         <div class="nav-group-label">Deliveries</div>
         <ul class="nav-list">
             <li class="nav-item"><a class="nav-link" data-page="deliveries"><span class="nav-icon material-symbols-outlined">mail</span> Deliveries</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="marketplace"><span class="nav-icon material-symbols-outlined">storefront</span> Marketplace</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="bounties"><span class="nav-icon material-symbols-outlined">gavel</span> Bounties</a></li>
         </ul>
         <div class="nav-group-label">Configuration</div>
         <ul class="nav-list">
@@ -413,6 +415,161 @@
             </div>
 
             <!-- CONFIGS HUB -->
+            <div id="page-marketplace" class="page">
+                <div class="action-bar">
+                    <div class="field" style="min-width:140px;max-width:180px;">
+                        <label>Realm</label>
+                        <input id="mktRealmId" type="text" value="default" />
+                    </div>
+                    <div class="field" style="min-width:170px;">
+                        <label>Order Type</label>
+                        <select id="mktFilterType">
+                            <option value="">Any</option>
+                            <option value="Buy">Buy</option>
+                            <option value="Sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="field" style="min-width:170px;">
+                        <label>Status</label>
+                        <select id="mktFilterStatus">
+                            <option value="">Any</option>
+                            <option value="Active">Active</option>
+                            <option value="PartiallyFilled">PartiallyFilled</option>
+                            <option value="Fulfilled">Fulfilled</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Character</label>
+                        <input id="mktFilterCharacter" type="text" placeholder="characterId" />
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Item</label>
+                        <input id="mktFilterItem" type="text" placeholder="itemDefinitionId" />
+                    </div>
+                    <div class="field" style="max-width:90px;">
+                        <label>Page</label>
+                        <input id="mktPage" type="number" value="1" min="1" />
+                    </div>
+                    <div class="field" style="max-width:100px;">
+                        <label>Page Size</label>
+                        <input id="mktPageSize" type="number" value="100" min="1" max="250" />
+                    </div>
+                    <button class="btn" onclick="refreshMarketplaceAdmin()">Search</button>
+                    <button class="btn" onclick="clearMarketplaceFilters()">Clear</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-desc">Results: <strong id="marketplaceTotal">0</strong> <span class="status-msg" id="marketplaceStatus"></span></div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Order ID</th><th>Type</th><th>Status</th><th>Owner</th><th>Item</th><th>Qty</th><th>Unit Gold</th><th>Listing Fee</th><th>Tax</th><th>Created</th><th>Expires</th><th>Fulfilled</th><th>Cancelled</th><th></th></tr></thead>
+                            <tbody id="marketplaceBody"><tr><td colspan="14" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Marketplace Offers</h2>
+                    <div class="action-bar" style="margin-top:8px;">
+                        <div class="field" style="min-width:170px;">
+                            <label>Offer Status</label>
+                            <select id="mktOfferFilterStatus">
+                                <option value="">Any</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="field" style="min-width:180px;">
+                            <label>Order</label>
+                            <input id="mktOfferFilterOrder" type="text" placeholder="orderId" />
+                        </div>
+                        <div class="field" style="min-width:180px;">
+                            <label>Character</label>
+                            <input id="mktOfferFilterCharacter" type="text" placeholder="creator/owner characterId" />
+                        </div>
+                        <div class="field" style="min-width:180px;">
+                            <label>Item</label>
+                            <input id="mktOfferFilterItem" type="text" placeholder="offered itemDefinitionId" />
+                        </div>
+                        <div class="field" style="max-width:90px;">
+                            <label>Page</label>
+                            <input id="mktOfferPage" type="number" value="1" min="1" />
+                        </div>
+                        <div class="field" style="max-width:100px;">
+                            <label>Page Size</label>
+                            <input id="mktOfferPageSize" type="number" value="100" min="1" max="250" />
+                        </div>
+                        <button class="btn" onclick="refreshMarketplaceOffersAdmin()">Search Offers</button>
+                        <button class="btn" onclick="clearMarketplaceOfferFilters()">Clear</button>
+                    </div>
+
+                    <div class="section-desc">Offers: <strong id="marketplaceOfferTotal">0</strong> <span class="status-msg" id="marketplaceOfferStatus"></span></div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Offer ID</th><th>Order ID</th><th>Status</th><th>Creator</th><th>Owner</th><th>Offered Gold</th><th>Offered Items</th><th>Created</th><th>Expires</th><th>Responded</th><th>Accepted</th><th>Rejected</th><th>Cancelled</th><th></th></tr></thead>
+                            <tbody id="marketplaceOfferBody"><tr><td colspan="14" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-bounties" class="page">
+                <div class="action-bar">
+                    <div class="field" style="min-width:140px;max-width:180px;">
+                        <label>Realm</label>
+                        <input id="bountyRealmId" type="text" value="default" />
+                    </div>
+                    <div class="field" style="min-width:170px;">
+                        <label>Status</label>
+                        <select id="bountyFilterStatus">
+                            <option value="">Any</option>
+                            <option value="Active">Active</option>
+                            <option value="Fulfilled">Fulfilled</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Target</label>
+                        <input id="bountyFilterTarget" type="text" placeholder="targetCharacterId" />
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Issuer</label>
+                        <input id="bountyFilterIssuer" type="text" placeholder="issuerCharacterId" />
+                    </div>
+                    <div class="field" style="min-width:180px;">
+                        <label>Fulfilled By</label>
+                        <input id="bountyFilterFulfilledBy" type="text" placeholder="fulfilledByCharacterId" />
+                    </div>
+                    <div class="field" style="max-width:90px;">
+                        <label>Page</label>
+                        <input id="bountyPage" type="number" value="1" min="1" />
+                    </div>
+                    <div class="field" style="max-width:100px;">
+                        <label>Page Size</label>
+                        <input id="bountyPageSize" type="number" value="100" min="1" max="250" />
+                    </div>
+                    <button class="btn" onclick="refreshBountyAdmin()">Search</button>
+                    <button class="btn" onclick="clearBountyFilters()">Clear</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-desc">Results: <strong id="bountyTotal">0</strong> <span class="status-msg" id="bountyStatus"></span></div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Bounty ID</th><th>Status</th><th>Issuer</th><th>Target</th><th>Reward Gold</th><th>Listing Fee</th><th>Created</th><th>Expires</th><th>Fulfilled</th><th>Cancelled</th><th>Fulfilled By</th><th></th></tr></thead>
+                            <tbody id="bountyBody"><tr><td colspan="12" class="empty-row">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONFIGS HUB -->
             <div id="page-configs" class="page">
                 <div class="section">
                     <h2>Config Domains</h2>
@@ -452,12 +609,66 @@
                     <button class="btn" onclick="Admin.switchPage('configs')">← Config Domains</button>
                     <button class="btn" onclick="refreshTownProjectConfigsPage()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">refresh</span> Refresh</button>
                     <button class="btn" onclick="tpCreateBlankEditor()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">note_stack_add</span> New Draft</button>
-                    <button class="btn btn-primary" onclick="tpLoadSelectedVersionIntoEditor()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">edit_document</span> Load Selected Into Editor</button>
                     <div class="action-bar-spacer"></div>
+                    <button class="btn" onclick="tpOpenAdvanced()" title="Compare versions, manage realms, view runtime info"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">tune</span> Advanced</button>
                     <span class="status-msg" id="tpPageStatus"></span>
                 </div>
 
-                <div class="inline-grid-2">
+                <div class="section">
+                    <h2>Version Catalog</h2>
+                    <div class="section-desc">Browse saved Town Project config versions and load one into the editor.</div>
+                    <div class="scroll-x">
+                        <table>
+                            <thead><tr><th>Version</th><th>Updated At (UTC)</th><th>Updated By</th><th>Definitions</th><th></th></tr></thead>
+                            <tbody id="tpVersionsBody"><tr><td colspan="5" class="empty-row">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Config Editor</h2>
+                    <div class="section-desc">Easy form-based management or raw JSON editing. All changes are validated and saved to database.</div>
+                    <div class="card">
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 8px; border-bottom: 1px solid #ddd; padding-bottom: 12px;">
+                                <button class="btn" id="tpModeVisual" onclick="tpSwitchEditorMode('visual')" style="background: #0969da; color: white;">Form Editor</button>
+                                <button class="btn" id="tpModeJson" onclick="tpSwitchEditorMode('json')">JSON Editor</button>
+                                <div style="flex: 1;"></div>
+                                <button class="btn" onclick="syncJsonToVisual()" title="Reload forms from JSON">Sync JSON → Forms</button>
+                                <button class="btn" onclick="syncVisualToJson()" title="Update JSON from forms">Sync Forms → JSON</button>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="margin-bottom: 12px;">
+                            <div class="field">
+                                <label>Version</label>
+                                <input id="tpEditorVersion" type="text" placeholder="e.g. v2026-04-02-a" />
+                            </div>
+                        </div>
+
+                        <!-- Visual Editor -->
+                        <div id="tpVisualEditorHost" style="display: none;"></div>
+
+                        <!-- JSON Editor -->
+                        <div id="tpJsonEditorSection">
+                            <div class="field">
+                                <label>Config JSON</label>
+                                <textarea id="tpEditorJson" rows="22" class="mono"></textarea>
+                                <small>Expected payload shape is the TownProjectConfigRoot contract.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 12px;">
+                            <button class="btn" onclick="tpValidateEditorConfig()">Validate</button>
+                            <button class="btn btn-success" onclick="tpSaveEditorConfig()">Save Version</button>
+                            <span class="status-msg" id="tpEditorStatus"></span>
+                        </div>
+                        <div id="tpValidationResult" style="margin-top:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- Hidden sections for drawer -->
+                <div id="tpDrawerRuntimeMeta" style="display:none;">
                     <div class="section">
                         <h2>Runtime Metadata</h2>
                         <div class="section-desc">What this Gate process has currently loaded. Realm version switches are persisted only and take effect on restart or redeploy.</div>
@@ -465,7 +676,9 @@
                             <table class="kv-table"><tbody id="tpRuntimeMetaBody"><tr><td>Loading…</td><td></td></tr></tbody></table>
                         </div>
                     </div>
+                </div>
 
+                <div id="tpDrawerCompare" style="display:none;">
                     <div class="section">
                         <h2>Compare Versions</h2>
                         <div class="section-desc">Basic version diff for admin review before switching realms.</div>
@@ -489,43 +702,7 @@
                     </div>
                 </div>
 
-                <div class="section">
-                    <h2>Version Catalog</h2>
-                    <div class="section-desc">Inspect saved Town Project config versions and load one into the editor.</div>
-                    <div class="scroll-x">
-                        <table>
-                            <thead><tr><th>Version</th><th>Updated At (UTC)</th><th>Updated By</th><th>Definitions</th><th></th><th></th></tr></thead>
-                            <tbody id="tpVersionsBody"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="inline-grid-2">
-                    <div class="section">
-                        <h2>Version Inspector</h2>
-                        <div class="section-desc">Browse one saved version with metadata and definitions.</div>
-                        <div class="card" style="margin-bottom:12px;">
-                            <div class="form-grid">
-                                <div class="field">
-                                    <label>Selected Version</label>
-                                    <select id="tpInspectVersion"></select>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button class="btn" onclick="tpInspectSelectedVersion()">Inspect</button>
-                                <button class="btn" onclick="tpLoadSelectedVersionIntoEditor()">Load Into Editor</button>
-                                <span class="status-msg" id="tpInspectStatus"></span>
-                            </div>
-                        </div>
-                        <div id="tpInspectMeta"></div>
-                        <div class="scroll-x" style="margin-top:12px;">
-                            <table>
-                                <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Contribution</th><th>Reward</th><th>Enabled</th></tr></thead>
-                                <tbody id="tpInspectDefinitionsBody"><tr><td colspan="6" class="empty-row">Select a version and click Inspect.</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-
+                <div id="tpDrawerRealms" style="display:none;">
                     <div class="section">
                         <h2>Realm Selection</h2>
                         <div class="section-desc">Persist the active version per realm. Running servers are not auto-refreshed.</div>
@@ -535,30 +712,6 @@
                                 <tbody id="tpRealmsBody"><tr><td colspan="4" class="empty-row">Loading…</td></tr></tbody>
                             </table>
                         </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Config Editor</h2>
-                    <div class="section-desc">Lightweight visual management for validate and save workflows. This is intentionally JSON-first and does not hot reload live servers.</div>
-                    <div class="card">
-                        <div class="form-grid">
-                            <div class="field">
-                                <label>Version</label>
-                                <input id="tpEditorVersion" type="text" placeholder="e.g. v2026-04-02-a" />
-                            </div>
-                        </div>
-                        <div class="field" style="margin-top:12px;">
-                            <label>Config JSON</label>
-                            <textarea id="tpEditorJson" rows="22" class="mono"></textarea>
-                            <small>Expected payload shape is the TownProjectConfigRoot contract.</small>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn" onclick="tpValidateEditorConfig()">Validate</button>
-                            <button class="btn btn-success" onclick="tpSaveEditorConfig()">Save Version</button>
-                            <span class="status-msg" id="tpEditorStatus"></span>
-                        </div>
-                        <div id="tpValidationResult" style="margin-top:12px;"></div>
                     </div>
                 </div>
             </div>
@@ -602,6 +755,8 @@
 <script src="js/pages/bans.js"></script>
 <script src="js/pages/server.js"></script>
 <script src="js/pages/deliveries.js"></script>
+<script src="js/pages/marketplace.js"></script>
+<script src="js/pages/bounties.js"></script>
 <script src="js/pages/configs.js"></script>
 <script src="js/pages/town-project-configs.js"></script>
 <script>Admin._boot();</script>

@@ -15,6 +15,10 @@ public interface ITownProjectConfigService
     /// </summary>
     IReadOnlyDictionary<string, TownProjectDefinition> GetAllDefinitions();
 
+    IReadOnlyDictionary<string, TownProjectRequirementPool> GetAllRequirementPools();
+
+    IReadOnlyDictionary<string, TownProjectItemGroup> GetAllItemGroups();
+
     /// <summary>
     /// Get a specific project definition by ID.
     /// </summary>

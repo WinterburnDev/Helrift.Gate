@@ -41,6 +41,8 @@ public sealed class TownProjectsController : ControllerBase
     {
         var metadata = _configService.GetConfigMetadata();
         var definitions = _configService.GetAllDefinitions().Values.ToList();
+        var requirementPools = _configService.GetAllRequirementPools().Values.ToList();
+        var itemGroups = _configService.GetAllItemGroups().Values.ToList();
 
         return Ok(new TownProjectsConfigResponse
         {
@@ -49,7 +51,9 @@ public sealed class TownProjectsController : ControllerBase
             UpdatedBy = metadata.UpdatedBy,
             PublishedAt = metadata.PublishedAt,
             PublishedBy = metadata.PublishedBy,
-            Definitions = definitions
+            Definitions = definitions,
+            RequirementPools = requirementPools,
+            ItemGroups = itemGroups
         });
     }
 
@@ -62,6 +66,8 @@ public sealed class TownProjectsController : ControllerBase
     {
         var metadata = _configService.GetConfigMetadata();
         var definitions = _configService.GetAllDefinitions().Values.ToList();
+        var requirementPools = _configService.GetAllRequirementPools().Values.ToList();
+        var itemGroups = _configService.GetAllItemGroups().Values.ToList();
         var projects = await _stateService.GetActiveProjectsAsync(townId, ct);
         var rewards = await _stateService.GetActiveRewardsAsync(townId, ct);
 
@@ -81,7 +87,9 @@ public sealed class TownProjectsController : ControllerBase
                 UpdatedBy = metadata.UpdatedBy,
                 PublishedAt = metadata.PublishedAt,
                 PublishedBy = metadata.PublishedBy,
-                Definitions = definitions
+                Definitions = definitions,
+                RequirementPools = requirementPools,
+                ItemGroups = itemGroups
             },
             Projects = projects,
             Rewards = rewards
@@ -126,6 +134,10 @@ public sealed class TownProjectsController : ControllerBase
                 request.ContributorCharacterId,
                 request.ContributorAccountId,
                 request.ContributionUnits,
+                request.DeliveredItemId,
+                request.DeliveredItemQuality,
+                request.DeliveredItemEndurance,
+                request.DeliveredItemMaxEndurance,
                 ct);
 
             return Ok(instance);
@@ -150,25 +162,18 @@ public sealed class TownProjectsController : ControllerBase
         if (request?.Items == null || request.Items.Count == 0)
             return BadRequest(new { error = "Batch contains no contribution items." });
 
-        var grouped = request.Items
+        var validItems = request.Items
             .Where(i => i != null && i.ContributionUnits > 0)
-            .GroupBy(i => new { i.ContributorCharacterId, i.ContributorAccountId })
-            .Select(g => new
-            {
-                g.Key.ContributorCharacterId,
-                g.Key.ContributorAccountId,
-                ContributionUnits = g.Sum(x => x.ContributionUnits)
-            })
             .ToList();
 
-        if (grouped.Count == 0)
+        if (validItems.Count == 0)
             return BadRequest(new { error = "Batch contains no valid contribution units." });
 
         TownProjectInstance? latest = null;
 
         try
         {
-            foreach (var item in grouped)
+                foreach (var item in validItems)
             {
                 latest = await _contributionService.ApplyContributionAsync(
                     townId,
@@ -176,6 +181,10 @@ public sealed class TownProjectsController : ControllerBase
                     item.ContributorCharacterId,
                     item.ContributorAccountId,
                     item.ContributionUnits,
+                    item.DeliveredItemId,
+                    item.DeliveredItemQuality,
+                    item.DeliveredItemEndurance,
+                    item.DeliveredItemMaxEndurance,
                     ct);
             }
 
@@ -184,7 +193,7 @@ public sealed class TownProjectsController : ControllerBase
                 townId,
                 instanceId,
                 request.Items.Count,
-                grouped.Count);
+                validItems.Count);
 
             return Ok(latest);
         }
@@ -222,6 +231,10 @@ public sealed class TownProjectsController : ControllerBase
         public string ContributorCharacterId { get; set; } = string.Empty;
         public string ContributorAccountId { get; set; } = string.Empty;
         public int ContributionUnits { get; set; }
+        public string? DeliveredItemId { get; set; }
+        public TownProjectItemQuality? DeliveredItemQuality { get; set; }
+        public int? DeliveredItemEndurance { get; set; }
+        public int? DeliveredItemMaxEndurance { get; set; }
     }
 
     public sealed class ContributeBatchRequest
@@ -242,6 +255,8 @@ public sealed class TownProjectsController : ControllerBase
         public DateTime? PublishedAt { get; set; }
         public string? PublishedBy { get; set; }
         public List<TownProjectDefinition> Definitions { get; set; } = new();
+        public List<TownProjectRequirementPool> RequirementPools { get; set; } = new();
+        public List<TownProjectItemGroup> ItemGroups { get; set; } = new();
     }
 
     public sealed class TownProjectsBootstrapResponse

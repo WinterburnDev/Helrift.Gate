@@ -17,5 +17,9 @@ public interface ITownProjectContributionService
         string contributorCharacterId,
         string contributorAccountId,
         int contributionUnits,
+        string? deliveredItemId = null,
+        TownProjectItemQuality? deliveredItemQuality = null,
+        int? deliveredItemEndurance = null,
+        int? deliveredItemMaxEndurance = null,
         CancellationToken ct = default);
 }

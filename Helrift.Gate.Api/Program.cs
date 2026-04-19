@@ -13,6 +13,8 @@ using Helrift.Gate.Infrastructure;
 using Helrift.Gate.Infrastructure.Parties;
 using Helrift.Gate.Services;
 using Helrift.Gate.Api.Services.RealmEvents;
+using Helrift.Gate.Api.Services.Marketplace;
+using Helrift.Gate.Api.Services.Bounties;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -124,6 +126,10 @@ builder.Services.AddSingleton<IAdminService, AdminService>();
 builder.Services.AddLeaderboards();
 builder.Services.AddEscrow();
 builder.Services.AddDeliveries();
+builder.Services.Configure<MarketplaceOptions>(builder.Configuration.GetSection("Marketplace"));
+builder.Services.AddMarketplace();
+builder.Services.Configure<BountyOptions>(builder.Configuration.GetSection("Bounty"));
+builder.Services.AddBounties();
 builder.Services.AddTownProjects();
 
 // AUTH
